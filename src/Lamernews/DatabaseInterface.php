@@ -15,4 +15,16 @@ namespace Lamernews;
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
 interface DatabaseInterface {
+    /**
+     * @return array
+     */
+    public function getTopNews();
+
+    /**
+     * @param array $user
+     * @param string|array $newsIDs
+     * @param boolean $updateRank
+     * @return mixed
+     */
+    public function getNewsByID(Array $user, $newsIDs, $updateRank = false);
 }
