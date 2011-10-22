@@ -86,8 +86,8 @@ class RedisDatabase implements DatabaseInterface {
         if (!$newsIDs) {
             return array();
         }
-        if (is_string($newsIDs)) {
-            $newsIDs = array($newsIDs);
+        if (!is_array($newsIDs)) {
+            $newsIDs = array((string) $newsIDs);
         }
 
         $news = $this->getRedis()->pipeline(function($pipe) {
