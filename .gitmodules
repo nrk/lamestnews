@@ -1,0 +1,6 @@
+[submodule "vendor/predis-serviceprovider"]
+	path = vendor/predis-serviceprovider
+	url = git://github.com/nrk/PredisServiceProvider.git
+[submodule "vendor/predis"]
+	path = vendor/predis
+	url = git://github.com/nrk/predis.git
