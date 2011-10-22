@@ -19,7 +19,8 @@ use Predis\Pipeline\PipelineContext;
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class RedisDatabase implements DatabaseInterface {
+class RedisDatabase implements DatabaseInterface
+{
     private $_redis;
     private $_options;
 

@@ -16,7 +16,8 @@ namespace Lamernews;
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-interface DatabaseInterface {
+interface DatabaseInterface
+{
     /**
      * Gets the list of the current top news items.
      *
