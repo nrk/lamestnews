@@ -15,6 +15,8 @@ use Predis\Client;
 use Predis\Pipeline\PipelineContext;
 
 /**
+ * Main abstractions to access the data of Lamer News stored in Redis.
+ *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
 class RedisDatabase implements DatabaseInterface {
@@ -22,8 +24,10 @@ class RedisDatabase implements DatabaseInterface {
     private $_options;
 
     /**
-     * @param Predis\Client $client
-     * @param array
+     * Initializes the database class.
+     *
+     * @param Client $redis Redis client used to access the database
+     * @param array $options Array of options
      */
     public function __construct(Client $redis, Array $options = array())
     {
@@ -32,19 +36,24 @@ class RedisDatabase implements DatabaseInterface {
     }
 
     /**
+     * Gets the default options to process the data stored in the database.
+     *
      * @return array
      */
     protected function getDefaults()
     {
         return array(
             'password_min_length' => 8,
+
             // comments
             'comment_max_length' => 4096,
             'comment_edit_time' => 3600 * 2,
             'comment_reply_shift' => 30,
+
             // user
             'karma_increment_interval' => 3600 * 3,
             'karma_increment_amount' => 1,
+
             // news and ranking
             'news_age_padding' => 60 * 10,
             'top_news_per_page' => 30,
@@ -153,29 +162,36 @@ class RedisDatabase implements DatabaseInterface {
     }
 
     /**
-     * @param PipelineContext $pipe
-     * @param array $n
+     * Updates the rank of a news item.
+     *
+     * @param PipelineContext $pipe Pipeline used to batch the update operations.
+     * @param array $news Single news item.
      */
-    protected function updateNewsRank(PipelineContext $pipe, Array $n)
+    protected function updateNewsRank(PipelineContext $pipe, Array &$news)
     {
-        $realRank = $this->computeNewsRank($n);
-        if (abs($realRank - (float)$n['rank']) > 0.001) {
-            $pipe->hmset("news:{$n['id']}", 'rank', $realRank);
-            $n["rank"] = (string) $realRank;
+        $realRank = $this->computeNewsRank($news);
+        if (abs($realRank - (float) $news['rank']) > 0.001) {
+            $pipe->hmset("news:{$news['id']}", 'rank', $realRank);
+            $news['rank'] = (string) $realRank;
         }
     }
 
     /**
-     * @param array $news
+     * Computes the rank of a news item.
+     *
+     * @param array $news Single news item.
+     * @return float
      */
     protected function computeNewsRank(Array $news)
     {
-        $age = time() - (int)$news["ctime"] + $this->getOption('news_age_padding');
-        return (((float)$news['score']) * 1000) / ($age * $this->getOption('rank_aging_factor'));
+        $age = time() - (int) $news['ctime'] + $this->getOption('news_age_padding');
+        return (((float) $news['score']) * 1000) / ($age * $this->getOption('rank_aging_factor'));
     }
 
     /**
-     * @param string $option
+     * Gets an option by its name or returns all the options.
+     *
+     * @param string $option Name of the option.
      * @return mixed
      */
     public function getOption($option = null)
@@ -189,7 +205,9 @@ class RedisDatabase implements DatabaseInterface {
     }
 
     /**
-     * @return Predis\Client
+     * Gets the underlying Redis client used to interact with Redis.
+     *
+     * @return Client
      */
     public function getRedis()
     {
