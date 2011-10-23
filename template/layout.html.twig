@@ -18,7 +18,12 @@
                     <a href="/submit">submit</a>
                 </nav>
                 <rnav>
-                    <a href="/login">login / register</a>
+                    {% if app.user %}
+                        <a href="/user/{{ app.user.username | url_encode }}">{{ app.user.username }} ({{ app.user.karma }})</a> |
+                        <a href="/logout?apisecret={{ app.user.apisecret }}">logout</a>
+                    {% else %}
+                        <a href="/login">login / register</a>
+                    {% endif %}
                 </rnav>
             </header>
 
@@ -30,6 +35,12 @@
                 The code for Lamer News (in PHP) is <a href=".">here</a>.<br />
                 You can find the code of the original Ruby implementation <a href="http://github.com/antirez/lamernews">here</a>.
             </footer>
+
+            {% if app.user %}
+            <script type="text/javascript">
+                var apisecret = '{{ app.user.apisecret }}';
+            </script>
+            {% endif %}
         </div>
     </body>
 </html>
