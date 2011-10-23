@@ -141,10 +141,10 @@ interface DatabaseInterface
      * It returns the news rank if the vote was inserted, or false upon failure.
      *
      * @param string $newsID ID of the news being voted.
-     * @param string $userID ID of the voting user.
+     * @param array|string $user Instance or string ID of the voting user.
      * @param string $type 'up' for upvoting a news item.
      *                     'down' for downvoting a news item.
      * @return mixed
      */
-    public function voteNews($newsID, $userID, $type);
+    public function voteNews($newsID, $user, $type);
 }

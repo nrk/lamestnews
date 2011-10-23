@@ -465,14 +465,14 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function voteNews($newsID, $userID, $type)
+    public function voteNews($newsID, $user, $type)
     {
-        if ($type !== 'up' || $type !== 'down') {
+        if ($type !== 'up' && $type !== 'down') {
             return false;
         }
 
-        $user = $this->getUserByID($userID);
-        $news = $this->getNewsByID($newsID);
+        $user = is_array($user) ? $user : $this->getUserByID($user);
+        $news = $this->getNewsByID($user, $newsID);
         if (!$user || !$news) {
             return false;
         }
@@ -480,19 +480,19 @@ class RedisDatabase implements DatabaseInterface
         $redis = $this->getRedis();
 
         // Verify that the user has not already voted the news item.
-        $hasUpvoted = (bool) $redis->zscore("news.up:$newsID", $userID);
-        $hasDownvoted = (bool) $redis->zscore("news.down:$newsID", $userID);
+        $hasUpvoted = $redis->zscore("news.up:$newsID", $user['id']);
+        $hasDownvoted = $redis->zscore("news.down:$newsID", $user['id']);
         if ($hasUpvoted || $hasDownvoted) {
             return false;
         }
 
         $now = time();
         // Add the vote for the news item.
-        if ($redis->zadd("news.$type:$newsID", $now, $userID)) {
+        if ($redis->zadd("news.$type:$newsID", $now, $user['id'])) {
             $redis->hincrby("news:$newsID", $type, 1);
         }
         if ($type === 'up') {
-            $redis->zadd("user.saved:$userID", $now, $newsID);
+            $redis->zadd("user.saved:{$user['id']}", $now, $newsID);
         }
 
         // Compute the new score and karma updating the news accordingly.
