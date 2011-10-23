@@ -62,6 +62,16 @@ interface DatabaseInterface
     public function authenticateUser($authToken);
 
     /**
+     * Increments the user karma when a certain amout of time has passed.
+     *
+     * @param array $user User details.
+     * @param int $increment Amount of the increment.
+     * @param int $interval Interval of time in seconds.
+     * @return boolean
+     */
+    public function incrementUserKarma(Array &$user, $increment, $interval);
+
+    /**
      * Gets the list of the current top news items.
      *
      * @return array

@@ -170,6 +170,27 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function incrementUserKarma(Array &$user, $increment, $interval)
+    {
+        $now = time();
+        if ((int) $user['karma_incr_time'] >= $now - $interval) {
+            return false;
+        }
+
+        $userKey = "user:{$user['id']}";
+        $redis = $this->getRedis();
+
+        $redis->hset($userKey, 'karma_incr_time', $now);
+        $redis->hincrby($userKey, 'karma', $increment);
+
+        $user['karma'] = (int) $user['karma'] + $increment;
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getTopNews()
     {
         $newsIDs = $this->getRedis()
