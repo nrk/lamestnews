@@ -347,6 +347,145 @@ class RedisDatabase implements DatabaseInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function insertNews($title, $url, $text, $userID)
+    {
+        $redis = $this->getRedis();
+
+        // Use a kind of URI using the "text" scheme if now URL has been provided.
+        // TODO: remove duplicated code.
+        $textPost = !$url;
+        if (!$url) {
+            $url = 'text://' . substr($text, 0, $this->getOption('comment_max_length'));
+        }
+
+        // Verify if a news with the same URL has been already submitted.
+        if (!$textPost && ($id = $redis->get("url:$url"))) {
+            return (int) $id;
+        }
+
+        $ctime = time();
+        $newsID = $redis->incr('news.count');
+        $newsDetails = array(
+            'id' => $newsID,
+            'title' => $title,
+            'url' => $url,
+            'user_id' => $userID,
+            'ctime' => $ctime,
+            'score' => 0,
+            'rank' => 0,
+            'up' => 0,
+            'down' => 0,
+            'comments' => 0,
+        );
+        $redis->hmset("news:$newsID", $newsDetails);
+
+        // The posting user virtually upvoted the news posting it.
+        $newsRank = $this->voteNews($newsID, $userID, 'up');
+        // Add the news to the user submitted news.
+        $redis->zadd("user.posted:$userID", $ctime, $newsID);
+        // Add the news into the chronological view.
+        $redis->zadd('news.cron', $ctime, $newsID);
+        //  Add the news into the top view.
+        $redis->zadd('news.top', $newsRank, $newsID)
+
+        if (!$textPost) {
+            // Avoid reposts for a certain amount of time using an expiring key.
+            $redis->setex("url:$url", $this->getOption('prevent_repost_time', $newsID)
+        }
+
+        return $newsID;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function editNews($newsID, $title, $url, $text, $userID)
+    {
+        $news = $this->getNewsByID($newsID);
+
+        if (!$news || $news['user_id'] != $userID) {
+            return false;
+        }
+        if ((int) $news['ctime'] > time() - $this->getOption('news_edit_time')) {
+            return false;
+        }
+
+        // Use a kind of URI using the "text" scheme if now URL has been provided.
+        // TODO: remove duplicated code.
+        $textPost = !$url;
+        if (!$url) {
+            $url = 'text://' . substr($text, 0, $this->getOption('comment_max_length'));
+        }
+
+        $redis = $this->getRedis();
+
+        // The URL for recently posted news cannot be changed.
+        if (!$textPost && $url != $news['url']) {
+            if ($redis->get("url:$url")) {
+                return false;
+            }
+            // Prevent DOS attacks by locking the new URL after it has been changed.
+            $redis->del("url:{$news['url']}");
+            if (!$textPost) {
+                $redis->setex("url:$url", $this->getOption('prevent_repost_time', $newsID));
+            }
+        }
+
+        $redis->hmset("news:$newsID", array(
+            'title' => $title,
+            'url' => $url,
+        ));
+
+        return $newsID;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function voteNews($newsID, $userID, $type)
+    {
+        if ($type !== 'up' || $type !== 'down') {
+            return false;
+        }
+
+        $user = $this->getUserByID($userID);
+        $news = $this->getNewsByID($newsID);
+        if (!$user || !$news) {
+            return false;
+        }
+
+        $redis = $this->getRedis();
+
+        // Verify that the user has not already voted the news item.
+        $hasUpvoted = (bool) $redis->zscore("news.up:$newsID", $userID);
+        $hasDownvoted = (bool) $redis->zscore("news.down:$newsID", $userID);
+        if ($hasUpvoted || $hasDownvoted) {
+            return false;
+        }
+
+        $now = time();
+        // Add the vote for the news item.
+        if ($redis->zadd("news.$type:$newsID", $now, $userID)) {
+            $redis->hincrby("news:$newsID", $type, 1);
+        }
+        if ($type === 'up') {
+            $redis->zadd("user.saved:$userID", $now, $newsID);
+        }
+
+        // Compute the new score and karma updating the news accordingly.
+        $news['score'] = $this->computerNewsScore($news);
+        $rank = $this->computeNewsRank($news);
+        $redis->hmset("news:$newsID", array(
+            'score' => $news['score'],
+            'rank' => $rank,
+        ));
+
+        return $rank;
+    }
+
+    /**
      * Gets an option by its name or returns all the options.
      *
      * @param string $option Name of the option.

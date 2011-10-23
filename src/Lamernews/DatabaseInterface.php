@@ -96,4 +96,46 @@ interface DatabaseInterface
      * @return mixed
      */
     public function getNewsByID(Array $user, $newsIDs, $updateRank = false);
+
+    /**
+     * Adds a new news item.
+     *
+     * @param string $title Title of the news.
+     * @param string $url URL of the news.
+     * @param string $text Text of the news.
+     * @param string $userID User that sumbitted the news.
+     * @return string
+     */
+    public function insertNews($title, $url, $text, $userID);
+
+    /**
+     * Edit an already existing news item.
+     *
+     * @param string $newsID ID of the news item.
+     * @param string $title Title of the news.
+     * @param string $url URL of the news.
+     * @param string $text Text of the news.
+     * @param string $userID User that sumbitted the news.
+     * @return string
+     */
+    public function editNews($newsID, $title, $url, $text, $userID);
+
+    /**
+     * Upvotes or downvotes the specified news item.
+     *
+     * The function ensures that:
+     *   1) The vote is not duplicated.
+     *   2) The karma is decreased for the voting user, accordingly to the vote type.
+     *   3) The karma is transferred to the author of the post, if different.
+     *   4) The news score is updated.
+     *
+     * It returns the news rank if the vote was inserted, or false upon failure.
+     *
+     * @param string $newsID ID of the news being voted.
+     * @param string $userID ID of the voting user.
+     * @param string $type 'up' for upvoting a news item.
+     *                     'down' for downvoting a news item.
+     * @return mixed
+     */
+    public function voteNews($newsID, $userID, $type);
 }
