@@ -252,7 +252,7 @@ class RedisDatabase implements DatabaseInterface
             $newsIDs = array((string) $newsIDs);
         }
 
-        $news = $this->getRedis()->pipeline(function($pipe) {
+        $news = $this->getRedis()->pipeline(function($pipe) use($newsIDs) {
             foreach ($newsIDs as $newsID) {
                 $pipe->hgetall("news:$newsID");
             }
@@ -265,7 +265,7 @@ class RedisDatabase implements DatabaseInterface
         $result = array();
 
         // Get all the news
-        $this->getRedis()->pipeline(function($pipe) use (&$result) {
+        $this->getRedis()->pipeline(function($pipe) use($news, &$result) {
             foreach ($news as $n) {
                 // Adjust rank if too different from the real-time value.
                 $hash = array();
@@ -295,7 +295,7 @@ class RedisDatabase implements DatabaseInterface
         // Load user's vote information if we are in the context of a
         // registered user.
         if (isset($user)) {
-            $votes = $this->getRedis()->pipeline(function($pipe) use ($user) {
+            $votes = $this->getRedis()->pipeline(function($pipe) use ($result, $user) {
                 foreach ($result as $n) {
                     $pipe->zscore("news.up:{$n['id']}", $user['id']);
                     $pipe->zscore("news.down:{$n['id']}", $user['id']);
