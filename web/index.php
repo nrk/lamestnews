@@ -14,6 +14,7 @@ define('__VENDOR__', __DIR__.'/../vendor');
 require __VENDOR__.'/silex/silex.phar';
 
 use Silex\Application as Lamer;
+use Silex\Provider\TwigServiceProvider as TwigProvider;
 use Predis\Silex\PredisServiceProvider as Predilex;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,6 +26,11 @@ $app['autoloader']->registerNamespaces(array(
     'Predis' => __VENDOR__.'/predis/lib',
     'Predis\Silex' => __VENDOR__.'/predis-serviceprovider/lib',
     'Lamernews' => __DIR__.'/../src',
+));
+
+$app->register(new TwigProvider(), array(
+    'twig.class_path' => __VENDOR__.'/twig/lib',
+    'twig.path' => __DIR__.'/../template',
 ));
 
 $app->register(new Predilex(), array(
@@ -54,7 +60,9 @@ $app->before(function(Request $request) use ($app) {
 });
 
 $app->get('/', function(Lamer $app) {
-    return 'Coming soon...';
+    return $app['twig']->render('index.html.twig', array(
+        'title' => 'Coming soon!',
+    ));
 });
 
 $app->get('/latest', function(Lamer $app) {

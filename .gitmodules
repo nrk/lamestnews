@@ -4,3 +4,6 @@
 [submodule "vendor/predis"]
 	path = vendor/predis
 	url = git://github.com/nrk/predis.git
+[submodule "vendor/twig"]
+	path = vendor/twig
+	url = git://github.com/fabpot/Twig.git
