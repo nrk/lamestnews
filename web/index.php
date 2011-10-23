@@ -15,6 +15,7 @@ require __VENDOR__.'/silex/silex.phar';
 
 use Silex\Application as Lamer;
 use Predis\Silex\PredisServiceProvider as Predilex;
+use Symfony\Component\HttpFoundation\Request;
 
 $app = new Lamer();
 
@@ -38,6 +39,19 @@ $app['db'] = $app->share(function(Lamer $app) {
 });
 
 // ************************************************************************** //
+
+$app->before(function(Request $request) use ($app) {
+    $authToken = $request->cookies->get('auth');
+    $user = $app['db']->authenticateUser($authToken);
+
+    if ($user) {
+        $karmaIncrement = $app['db']->getOption('karma_increment_amount');
+        $karmaInterval = $app['db']->getOption('karma_increment_interval');
+        $db->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
+
+        $app['user'] = $app->share(function() use($user) { return $user; });
+    }
+});
 
 $app->get('/', function(Lamer $app) {
     return 'Coming soon...';
