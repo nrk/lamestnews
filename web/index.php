@@ -71,7 +71,10 @@ $app->get('/', function(Lamer $app) {
 });
 
 $app->get('/latest', function(Lamer $app) {
-    // ...
+    return $app['twig']->render('newslist.html.twig', array(
+        'title' => 'Latest news',
+        'newslist' => $app['db']->getLatestNews($app['user']),
+    ));
 });
 
 $app->get('/login', function(Lamer $app) {
