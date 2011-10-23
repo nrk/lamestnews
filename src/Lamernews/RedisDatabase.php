@@ -60,7 +60,8 @@ class RedisDatabase implements DatabaseInterface
             'top_news_per_page' => 30,
             'latest_news_per_page' => 100,
             'news_edit_time' => 60 * 15,
-            'news_score_log_booster' => 5,
+            'news_score_log_start' => 10,
+            'news_score_log_booster' => 2,
             'rank_aging_factor' => 1,
             'prevent_repost_time' => 3600 * 48,
         );
@@ -349,7 +350,11 @@ class RedisDatabase implements DatabaseInterface
         // something with 5 up and 5 down is less interesting than something
         // with 50 up and 50 down.
         $score = count($upvotes) / 2 - count($downvotes) / 2;
-        $score += log(count($upvotes) / 2 + count($downvotes) / 2) * $this->getOption('news_score_log_booster');
+        $votes = count($upvotes) / 2 + count($downvotes) / 2;
+
+        if ($votes > ($logStart = $this->getOption('news_score_log_start'))) {
+            $score += log($votes - $logStart) * $this->getOption('news_score_log_booster');
+        }
 
         return $score;
     }
