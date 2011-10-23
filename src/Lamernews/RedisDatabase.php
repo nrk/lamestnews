@@ -268,16 +268,10 @@ class RedisDatabase implements DatabaseInterface
         $this->getRedis()->pipeline(function($pipe) use($news, &$result) {
             foreach ($news as $n) {
                 // Adjust rank if too different from the real-time value.
-                $hash = array();
-                foreach (array_chunk($n, 2) as $k => $v) {
-                    $hash[$k] = $v;
-                }
-
                 if ($updateRank) {
-                    $this->updateNewsRank($pipe, $hash);
+                    $this->updateNewsRank($pipe, $n);
                 }
-
-                $result[] = $hash;
+                $result[] = $n;
             }
         });
 
