@@ -70,7 +70,9 @@ $app->get('/latest', function(Lamer $app) {
 });
 
 $app->get('/login', function(Lamer $app) {
-    // ...
+    return $app['twig']->render('login.html.twig', array(
+        'title' => 'Login',
+    ));
 });
 
 $app->get('/logout', function(Lamer $app) {
@@ -104,16 +106,60 @@ $app->get('/user/{username}', function(Lamer $app, $username) {
 // ************************************************************************** //
 
 
-$app->get('/api/login', function(Lamer $app) {
-    // ...
+$app->get('/api/login', function(Lamer $app, Request $request) {
+    $username = $request->get('username');
+    $password = $request->get('password');
+
+    @list($auth, $apisecret) = $app['db']->verifyUserCredentials($username, $password);
+
+    if (!isset($auth)) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'No match for the specified username / password pair.',
+        ));
+    }
+
+    return json_encode(array(
+        'status' => 'ok',
+        'auth' => $auth,
+        'apisecret' => $apisecret,
+    ));
 });
 
 $app->post('/api/logout', function(Lamer $app) {
     // ...
 });
 
-$app->post('/api/create_account', function(Lamer $app) {
-    // ...
+$app->post('/api/create_account', function(Lamer $app, Request $request) {
+    $username = $request->get('username');
+    $password = $request->get('password');
+
+    if (!isset($username, $password)) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Username and password are two required fields.',
+        ));
+    }
+
+    if (strlen($password) < ($minPwdLen = $app['db']->getOption('password_min_length'))) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => "Password is too short. Min length: $minPwdLen",
+        ));
+    }
+
+    $authToken = $app['db']->createUser($username, $password);
+    if (!$authToken) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Username is busy. Please select a different one.',
+        ));
+    }
+
+    return json_encode(array(
+        'status' => 'ok',
+        'auth' => $authToken,
+    ));
 });
 
 $app->post('/api/submit', function(Lamer $app) {

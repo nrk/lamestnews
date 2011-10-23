@@ -1,0 +1,26 @@
+{% extends 'layout.html.twig' %}
+
+{% block content %}
+
+<login>
+    <form name="f">
+        <label for="username">username</label>
+        <input type="text" name="username">
+
+        <label for="password">password</label>
+        <input type="password" name="password"/><br/>
+
+        <input value="1" type="checkbox" name="register"/>create account<br/>
+        <input value="Log in" type="button" name="do_login"/>
+    </form>
+</login>
+
+<div id="errormsg"></div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("input[name=do_login]").click(login);
+    });
+</script>
+
+{% endblock %}
