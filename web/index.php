@@ -112,7 +112,6 @@ $app->get('/user/{username}', function(Lamer $app, $username) {
 
 // ************************************************************************** //
 
-
 $app->get('/api/login', function(Lamer $app, Request $request) {
     $username = $request->get('username');
     $password = $request->get('password');
