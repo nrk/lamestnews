@@ -53,7 +53,7 @@ $app->before(function(Request $request) use ($app) {
     if ($user) {
         $karmaIncrement = $app['db']->getOption('karma_increment_amount');
         $karmaInterval = $app['db']->getOption('karma_increment_interval');
-        $db->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
+        $app['db']->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
 
         $app['user'] = $app->share(function() use($user) { return $user; });
     }
