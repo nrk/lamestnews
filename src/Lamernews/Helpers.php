@@ -71,4 +71,57 @@ class Helpers
         return bin2hex(substr($derivedKey, 0, $keyLength));
     }
 
+    /**
+     * Returns the host part from the URL of a news item, if present.
+     *
+     * @param array $news News item details.
+     * @return string
+     */
+    public static function getNewsDomain(Array $news)
+    {
+        if (strpos($news['url'], 'text://') === 0) {
+            return;
+        }
+        return parse_url($news['url'], PHP_URL_HOST);
+    }
+
+    /**
+     * Returns the text excerpt from a text:// URL of a news item.
+     *
+     * @param array $news News item details.
+     * @return string
+     */
+    public static function getNewsText(Array $news)
+    {
+        if (strpos($news['url'], 'text://') !== 0) {
+            return;
+        }
+        return substr($news['url'], strlen('text://'));
+    }
+
+    /**
+     * Returns a formatted string representing the time elapsed from the
+     * specified UNIX time.
+     *
+     * @param int $time Time in seconds.
+     * @return string
+     */
+    public static function timeElapsed($time)
+    {
+        if (($elapsed = time() - $time) <= 10) {
+            return 'now';
+        }
+
+        if ($elapsed < 60) {
+            return sprintf("%d %s ago", $elapsed, 'seconds');
+        }
+        if ($elapsed < 60 * 60) {
+            return sprintf("%d %s ago", $elapsed / 60, 'minutes');
+        }
+        if ($elapsed < 60 * 60 * 24) {
+            return sprintf("%d %s ago", $elapsed / 60 / 60, 'hours');
+        }
+
+        return sprintf("%d %s ago", $elapsed / 60 / 60 / 24, 'days');
+    }
 }
