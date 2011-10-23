@@ -252,55 +252,57 @@ class RedisDatabase implements DatabaseInterface
             $newsIDs = array((string) $newsIDs);
         }
 
-        $news = $this->getRedis()->pipeline(function($pipe) use($newsIDs) {
+        $redis = $this->getRedis();
+
+        $newslist = $redis->pipeline(function($pipe) use($newsIDs) {
             foreach ($newsIDs as $newsID) {
                 $pipe->hgetall("news:$newsID");
             }
         });
 
-        if (!$news) {
+        if (!$newslist) {
             return array();
         }
 
         $result = array();
 
         // Get all the news
-        $this->getRedis()->pipeline(function($pipe) use($news, &$result) {
-            foreach ($news as $n) {
+        $redis->pipeline(function($pipe) use($newslist, &$result) {
+            foreach ($newslist as $news) {
                 // Adjust rank if too different from the real-time value.
                 if ($updateRank) {
-                    $this->updateNewsRank($pipe, $n);
+                    $this->updateNewsRank($pipe, $news);
                 }
-                $result[] = $n;
+                $result[] = $news;
             }
         });
 
         // Get the associated users information.
-        $usernames = $this->getRedis()->pipeline(function($pipe) use($result) {
-            foreach ($result as $n) {
-                $pipe->hget("user:{$n['user_id']}", 'username');
+        $usernames = $redis->pipeline(function($pipe) use($result) {
+            foreach ($result as $news) {
+                $pipe->hget("user:{$news['user_id']}", 'username');
             }
         });
 
-        foreach ($result as $i => &$n) {
-            $n['username'] = $usernames[$i];
+        foreach ($result as $i => &$news) {
+            $news['username'] = $usernames[$i];
         }
 
         // Load user's vote information if we are in the context of a
         // registered user.
         if (isset($user)) {
-            $votes = $this->getRedis()->pipeline(function($pipe) use ($result, $user) {
-                foreach ($result as $n) {
+            $votes = $redis->pipeline(function($pipe) use ($result, $user) {
+                foreach ($result as $news) {
                     $pipe->zscore("news.up:{$n['id']}", $user['id']);
                     $pipe->zscore("news.down:{$n['id']}", $user['id']);
                 }
             });
-            foreach ($result as $i => &$n) {
+            foreach ($result as $i => &$news) {
                 if ($votes[$i * 2]) {
-                    $n["voted"] = 'up';
+                    $news["voted"] = 'up';
                 }
                 else if ($votes[$i * 2 + 1]) {
-                    $n["voted"] = 'down';
+                    $news["voted"] = 'down';
                 }
             }
         }
