@@ -247,8 +247,40 @@ $app->post('/api/submit', function(Lamer $app, Request $request) {
     ));
 });
 
-$app->post('/api/votenews', function(Lamer $app) {
-    // ...
+$app->post('/api/votenews', function(Lamer $app, Request $request) {
+    if (!$app['user']) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Not authenticated.',
+        ));
+    }
+
+    $apisecret = $request->get('apisecret');
+    if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Wrong form secret.',
+        ));
+    }
+
+    $newsID = $request->get('news_id');
+    $voteType = $request->get('vote_type');
+
+    if (!strlen($newsID) || ($voteType !== 'up' && $voteType !== 'down')) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Missing news ID or invalid vote type.',
+        ));
+    }
+
+    if ($app['db']->voteNews($newsID, $app['user'], $voteType) === false) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Invalid parameters or duplicated vote.',
+        ));
+    }
+
+    return json_encode(array('status' => 'ok'));
 });
 
 $app->post('/api/postcomment', function(Lamer $app) {
