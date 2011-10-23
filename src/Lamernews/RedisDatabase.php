@@ -108,7 +108,7 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getUserByID($userID)
     {
-        return $this->getRedis()->get("user:$userID");
+        return $this->getRedis()->hgetall("user:$userID");
     }
 
     /**
