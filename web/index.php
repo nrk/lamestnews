@@ -83,7 +83,7 @@ $app->get('/logout', function(Lamer $app, Request $request) {
         $app['db']->updateAuthToken($app['user']['id']);
     }
 
-     $app->redirect('/');
+     return $app->redirect('/');
 });
 
 $app->get('/submit', function(Lamer $app) {
