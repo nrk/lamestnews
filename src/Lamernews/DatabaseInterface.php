@@ -19,6 +19,49 @@ namespace Lamernews;
 interface DatabaseInterface
 {
     /**
+     * Creates a new user and returns a new autorization token.
+     *
+     * @param $username Username for the new user.
+     * @param $password Password for the new user.
+     * @return string
+     */
+    public function createUser($username, $password);
+
+    /**
+     * Fetches user details using the given user ID.
+     *
+     * @param string $userID ID of a registered user.
+     * @return array
+     */
+    public function getUserByID($userID);
+
+    /**
+     * Fetches user details using the given username.
+     *
+     * @param string $username Username of a registered user.
+     * @return array
+     */
+    public function getUserByUsername($username);
+
+    /**
+     * Verifies if the username / password pair identifies a user and
+     * returns its authorization token and form secret.
+     *
+     * @param $username Username of a registered user.
+     * @param $password Password of a registered user.
+     * @return array
+     */
+    public function verifyUserCredentials($username, $password);
+
+    /**
+     * Returns the data for a logged in user.
+     *
+     * @param string $authToken Token used for user authentication.
+     * @return array
+     */
+    public function authenticateUser($authToken);
+
+    /**
      * Gets the list of the current top news items.
      *
      * @return array

@@ -69,6 +69,107 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function createUser($username, $password)
+    {
+        $redis = $this->getRedis();
+
+        if ($redis->exists("username.to.id:".strtolower($username))) {
+            return;
+        }
+
+        $userID = $redis->incr('users.count');
+        $authToken = Helpers::generateRandom();
+        $salt = Helpers::generateRandom();
+
+        $userDetails = array(
+            'id' => $userID,
+            'username' => $username,
+            'salt' => $salt,
+            'password' => Helpers::pbkdf2($password, $user['salt']),
+            'ctime' => time(),
+            'karma' => 10,
+            'about' => '',
+            'email' => '',
+            'auth' => $authToken,
+            'apisecret' => Helpers::generateRandom(),
+            'flags' => '',
+            'karma_incr_time' => time(),
+        );
+
+        $redis->hmset("user:$userID", $userDetails);
+        $redis->set("username.to.id:".strtolower($username), $userID);
+        $redis->set("auth:$authToken", $userID);
+
+        return $authToken;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserByID($userID)
+    {
+        return $this->getRedis()->("user:$userID");
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserByUsername($username)
+    {
+        $userID = $this->getRedis()->get('username.to.id:'.strtolower($username));
+        if (!$userID) {
+            return;
+        }
+
+        return $this->getUserByID($userID);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function verifyUserCredentials($username, $password)
+    {
+        $user = $this->getUserByUsername($username);
+        if (!$user) {
+            return;
+        }
+
+        $hashedPassword = Helpers::pbkdf2($password, $user['salt']);
+        if ($user['password'] !== $hashedPassword) {
+            return;
+        }
+
+        return array(
+            $user['auth'],
+            $user['apisecret'],
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function authenticateUser($authToken)
+    {
+        if (!$authToken) {
+            return;
+        }
+
+        $userID = $this->getRedis()->get("auth:$authToken");
+        if (!$userID) {
+            return;
+        }
+
+        $user = $this->getRedis()->hgetall("user:$userID");
+        if (!$user) {
+            return;
+        }
+
+        return $user;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getTopNews()
     {
         $newsIDs = $this->getRedis()
