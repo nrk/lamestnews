@@ -191,7 +191,7 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function getTopNews()
+    public function getTopNews(Array $user = null)
     {
         $newsIDs = $this->getRedis()
                         ->zrevrange('news.top', 0, $this->getOption(top_news_per_page) - 1);
@@ -200,7 +200,7 @@ class RedisDatabase implements DatabaseInterface
             return array();
         }
 
-        $result = $this->getNewsByID($newsIDs, true);
+        $result = $this->getNewsByID($user, $newsIDs, true);
 
         // Sort by rank before returning, since we adjusted ranks during iteration.
         usort($result, function($a, $b) {
@@ -208,6 +208,15 @@ class RedisDatabase implements DatabaseInterface
         });
 
         return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLatestNews(Array $user = null)
+    {
+        $newsIDs = $this->getRedis()->zrevrange('news.cron', 0, $this->getOption() - 1)
+        return $this->getNewsByID($user, $newsIDs, true);
     }
 
     /**
@@ -297,6 +306,32 @@ class RedisDatabase implements DatabaseInterface
             $pipe->hmset("news:{$news['id']}", 'rank', $realRank);
             $news['rank'] = (string) $realRank;
         }
+    }
+
+    /**
+     * Compute the score for a news item.
+     *
+     * @param array $news News item.
+     * @return float
+     */
+    protected function computerNewsScore(Array $news)
+    {
+        $redis = $this->getRedis();
+
+        // TODO: For now we are doing a naive sum of votes, without time-based
+        // filtering, nor IP filtering. We could use just ZCARD here of course,
+        // but ZRANGE already returns everything needed for vote analysis once
+        // implemented.
+        $upvotes = $redis->zrange("news.up:{$news['id']}", 0, -1, 'withscores');
+        $downvotes = $redis->zrange("news.down:{$news['id']}", 0, -1, 'withscores');
+
+        // Now let's add the logarithm of the sum of all the votes, since
+        // something with 5 up and 5 down is less interesting than something
+        // with 50 up and 50 down.
+        $score = count($upvotes) / 2 - count($downvotes) / 2;
+        $score += log(count($upvotes) / 2 + count($downvotes) / 2) * $this->getOption('news_score_log_booster');
+
+        return $score;
     }
 
     /**

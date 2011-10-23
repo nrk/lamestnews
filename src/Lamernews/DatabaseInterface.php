@@ -74,9 +74,18 @@ interface DatabaseInterface
     /**
      * Gets the list of the current top news items.
      *
+     * @param array $user Current user.
      * @return array
      */
-    public function getTopNews();
+    public function getTopNews(Array $user = null);
+
+    /**
+     * Gets the list of the latest news in chronological order.
+     *
+     * @param array $user Current user.
+     * @return array
+     */
+    public function getLatestNews(Array $user = null);
 
     /**
      * Retrieves one or more news items using their IDs.
