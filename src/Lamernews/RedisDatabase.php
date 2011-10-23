@@ -170,6 +170,26 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function updateAuthToken($userID)
+    {
+        $user = $this->getUserByID($userID);
+        if (!$user) {
+            return;
+        }
+
+        $redis = $this->getRedis();
+        $redis->del("auth:{$user['auth']}");
+
+        $newAuthToken = Helpers::generateRandom();
+        $redis->hmset("user:$userID","auth", $newAuthToken);
+        $redis->set("auth:$newAuthToken", $userID);
+
+        return $newAuthToken;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function incrementUserKarma(Array &$user, $increment, $interval)
     {
         $now = time();

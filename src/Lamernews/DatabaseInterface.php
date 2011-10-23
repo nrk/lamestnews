@@ -54,6 +54,15 @@ interface DatabaseInterface
     public function verifyUserCredentials($username, $password);
 
     /**
+     * Updates the authentication token for the specified users with a new one,
+     * effectively invalidating the current sessions for that user.
+     *
+     * @param string $userID ID of a registered user.
+     * @return string
+     */
+    public function updateAuthToken($userID);
+
+    /**
      * Returns the data for a logged in user.
      *
      * @param string $authToken Token used for user authentication.

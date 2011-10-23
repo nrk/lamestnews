@@ -13,6 +13,7 @@ define('__VENDOR__', __DIR__.'/../vendor');
 
 require __VENDOR__.'/silex/silex.phar';
 
+use Lamernews\Helpers;
 use Silex\Application as Lamer;
 use Silex\Provider\TwigServiceProvider as TwigProvider;
 use Predis\Silex\PredisServiceProvider as Predilex;
@@ -54,9 +55,9 @@ $app->before(function(Request $request) use ($app) {
         $karmaIncrement = $app['db']->getOption('karma_increment_amount');
         $karmaInterval = $app['db']->getOption('karma_increment_interval');
         $app['db']->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
-
-        $app['user'] = $app->share(function() use($user) { return $user; });
     }
+
+    $app['user'] = $app->share(function() use($user) { return $user; });
 });
 
 $app->get('/', function(Lamer $app) {
@@ -75,8 +76,14 @@ $app->get('/login', function(Lamer $app) {
     ));
 });
 
-$app->get('/logout', function(Lamer $app) {
-    // ...
+$app->get('/logout', function(Lamer $app, Request $request) {
+    $apisecret = $request->get('apisecret');
+
+    if (isset($app['user']) && Helpers::verifyApiSecret($app['user'], $apisecret)) {
+        $app['db']->updateAuthToken($app['user']['id']);
+    }
+
+     $app->redirect('/');
 });
 
 $app->get('/submit', function(Lamer $app) {
@@ -126,8 +133,19 @@ $app->get('/api/login', function(Lamer $app, Request $request) {
     ));
 });
 
-$app->post('/api/logout', function(Lamer $app) {
-    // ...
+$app->post('/api/logout', function(Lamer $app, Request $request) {
+    $apisecret = $request->get('apisecret');
+
+    if (!isset($app['user']) || !Helpers::verifyApiSecret($app['user'], $apisecret)) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Wrong auth credentials or API secret.',
+        ));
+    }
+
+    $app['db']->updateAuthToken($app['user']['id']);
+
+    return json_encode(array('status' => 'ok'));
 });
 
 $app->post('/api/create_account', function(Lamer $app, Request $request) {

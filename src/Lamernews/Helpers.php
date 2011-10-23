@@ -72,6 +72,21 @@ class Helpers
     }
 
     /**
+     * Verifies the validity of a request by comparing the passed api secret
+     * key with the one stored for the specified user.
+     *
+     * @param array $user Logged-in user details.
+     * @param string $apisecret Token.
+     */
+    public static function verifyApiSecret(Array $user, $apisecret)
+    {
+        if (!isset($user) || !isset($user['apisecret'])) {
+            return false;
+        }
+        return $user['apisecret'] === $apisecret;
+    }
+
+    /**
      * Returns the host part from the URL of a news item, if present.
      *
      * @param array $news News item details.
