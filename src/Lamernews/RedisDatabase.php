@@ -85,7 +85,7 @@ class RedisDatabase implements DatabaseInterface
             'id' => $userID,
             'username' => $username,
             'salt' => $salt,
-            'password' => Helpers::pbkdf2($password, $user['salt']),
+            'password' => Helpers::pbkdf2($password, $salt),
             'ctime' => time(),
             'karma' => 10,
             'about' => '',
