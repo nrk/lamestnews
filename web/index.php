@@ -87,7 +87,9 @@ $app->get('/logout', function(Lamer $app, Request $request) {
 });
 
 $app->get('/submit', function(Lamer $app) {
-    // ...
+    return $app['twig']->render('submit_news.html.twig', array(
+        'title' => 'Submit a new story',
+    ));
 });
 
 $app->get('/news/{newsID}', function(Lamer $app, $newsID) {
@@ -179,8 +181,63 @@ $app->post('/api/create_account', function(Lamer $app, Request $request) {
     ));
 });
 
-$app->post('/api/submit', function(Lamer $app) {
-    // ...
+$app->post('/api/submit', function(Lamer $app, Request $request) {
+    if (!$app['user']) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Not authenticated.',
+        ));
+    }
+
+    $apisecret = $request->get('apisecret');
+    if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Wrong form secret.',
+        ));
+    }
+
+    $newsID = $request->get('news_id');
+    $title = $request->get('title');
+    $url = $request->get('url');
+    $text = $request->get('text');
+
+    // We can have an empty url or an empty first comment, but not both.
+    if (!strlen($newsID) || !strlen($title) || (!strlen($url) && !strlen($text))) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Please specify a news title and address or text.',
+        ));
+    }
+
+    // Make sure the news has an accepted URI scheme (only http or https for now).
+    if (isset($url)) {
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if ($scheme !== 'http' && $scheme !== 'https') {
+            return json_encode(array(
+                'status' => 'err',
+                'error' => 'We only accept http:// and https:// news.',
+            ));
+        }
+    }
+
+    if ($newsID == -1) {
+        $newsID = $app['db']->insertNews($title, $url, $text, $app['user']['id']);
+    }
+    else {
+        $newsID = $app['db']->editNews($newsID, $title, $url, $text, $app['user']['id']);
+        if (!$newsID) {
+            return json_encode(array(
+                'status' => 'err',
+                'error' => 'Invalid parameters, news too old to be modified or URL recently posted',
+            ));
+        }
+    }
+
+    return json_encode(array(
+        'status' => 'ok',
+        'news_id' => $newsID,
+    ));
 });
 
 $app->post('/api/votenews', function(Lamer $app) {

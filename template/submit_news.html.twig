@@ -1,0 +1,33 @@
+{% extends 'layout.html.twig' %}
+
+{% block content %}
+
+<h2>Submit a new story</h2>
+
+<submitform>
+    <form name="f">
+        <input value="-1" type="hidden" name="news_id">
+
+        <label for="title">title</label>
+        <input type="text" size="80" name="title"><br>
+
+        <label for="url">url</label><br/>
+        <input type="text" size="60" name="url"><br>
+
+        or if you don't have an url type some text<br>
+        <label for="text">text</label>
+        <textarea cols="60" name="text" rows="10"></textarea>
+
+        <input value="Submit" type="button" name="do_submit">
+    </form>
+</submitform>
+
+<div id="errormsg"></div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("input[name=do_submit]").click(submit);
+    });
+</script>
+
+{% endblock %}
