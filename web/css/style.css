@@ -1,0 +1,235 @@
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { margin: 0; padding: 0; border: 0; outline: 0; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: inherit; vertical-align: baseline; }
+
+body {
+    font-family: "Helvetica Neue";
+    text-rendering: optimizeLegibility;
+}
+
+a {
+    text-decoration:none;
+    color:#666;
+}
+
+h2 {
+    margin-bottom:20px;
+    font-size:22px;
+    color:#333;
+}
+
+header {
+    display:block;
+    position:relative;
+    padding: 15px 0px 0px 15px;
+    background-color:#eee;
+    border-bottom: 1px #ccc solid;
+}
+
+header h1 {
+    display: inline;
+    font-size:1.3em;
+    font-weight:bold;
+    color:#333;
+}
+
+content {
+    display:block;
+    margin-top:20px;
+    margin-bottom:20px;
+    padding: 15px;
+}
+
+footer {
+    display:block;
+    border-top: 1px #ccc solid;
+    text-align: center;
+    color:#999;
+    font-size:14px;
+    margin-bottom:30px;
+}
+
+nav {
+    margin-bottom:15px;
+    display: inline;
+}
+
+nav a {
+    margin-left: 20px;
+}
+
+rnav {
+    color:#aaa;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-weight:bold;
+    font-size:14px;
+}
+
+rnav a {
+    margin-left:10px;
+    margin-right:10px;
+}
+
+login,submitform {
+    display:block;
+    position:relative;
+    width:150px;
+}
+
+login label, submitform label {
+    font-size:12px;
+    font-weight:bold;
+}
+
+div #errormsg {
+    width:400px;
+    color:#ff9999;
+    font-weight:bold;
+    margin-top: 15px;
+}
+
+news {
+    display: block;
+    font-size: 16px;
+    margin-bottom:15px;
+}
+
+news h2 {
+    display: inline;
+    font-size:20px;
+}
+
+news address {
+    display: inline;
+    color: #999;
+    font-size:14px;
+}
+
+news h2 a {
+    color: black;
+}
+
+news h2 a:visited {
+    color: #999999;
+}
+
+news uparrow, news downarrow {
+    font-size: 16px;
+    cursor: pointer;
+}
+
+news uparrow {
+    color:#999;
+}
+
+news downarrow {
+    color:#ccc;
+}
+
+news p {
+    font-size:14px;
+    color:#999;
+    margin-left:20px;
+}
+
+news p a {
+    color: #666;
+}
+
+news uparrow.voted {
+    color:#99dd99;
+}
+
+news downarrow.voted {
+    color:#dd9999;
+}
+
+news downarrow.disabled, uparrow.disabled {
+    visibility: hidden;
+}
+
+form textarea {
+    font-family: Courier;
+    font-size:14px;
+}
+
+comment {
+    position:relative;
+    width:500px;
+    display:block;
+    margin-bottom:40px;
+    min-height:50px;
+}
+
+comment avatar img {
+    position:absolute;
+    top:0px;
+    left:0px;
+    width:48px;
+    height:48px;
+}
+
+comment info {
+    position:relative;
+    left:60px;
+    font-size:14px;
+    color:#999;
+}
+
+comment info a.reply {
+    text-decoration:underline;
+    padding-left:5px;
+}
+
+comment pre {
+    width:50em;
+    position:relative;
+    left:60px;
+    top:10px;
+    font-family: Courier;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+note {
+    color: #666;
+    margin-left:20px;
+    font-size:14px;
+}
+
+comment.deleted {
+    color: #999;
+}
+
+topcomment {
+    display:block;
+    margin:20px;
+}
+
+userinfo ul li {
+    list-style-type: none;
+    margin-bottom:10px;
+}
+
+userinfo p {
+    color: #666;
+    font-style: italic;
+    margin:20px;
+}
+
+userinfo avatar img {
+    width:48px;
+    height:48px;
+}
+
+userinfo h2 {
+    position:relative;
+    left:15px;
+    top:-15px;
+    display:inline;
+    font-size:28px;
+    color: #444;
+}

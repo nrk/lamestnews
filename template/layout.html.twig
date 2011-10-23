@@ -2,8 +2,32 @@
 <html lang="en">
     <head>
         <title>{{ title }} - Lamer News</title>
+        <meta charset="utf8">
+        <link type="text/css" href="/css/style.css" rel="stylesheet">
+        <link href="/images/favicon.png" rel="shortcut icon">
     </head>
     <body>
-        <div id="content">{% block content %}{% endblock %}</div>
+        <div id="container">
+            <header>
+                <h1>Lamer News</h1>
+                <nav>
+                    <a href="/">top</a>
+                    <a href="/latest">latest</a>
+                    <a href="/submit">submit</a>
+                </nav>
+                <rnav>
+                    <a href="/login">login / register</a>
+                </rnav>
+            </header>
+
+            <content>
+            {% block content %}{% endblock %}
+            </content>
+
+            <footer>
+                The code for Lamer News (in PHP) is <a href=".">here</a>.<br />
+                You can find the code of the original Ruby implementation <a href="http://github.com/antirez/lamernews">here</a>.
+            </footer>
+        </div>
     </body>
 </html>
