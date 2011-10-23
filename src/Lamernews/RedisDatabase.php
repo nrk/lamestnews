@@ -15,7 +15,7 @@ use Predis\Client;
 use Predis\Pipeline\PipelineContext;
 
 /**
- * Main abstractions to access the data of Lamer News stored in Redis.
+ * Main abstraction to access the data of Lamer News stored in Redis.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
@@ -108,7 +108,7 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getUserByID($userID)
     {
-        return $this->getRedis()->("user:$userID");
+        return $this->getRedis()->get("user:$userID");
     }
 
     /**
@@ -200,7 +200,7 @@ class RedisDatabase implements DatabaseInterface
             return array();
         }
 
-        $result = $this->getNewsByID($user, $newsIDs, true);
+        $result = $this->getNewsByID($user ?: array(), $newsIDs, true);
 
         // Sort by rank before returning, since we adjusted ranks during iteration.
         usort($result, function($a, $b) {
@@ -215,8 +215,8 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getLatestNews(Array $user = null)
     {
-        $newsIDs = $this->getRedis()->zrevrange('news.cron', 0, $this->getOption() - 1)
-        return $this->getNewsByID($user, $newsIDs, true);
+        $newsIDs = $this->getRedis()->zrevrange('news.cron', 0, $this->getOption('latest_news_per_page') - 1);
+        return $this->getNewsByID($user ?: array(), $newsIDs, true);
     }
 
     /**
@@ -388,11 +388,11 @@ class RedisDatabase implements DatabaseInterface
         // Add the news into the chronological view.
         $redis->zadd('news.cron', $ctime, $newsID);
         //  Add the news into the top view.
-        $redis->zadd('news.top', $newsRank, $newsID)
+        $redis->zadd('news.top', $newsRank, $newsID);
 
         if (!$textPost) {
             // Avoid reposts for a certain amount of time using an expiring key.
-            $redis->setex("url:$url", $this->getOption('prevent_repost_time', $newsID)
+            $redis->setex("url:$url", $this->getOption('prevent_repost_time'), $newsID);
         }
 
         return $newsID;
