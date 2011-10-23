@@ -2,6 +2,27 @@
 
 {% block content %}
 
-<h2>Coming soon!</h2>
+<h2>Top news</h2>
+
+<newslist>
+    {% for news in newslist %}
+        <news id="{{ news.id }}">
+            <uparrow>&#9650;</uparrow>
+            <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
+            <address>
+            {% if news | news_domain %}
+                at {{ news | news_domain }}
+            {% endif %}
+            </address>
+            <downarrow>&#9660;</downarrow>
+            <p>
+                {{ news.up }} up and {{ news.down }} down, posted by
+                <username><a href="/user/{{ news.user_id }}">{{ news.username }}</a></username>
+                {{ news.ctime | time_elapsed }}
+                <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
+            </p>
+        </news>
+    {% endfor %}
+</newslist>
 
 {% endblock %}

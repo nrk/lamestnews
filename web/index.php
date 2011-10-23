@@ -41,6 +41,9 @@ $app->register(new Predilex(), array(
     ),
 ));
 
+$app['twig']->addFilter('news_domain', new Twig_Filter_Function('Lamernews\Helpers::getNewsDomain'));
+$app['twig']->addFilter('time_elapsed', new Twig_Filter_Function('Lamernews\Helpers::timeElapsed'));
+
 $app['db'] = $app->share(function(Lamer $app) {
     return new Lamernews\RedisDatabase($app['predis']);
 });
@@ -62,7 +65,8 @@ $app->before(function(Request $request) use ($app) {
 
 $app->get('/', function(Lamer $app) {
     return $app['twig']->render('index.html.twig', array(
-        'title' => 'Coming soon!',
+        'title' => 'Top news',
+        'newslist' => $app['db']->getTopNews($app['user']),
     ));
 });
 
