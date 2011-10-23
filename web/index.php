@@ -64,7 +64,7 @@ $app->before(function(Request $request) use ($app) {
 });
 
 $app->get('/', function(Lamer $app) {
-    return $app['twig']->render('index.html.twig', array(
+    return $app['twig']->render('newslist.html.twig', array(
         'title' => 'Top news',
         'newslist' => $app['db']->getTopNews($app['user']),
     ));
