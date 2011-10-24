@@ -17,7 +17,7 @@
             <downarrow>&#9660;</downarrow>
             <p>
                 {{ news.up }} up and {{ news.down }} down, posted by
-                <username><a href="/user/{{ news.user_id }}">{{ news.username }}</a></username>
+                <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
                 {{ news.ctime | time_elapsed }}
                 <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
             </p>
