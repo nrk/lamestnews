@@ -1,0 +1,56 @@
+{% extends 'layout.html.twig' %}
+
+{% block content %}
+
+<news id="{{ news.id }}">
+    <uparrow>&#9650;</uparrow>
+
+    {% if news | news_domain %}
+        <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
+        <address>at {{ news | news_domain }}</address>
+    {% else %}
+        <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
+    {% endif %}
+
+    <downarrow>&#9660;</downarrow>
+
+    <p>
+        {{ news.up }} up and {{ news.down }} down,
+        posted by <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
+        {{ news.ctime | time_elapsed}}
+        <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
+    </p>
+</news>
+
+{% if not news | news_domain %}
+    <topcomment>
+        <comment style="margin-left:0px" id="102-">
+            <avatar><img src="http://gravatar.com/avatar/{{ user.email | md5 }}?s=48&d=mm"></avatar>
+            <info>
+                <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
+                {{ news.ctime | time_elapsed }} hours ago.
+            </info>
+            <pre>{{ news | news_text }}</pre>
+        </comment>
+    </topcomment>
+{% endif %}
+
+{% if app.user %}
+    <form name="f">
+        <input value="{{ news.id }}" type="hidden" name="news_id">
+        <input value="-1" type="hidden" name="comment_id">
+        <input value="-1" type="hidden" name="parent_id">
+        <textarea cols="60" name="comment" rows="10"></textarea><br>
+        <input value="Send comment" type="button" name="post_comment">
+    </form>
+
+    <div id="errormsg"></div>
+{% endif %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("input[name=post_comment]").click(post_comment);
+    });
+</script>
+
+{% endblock %}

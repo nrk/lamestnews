@@ -43,6 +43,7 @@ $app->register(new Predilex(), array(
 
 $app['twig']->addFilter('md5', new Twig_Filter_Function('md5'));
 $app['twig']->addFilter('news_domain', new Twig_Filter_Function('Lamernews\Helpers::getNewsDomain'));
+$app['twig']->addFilter('news_text', new Twig_Filter_Function('Lamernews\Helpers::getNewsText'));
 $app['twig']->addFilter('time_elapsed', new Twig_Filter_Function('Lamernews\Helpers::timeElapsed'));
 
 $app['db'] = $app->share(function(Lamer $app) {
@@ -101,7 +102,17 @@ $app->get('/submit', function(Lamer $app) {
 });
 
 $app->get('/news/{newsID}', function(Lamer $app, $newsID) {
-    // ...
+    list($news) = $app['db']->getNewsByID($user ?: array(), array($newsID));
+
+    if (!$news) {
+        return $app->abort(404, 'This news does not exist.');
+    }
+
+    return $app['twig']->render('news.html.twig', array(
+        'title' => $news['title'],
+        'news' => $news,
+        'user' => $app['db']->getUserByID($news['user_id']),
+    ));
 });
 
 $app->get('/reply/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
