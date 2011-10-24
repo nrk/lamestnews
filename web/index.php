@@ -108,7 +108,7 @@ $app->get('/reply/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentI
     // ...
 });
 
-$app->get('"/editcomment/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
+$app->get('/editcomment/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
     // ...
 });
 
