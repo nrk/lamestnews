@@ -123,6 +123,15 @@ interface DatabaseInterface
     public function getNewsByID(Array $user, $newsIDs, $updateRank = false);
 
     /**
+     * Retrieves the comments tree for the news.
+     *
+     * @param array $user Details of the current user.
+     * @param array $news Details of the news item.
+     * @return array
+     */
+    public function getNewsComments(Array $user, Array $news);
+
+    /**
      * Adds a new news item.
      *
      * @param string $title Title of the news.

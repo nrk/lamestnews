@@ -49,7 +49,7 @@ class RedisDatabase implements DatabaseInterface
             // comments
             'comment_max_length' => 4096,
             'comment_edit_time' => 3600 * 2,
-            'comment_reply_shift' => 30,
+            'comment_reply_shift' => 60,
 
             // user
             'karma_increment_interval' => 3600 * 3,
@@ -319,21 +319,56 @@ class RedisDatabase implements DatabaseInterface
         if (isset($user)) {
             $votes = $redis->pipeline(function($pipe) use ($result, $user) {
                 foreach ($result as $news) {
-                    $pipe->zscore("news.up:{$n['id']}", $user['id']);
-                    $pipe->zscore("news.down:{$n['id']}", $user['id']);
+                    $pipe->zscore("news.up:{$news['id']}", $user['id']);
+                    $pipe->zscore("news.down:{$news['id']}", $user['id']);
                 }
             });
             foreach ($result as $i => &$news) {
                 if ($votes[$i * 2]) {
-                    $news["voted"] = 'up';
+                    $news['voted'] = 'up';
                 }
                 else if ($votes[$i * 2 + 1]) {
-                    $news["voted"] = 'down';
+                    $news['voted'] = 'down';
+                }
+                else {
+                    $news['voted'] = false;
                 }
             }
         }
 
         return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNewsComments(Array $user, Array $news)
+    {
+        $tree = array();
+        $users = array();
+        $comments = $this->getRedis()->hgetall("thread:comment:{$news['id']}");
+
+        foreach ($comments as $id => $comment) {
+            if ($id == 'nextid') {
+                continue;
+            }
+            $comment = json_decode($comment, true);
+            $comment['id'] = $id;
+            $parentID = $comment['parent_id'];
+
+            $userID = $comment['user_id'];
+            if (!isset($users[$userID])) {
+                $users[$userID] = $this->getUserByID($userID);
+            }
+            $comment['user'] = $users[$userID];
+
+            if (!isset($tree[$parentID])) {
+                $tree[$parentID] = array();
+            }
+            $tree[$parentID][] = $comment;
+        }
+
+        return $tree;
     }
 
     /**
