@@ -229,7 +229,7 @@ $app->post('/api/submit', function(Lamer $app, Request $request) {
     }
 
     // Make sure the news has an accepted URI scheme (only http or https for now).
-    if (isset($url)) {
+    if (strlen($url)) {
         $scheme = parse_url($url, PHP_URL_SCHEME);
         if ($scheme !== 'http' && $scheme !== 'https') {
             return json_encode(array(
