@@ -8,7 +8,11 @@
     {% for news in newslist %}
         <news id="{{ news.id }}">
             <uparrow>&#9650;</uparrow>
-            <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
+            <h2>
+                <a href="{% if news | news_domain %}{{ news.url }}{% else %}/news/{{ news.id }}{% endif %}">
+                    {{ news.title }}
+                </a>
+            </h2>
             <address>
             {% if news | news_domain %}
                 at {{ news | news_domain }}
