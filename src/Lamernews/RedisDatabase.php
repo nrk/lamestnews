@@ -128,6 +128,22 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function getUserCounters(Array $user)
+    {
+        $counters = $this->getRedis()->pipeline(function($pipe) use($user) {
+            $pipe->zcard("user.posted:{$user['id']}");
+            $pipe->zcard("user.comments:{$user['id']}");
+        });
+
+        return array(
+            'posted_news' => $counters[0],
+            'posted_comments' => $counters[1],
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function verifyUserCredentials($username, $password)
     {
         $user = $this->getUserByUsername($username);
@@ -207,6 +223,16 @@ class RedisDatabase implements DatabaseInterface
         $user['karma'] = (int) $user['karma'] + $increment;
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateUserProfile(Array $user, Array $attributes) {
+        $this->getRedis()->hmset("user:{$user['id']}", array(
+            'about' => substr($attributes['about'], 0, 4095),
+            'email' => substr($attributes['email'], 0, 255),
+        ));
     }
 
     /**

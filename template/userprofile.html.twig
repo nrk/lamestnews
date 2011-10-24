@@ -1,0 +1,46 @@
+{% extends 'layout.html.twig' %}
+
+{% block content %}
+
+<userinfo>
+    <avatar>
+        <img src="http://gravatar.com/avatar/{{ user.email | md5 }}?s=48&d=mm">
+    </avatar>
+
+    <h2>{{ user.username }}</h2>
+
+    <pre>{{ user.about }}</pre>
+
+    <ul>
+        <li><b>created </b> {{ user.ctime | time_elapsed }}</li>
+        <li><b>karma </b>{{ user.karma }} points</li>
+        <li><b>posted news </b>{{ user_counters.posted_news }}</li>
+        <li><b>posted comments </b>{{ user_counters.posted_comments }}</li>
+    </ul>
+</userinfo>
+
+{% if app.user and app.user.id == user.id %}
+
+<br>
+
+<form name="f">
+    <label for="email">email (not visible, used for gravatar)</label><br>
+    <input value="{{ user.email }}" type="text" size="40" name="email"><br>
+
+    <label for="about">about</label><br>
+    <textarea cols="60" name="about" rows="10">{{ user.about }}</textarea><br>
+
+    <input value="Update profile" type="button" name="update_profile">
+</form>
+
+<div id="errormsg"></div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("input[name=update_profile]").click(update_profile);
+    });
+</script>
+
+{% endif %}
+
+{% endblock %}

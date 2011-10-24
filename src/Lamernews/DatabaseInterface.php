@@ -44,6 +44,14 @@ interface DatabaseInterface
     public function getUserByUsername($username);
 
     /**
+     * Returns some counters for the specified user.
+     *
+     * @param array $user User details.
+     * @return array
+     */
+    public function getUserCounters(Array $user);
+
+    /**
      * Verifies if the username / password pair identifies a user and
      * returns its authorization token and form secret.
      *
@@ -79,6 +87,14 @@ interface DatabaseInterface
      * @return boolean
      */
     public function incrementUserKarma(Array &$user, $increment, $interval);
+
+    /**
+     * Updates the profile for the given user.
+     *
+     * @param array $user User details.
+     * @param array $attributes Profile attributes.
+     */
+    public function updateUserProfile(Array $user, Array $attributes);
 
     /**
      * Gets the list of the current top news items.

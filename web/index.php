@@ -41,6 +41,7 @@ $app->register(new Predilex(), array(
     ),
 ));
 
+$app['twig']->addFilter('md5', new Twig_Filter_Function('md5'));
 $app['twig']->addFilter('news_domain', new Twig_Filter_Function('Lamernews\Helpers::getNewsDomain'));
 $app['twig']->addFilter('time_elapsed', new Twig_Filter_Function('Lamernews\Helpers::timeElapsed'));
 
@@ -116,7 +117,17 @@ $app->get('/editnews/{newsID}', function(Lamer $app, $newsID) {
 });
 
 $app->get('/user/{username}', function(Lamer $app, $username) {
-    // ...
+    $user = $app['db']->getUserByUsername($username);
+
+    if (!$user) {
+        return $app->abort(404, 'Non existing user');
+    }
+
+    return $app['twig']->render('userprofile.html.twig', array(
+        'title' => $username,
+        'user' => $user,
+        'user_counters' => $app['db']->getUserCounters($user),
+    ));
 });
 
 // ************************************************************************** //
@@ -287,8 +298,32 @@ $app->post('/api/postcomment', function(Lamer $app) {
     // ...
 });
 
-$app->post('/api/updateprofile', function(Lamer $app) {
-    // ...
+$app->post('/api/updateprofile', function(Lamer $app, Request $request) {
+    if (!$app['user']) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Not authenticated.',
+        ));
+    }
+
+    $about = $request->get('about');
+    $email = $request->get('email');
+
+    if (!strlen($about) || !strlen($email)) {
+        return json_encode(array(
+            'status' => 'err',
+            'error' => 'Missing parameters.',
+        ));
+    }
+
+    $attributes = array(
+        'about' => $about,
+        'email' => $email,
+    );
+
+    $app['db']->updateUserProfile($app['user'], $attributes);
+
+    return json_encode(array('status' => 'ok'));
 });
 
 // ************************************************************************** //
