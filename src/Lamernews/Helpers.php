@@ -139,4 +139,22 @@ class Helpers
 
         return sprintf("%d %s ago", $elapsed / 60 / 60 / 24, 'days');
     }
+
+    /**
+     * Generates the URL to the Gravatar of a user.
+     *
+     * @param string $email User email.
+     * @return array $options Options.
+     * @return string
+     */
+    public static function getGravatarLink($email, $options = array()) {
+        $options = array_merge(array('s' => 48, 'd' => 'mm'), $options);
+        $url = 'http://gravatar.com/avatar/' . md5($email) . '?';
+        if ($options) {
+            foreach ($options as $k => $v) {
+                $url .= urlencode($k) . '=' . urlencode($v) . '&';
+            }
+        }
+        return substr($url, 0, -1);
+    }
 }

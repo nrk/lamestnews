@@ -4,7 +4,7 @@
 
 <userinfo>
     <avatar>
-        <img src="http://gravatar.com/avatar/{{ user.email | md5 }}?s=48&d=mm">
+        <img src="{{ gravatar(user.email) }}">
     </avatar>
 
     <h2>{{ user.username }}</h2>

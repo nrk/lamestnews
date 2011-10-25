@@ -42,7 +42,7 @@ $app->register(new Predilex(), array(
 ));
 
 $app['twig']->addFunction('now', new Twig_Function_Function('time'));
-$app['twig']->addFilter('md5', new Twig_Filter_Function('md5'));
+$app['twig']->addFunction('gravatar', new Twig_Function_Function('Lamernews\Helpers::getGravatarLink'));
 $app['twig']->addFilter('news_domain', new Twig_Filter_Function('Lamernews\Helpers::getNewsDomain'));
 $app['twig']->addFilter('news_text', new Twig_Filter_Function('Lamernews\Helpers::getNewsText'));
 $app['twig']->addFilter('time_elapsed', new Twig_Filter_Function('Lamernews\Helpers::timeElapsed'));
