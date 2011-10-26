@@ -19,7 +19,7 @@ use Lamernews\Silex\ApiController;
 use Silex\Application as Lamer;
 use Silex\Provider\TwigServiceProvider as TwigProvider;
 use Symfony\Component\HttpFoundation\Request;
-use Predis\Silex\PredisServiceProvider as Predilex;
+use Predis\Silex\PredisServiceProvider as PredisProvider;
 
 $app = new Lamer();
 
@@ -31,23 +31,24 @@ $app['autoloader']->registerNamespaces(array(
     'Lamernews' => __DIR__.'/../src',
 ));
 
-$app->register(new TwigProvider(), array(
-    'twig.class_path' => __VENDOR__.'/twig/lib',
-    'twig.path' => __DIR__.'/../template',
-));
-
-$app->register(new Predilex(), array(
+$app->register(new PredisProvider(), array(
     'predis.parameters' => 'tcp://127.0.0.1:6379',
     'predis.options' => array(
         'profile' => 'dev'
     ),
 ));
 
-$app['twig']->addFunction('now', new Twig_Function_Function('time'));
-$app['twig']->addFunction('time_elapsed', new Twig_Function_Function('Lamernews\Helpers::timeElapsed'));
-$app['twig']->addFunction('gravatar', new Twig_Function_Function('Lamernews\Helpers::getGravatarLink'));
-$app['twig']->addFunction('news_domain', new Twig_Function_Function('Lamernews\Helpers::getNewsDomain'));
-$app['twig']->addFunction('news_text', new Twig_Function_Function('Lamernews\Helpers::getNewsText'));
+$app->register(new TwigProvider(), array(
+    'twig.class_path' => __VENDOR__.'/twig/lib',
+    'twig.path' => __DIR__.'/../template',
+));
+
+$twig = $app['twig'];
+$twig->addFunction('now', new Twig_Function_Function('time'));
+$twig->addFunction('time_elapsed', new Twig_Function_Function('Lamernews\Helpers::timeElapsed'));
+$twig->addFunction('gravatar', new Twig_Function_Function('Lamernews\Helpers::getGravatarLink'));
+$twig->addFunction('news_domain', new Twig_Function_Function('Lamernews\Helpers::getNewsDomain'));
+$twig->addFunction('news_text', new Twig_Function_Function('Lamernews\Helpers::getNewsText'));
 
 $app['db'] = $app->share(function(Lamer $app) {
     return new Lamernews\RedisDatabase($app['predis']);
