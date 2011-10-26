@@ -1,4 +1,5 @@
 {% extends 'layout.html.twig' %}
+{% from 'shared.html.twig' import render_news %}
 
 {% block content %}
 
@@ -6,26 +7,7 @@
 
 <newslist>
     {% for news in newslist %}
-        <news id="{{ news.id }}">
-            <uparrow>&#9650;</uparrow>
-            <h2>
-                <a href="{% if news_domain(news) %}{{ news.url }}{% else %}/news/{{ news.id }}{% endif %}">
-                    {{ news.title }}
-                </a>
-            </h2>
-            <address>
-            {% if news_domain(news) %}
-                at {{ news_domain(news) }}
-            {% endif %}
-            </address>
-            <downarrow>&#9660;</downarrow>
-            <p>
-                {{ news.up }} up and {{ news.down }} down, posted by
-                <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
-                {{ time_elapsed(news.ctime) }}
-                <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
-            </p>
-        </news>
+        {{ render_news(news) }}
     {% endfor %}
 </newslist>
 

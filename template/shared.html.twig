@@ -1,0 +1,59 @@
+{% macro render_news(news, tree, parent_id, level) %}
+    <news id="{{ news.id }}">
+        <uparrow class="{{ news.voted == 'up' ? 'voted' : (news.voted == 'down' ? 'disabled' : '') }}">&#9650;</uparrow>
+
+        {% if news_domain(news) %}
+            <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
+            <address>at {{ news_domain(news) }}</address>
+        {% else %}
+            <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
+        {% endif %}
+
+        {% if app.user and app.user.id == news.user_id and news.ctime > (now() - app.db.getOption('news_edit_time')) %}
+            <a href="/editnews/{{ news.id }}">[edit]</a>
+        {% endif %}
+
+        <downarrow class="{{ news.voted == 'down' ? 'voted' : (news.voted == 'up' ? 'disabled' : '') }}">&#9660;</downarrow>
+
+        <p>
+            {{ news.up }} up and {{ news.down }} down,
+            posted by <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
+            {{ time_elapsed(news.ctime) }}
+            <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
+        </p>
+    </news>
+{% endmacro %}
+
+{% macro render_comments(news, tree, parent_id, level) %}
+    {% for comment in tree[parent_id] %}
+        {% set css_indentation = level * app.db.getOption('comment_reply_shift') %}
+        {% set parents = tree[comment.id] is defined ? tree[comment.id] : [] %}
+        {% set user = comment.user %}
+
+        {% if comment.del is not defined or comment.del == false or parents %}
+            <comment style="margin-left:{{ css_indentation }}px" id="{{ news.id }}-{{ comment.id }}">
+                <avatar><img src="{{ gravatar(user.email) }}"></avatar>
+                <info>
+                    <username><a href="/user/{{ user.username }}">{{ user.username }}</a></username>
+                    {{ time_elapsed(comment.ctime) }}.
+                    {% if app.user and comment.topcomment is not defined %}
+                        <a href="/reply/{{ news.id }}/{{ comment.id }}" class="reply">reply</a>
+                        {% if app.user.id == comment.user_id and comment.ctime %}
+                            <a href="/editcomment/4/1" class="reply">edit</a>
+                            {{ (app.db.getOption('comment_edit_time') - (now() - comment.ctime)) / 60 }} minutes left
+                        {% endif %}
+                    {% endif %}
+                </info>
+                <pre>{{ comment.body }}</pre>
+            </comment>
+        {% else %}
+            <comment style="margin-left:{{ css_indentation }}px" class="deleted">
+                [comment deleted]
+            </comment>
+        {% endif %}
+
+        {% if parents %}
+            {{ _self.render_comments(news, tree, comment.id, level + 1) }}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
