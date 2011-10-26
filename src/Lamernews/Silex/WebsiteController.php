@@ -49,7 +49,7 @@ class WebsiteController implements ControllerProviderInterface
                 $app['db']->updateAuthToken($app['user']['id']);
             }
 
-             return $app->redirect('/');
+            return $app->redirect('/');
         });
 
         $controllers->get('/submit', function(Lamer $app) {
