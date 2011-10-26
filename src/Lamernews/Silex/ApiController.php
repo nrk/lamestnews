@@ -184,8 +184,50 @@ class ApiController implements ControllerProviderInterface
             return json_encode(array('status' => 'ok'));
         });
 
-        $controllers->post('/postcomment', function(Lamer $app) {
-            // ...
+        $controllers->post('/postcomment', function(Lamer $app, Request $request) {
+            if (!$app['user']) {
+                return json_encode(array(
+                    'status' => 'err',
+                    'error' => 'Not authenticated.',
+                ));
+            }
+
+            $apisecret = $request->get('apisecret');
+            if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
+                return json_encode(array(
+                    'status' => 'err',
+                    'error' => 'Wrong form secret.',
+                ));
+            }
+
+            $newsID = $request->get('news_id');
+            $commentID = $request->get('comment_id');
+            $parentID = $request->get('parent_id');
+            $comment = $request->get('comment');
+
+            if (!(strlen($newsID) && strlen($commentID) && strlen($parentID) && strlen($comment))) {
+                return json_encode(array(
+                    'status' => 'err',
+                    'error' => 'Missing news_id, comment_id, parent_id, or comment parameter.',
+                ));
+            }
+
+            $info = $app['db']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
+
+            if (!$info) {
+                return json_encode(array(
+                    'status' => 'err',
+                    'error' => 'Invalid news, comment, or edit time expired.',
+                ));
+            }
+
+            return json_encode(array(
+                'status' => 'ok',
+                'op' => $info['op'],
+                'comment_id' => $info['comment_id'],
+                'parent_id' => $parentID,
+                'news_id' => $newsID,
+            ));
         });
 
         $controllers->post('/updateprofile', function(Lamer $app, Request $request) {

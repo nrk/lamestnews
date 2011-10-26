@@ -75,7 +75,29 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/reply/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
-            // ...
+            if (!$app['user']) {
+                return $app->redirect('/login');
+            }
+
+            if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
+                return $app->abort(404, 'This news does not exist.');
+            }
+
+            if (!($comment = $app['db']->getComment($newsID, $commentID))) {
+                return $app->abort(404, 'This comment does not exist.');
+            }
+
+            if (!($user = $app['db']->getUserByID($comment['user_id']))) {
+                $user = array('username' => 'deleted_user', 'email' => '', 'id' => -1);
+            }
+
+            list($news) = $news;
+
+            return $app['twig']->render('reply_to_comment.html.twig', array(
+                'title' => 'Reply to comment',
+                'news' => $news,
+                'comment' => array_merge($comment, array('id' => $commentID, 'user' => $user)),
+            ));
         });
 
         $controllers->get('/editcomment/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {

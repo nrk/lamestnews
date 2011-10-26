@@ -44,6 +44,7 @@ $app->register(new TwigProvider(), array(
 ));
 
 $twig = $app['twig'];
+$twig->addFilter('to_int', new Twig_Filter_Function('intval'));
 $twig->addFunction('now', new Twig_Function_Function('time'));
 $twig->addFunction('time_elapsed', new Twig_Function_Function('Lamernews\Helpers::timeElapsed'));
 $twig->addFunction('gravatar', new Twig_Function_Function('Lamernews\Helpers::getGravatarLink'));

@@ -568,6 +568,150 @@ class RedisDatabase implements DatabaseInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function handleComment(Array $user, $newsID, $commentID, $parentID, $body = null)
+    {
+        $redis = $this->getRedis();
+        $news = $this->getNewsByID($user, $newsID);
+
+        if (!$news) {
+            return false;
+        }
+
+        if ($commentID == -1) {
+            $comment = array(
+                'score' => 0,
+                'body' => $body,
+                'parent_id' => $parentID,
+                'user_id' => $user['id'],
+                'ctime' => time(),
+            );
+
+            $commentID = $this->postComment($newsID, $comment);
+
+            if (!$commentID) {
+                return false;
+            }
+
+            $redis->hincrby("news:$newsID", 'comments', 1);
+            $redis->zadd("user.comments:{$user['id']}", time(), "$newsID-$commentID");
+
+            return array(
+                'news_id' => $newsID,
+                'comment_id' => $commentID,
+                'op' => 'insert',
+            );
+        }
+
+        // If we reached this point the next step is either to update or
+        // delete the comment. So we make sure the user_id of the request
+        // matches the user_id of the comment.
+        // We also make sure the user is in time for an edit operation.
+        $comment = $this->getComment($newsID, $commentID);
+
+        if (!$comment || $comment['user_id'] != $user['id']) {
+            return false;
+        }
+        if (!($comment['ctime'] > (time - $this->getOption('comment_edit_time')))) {
+            return false;
+        }
+
+        if (!$body) {
+            if (!$this->deleteComment($newsID, $commentID)) {
+                return false;
+            }
+            $redis->hincrby("news:$newsID", 'comments', -1);
+
+            return array(
+                'news_id' => $newsID,
+                'comment_id' => $commentID,
+                'op' => 'delete',
+            );
+        }
+        else {
+            $update = array('body' => $body);
+            if ($comment['del'] == true) {
+                $update['del'] = 0;
+            }
+            if (!$this->editComment($newsID, $commentID, $update)) {
+                return false;
+            }
+
+            return array(
+                'news_id' => $newsID,
+                'comment_id' => $commentID,
+                'op' => 'update',
+            );
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getComment($newsID, $commentID)
+    {
+        $json = $this->getRedis()->hget("thread:comment:$newsID", $commentID);
+
+        if ($json) {
+            return json_decode($json, true);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postComment($newsID, Array $comment)
+    {
+        if (!isset($comment['parent_id'])) {
+            // TODO: "no parent_id field"
+            return false;
+        }
+
+        $redis = $this->getRedis();
+        $threadKey = "thread:comment:$newsID";
+
+        if ($comment['parent_id'] != -1) {
+            if (!$redis->hget($threadKey, $comment['parent_id'])) {
+                return false;
+            }
+        }
+
+        $commentID = $redis->hincrby($threadKey, 'nextid', 1);
+        $redis->hset($threadKey, $commentID, json_encode($comment));
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function editComment($newsID, $commentID, Array $updates)
+    {
+        $redis = $this->getRedis();
+        $threadKey = "thread:comment:$newsID";
+
+        $json = $redis->hget($threadKey, $commentID);
+
+        if (!$json) {
+            return false;
+        }
+
+        $comment = array_merge(json_decode($comment), $updates);
+        $redis->hset($threadKey, $commentID, json_encode($comment));
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteComment($newsID, $commentID)
+    {
+        return $this->editComment($newsID, $commentID, array('del' => 1));
+    }
+
+    /**
      * Gets an option by its name or returns all the options.
      *
      * @param string $option Name of the option.

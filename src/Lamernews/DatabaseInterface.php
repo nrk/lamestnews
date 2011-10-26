@@ -155,6 +155,75 @@ interface DatabaseInterface
     public function editNews($newsID, $title, $url, $text, $userID);
 
     /**
+     * Handles various kind of actions on a comment depending on the arguments.
+     *
+     * 1) If comment_id is -1 insert a new comment into the specified news.
+     * 2) If comment_id is an already existing comment in the context of the
+     *    specified news, updates the comment.
+     * 3) If comment_id is an already existing comment in the context of the
+     *    specified news, but the comment is an empty string, delete the comment.
+     *
+     * Return value:
+     *
+     * If news_id does not exist or comment_id is not -1 but neither a valid
+     * comment for that news, nil is returned.
+     * Otherwise an hash is returned with the following fields:
+     *   news_id: the news id
+     *   comment_id: the updated comment id, or the new comment id
+     *   op: the operation performed: "insert", "update", or "delete"
+     *
+     * More informations:
+     *
+     * The parent_id is only used for inserts (when comment_id == -1), otherwise
+     * is ignored.
+     *
+     * @param array $user Details of the current user.
+     * @param string $newsID ID of the news associated to the comment.
+     * @param string $commentID ID of the comment, or -1 for a new comment.
+     * @param string $parentID ID of the parent comment.
+     * @param string $body Body of the comment, or null to delete an existing comment.
+     * @return array
+     */
+    public function handleComment(Array $user, $newsID, $commentID, $parentID, $body = null);
+
+    /**
+     * Gets a specific comment.
+     *
+     * @param string $newsID ID of the associated news item.
+     * @param string $commentID ID of the comment.
+     * @return array
+     */
+    public function getComment($newsID, $commentID);
+
+    /**
+     * Post a new comment on the specified news item.
+     *
+     * @param string $newsID ID of the associated news item.
+     * @param array $comment Details and contents of the new comment.
+     * @return boolean
+     */
+    public function postComment($newsID, Array $comment);
+
+    /**
+     * Edits the specified comment by updating only the passed values.
+     *
+     * @param string $newsID ID of the associated news item.
+     * @param string $commentID ID of the comment.
+     * @param array $updates Fields and values for the update.
+     * @return boolean
+     */
+    public function editComment($newsID, $commentID, Array $updates);
+
+    /**
+     * Deletes a specific comment.
+     *
+     * @param string $newsID ID of the associated news item.
+     * @param string $commentID ID of the comment.
+     * @return boolean
+     */
+    public function deleteComment($newsID, $commentID);
+
+    /**
      * Upvotes or downvotes the specified news item.
      *
      * The function ensures that:
