@@ -44,10 +44,10 @@ $app->register(new Predilex(), array(
 ));
 
 $app['twig']->addFunction('now', new Twig_Function_Function('time'));
+$app['twig']->addFunction('time_elapsed', new Twig_Function_Function('Lamernews\Helpers::timeElapsed'));
 $app['twig']->addFunction('gravatar', new Twig_Function_Function('Lamernews\Helpers::getGravatarLink'));
-$app['twig']->addFilter('news_domain', new Twig_Filter_Function('Lamernews\Helpers::getNewsDomain'));
-$app['twig']->addFilter('news_text', new Twig_Filter_Function('Lamernews\Helpers::getNewsText'));
-$app['twig']->addFilter('time_elapsed', new Twig_Filter_Function('Lamernews\Helpers::timeElapsed'));
+$app['twig']->addFunction('news_domain', new Twig_Function_Function('Lamernews\Helpers::getNewsDomain'));
+$app['twig']->addFunction('news_text', new Twig_Function_Function('Lamernews\Helpers::getNewsText'));
 
 $app['db'] = $app->share(function(Lamer $app) {
     return new Lamernews\RedisDatabase($app['predis']);

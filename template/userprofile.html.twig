@@ -12,7 +12,7 @@
     <pre>{{ user.about }}</pre>
 
     <ul>
-        <li><b>created </b> {{ user.ctime | time_elapsed }}</li>
+        <li><b>created </b> {{ time_elapsed(user.ctime) }}</li>
         <li><b>karma </b>{{ user.karma }} points</li>
         <li><b>posted news </b>{{ user_counters.posted_news }}</li>
         <li><b>posted comments </b>{{ user_counters.posted_comments }}</li>

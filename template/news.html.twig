@@ -5,9 +5,9 @@
 <news id="{{ news.id }}">
     <uparrow class="{{ news.voted == 'up' ? 'voted' : (news.voted == 'down' ? 'disabled' : '') }}">&#9650;</uparrow>
 
-    {% if news | news_domain %}
+    {% if news_domain(news) %}
         <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
-        <address>at {{ news | news_domain }}</address>
+        <address>at {{ news_domain(news) }}</address>
     {% else %}
         <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
     {% endif %}
@@ -21,20 +21,20 @@
     <p>
         {{ news.up }} up and {{ news.down }} down,
         posted by <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
-        {{ news.ctime | time_elapsed}}
+        {{ time_elapsed(news.ctime) }}
         <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
     </p>
 </news>
 
-{% if not news | news_domain %}
+{% if not news_domain(news) %}
     <topcomment>
         <comment style="margin-left:0px" id="{{ news.id }}-">
             <avatar><img src="{{ gravatar(user.email) }}"></avatar>
             <info>
                 <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
-                {{ news.ctime | time_elapsed }}.
+                {{ time_elapsed(news.ctime) }}.
             </info>
-            <pre>{{ news | news_text }}</pre>
+            <pre>{{ news_text(news) }}</pre>
         </comment>
     </topcomment>
 {% endif %}
@@ -75,7 +75,7 @@
                 <avatar><img src="{{ gravatar(user.email) }}"></avatar>
                 <info>
                     <username><a href="/user/{{ user.username }}">{{ user.username }}</a></username>
-                    {{ comment.ctime | time_elapsed }}.
+                    {{ time_elapsed(comment.ctime) }}.
                     {% if app.user and comment.topcomment is not defined %}
                         <a href="/reply/{{ news.id }}/{{ comment.id }}" class="reply">reply</a>
                         {% if app.user.id == comment.user_id and comment.ctime %}
