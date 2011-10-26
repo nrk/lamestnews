@@ -164,6 +164,26 @@ class Helpers
      * @param array $response Other values that compose the response.
      * @return string
      */
+    public static function isRequestValid(Array $user, $apisecret, &$response)
+    {
+        if (!$user) {
+            $response = Helpers::apiError('Not authenticated.');
+            return false;
+        }
+        if (!Helpers::verifyApiSecret($user, $apisecret)) {
+            $response = Helpers::apiError('Wrong form secret.');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Generates the response payload for an API call when it is successful.
+     *
+     * @param array $response Other values that compose the response.
+     * @return string
+     */
     public static function apiOK(Array $response = array())
     {
         return json_encode(array_merge($response, array('status' => 'ok')));

@@ -36,10 +36,8 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->post('/logout', function(Lamer $app, Request $request) {
-            $apisecret = $request->get('apisecret');
-
-            if (!isset($app['user']) || !Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return Helpers::apiError('Wrong auth credentials or API secret.');
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
             }
 
             $app['db']->updateAuthToken($app['user']['id']);
@@ -68,13 +66,8 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->post('/submit', function(Lamer $app, Request $request) {
-            if (!$app['user']) {
-                return Helpers::apiError('Not authenticated.');
-            }
-
-            $apisecret = $request->get('apisecret');
-            if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return Helpers::apiError('Wrong form secret.');
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
             }
 
             $newsID = $request->get('news_id');
@@ -109,13 +102,8 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->post('/votenews', function(Lamer $app, Request $request) {
-            if (!$app['user']) {
-                return Helpers::apiError('Not authenticated.');
-            }
-
-            $apisecret = $request->get('apisecret');
-            if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return Helpers::apiError('Wrong form secret.');
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
             }
 
             $newsID = $request->get('news_id');
@@ -133,13 +121,8 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->post('/postcomment', function(Lamer $app, Request $request) {
-            if (!$app['user']) {
-                return Helpers::apiError('Not authenticated.');
-            }
-
-            $apisecret = $request->get('apisecret');
-            if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return Helpers::apiError('Wrong form secret.');
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
             }
 
             $newsID = $request->get('news_id');
@@ -166,8 +149,8 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->post('/updateprofile', function(Lamer $app, Request $request) {
-            if (!$app['user']) {
-                return Helpers::apiError('Not authenticated.');
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
             }
 
             $about = $request->get('about');
