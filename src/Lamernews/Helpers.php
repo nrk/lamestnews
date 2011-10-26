@@ -157,4 +157,30 @@ class Helpers
         }
         return substr($url, 0, -1);
     }
+
+    /**
+     * Generates the response payload for an API call when it is successful.
+     *
+     * @param array $response Other values that compose the response.
+     * @return string
+     */
+    public static function apiOK(Array $response = array())
+    {
+        return json_encode(array_merge($response, array('status' => 'ok')));
+    }
+
+    /**
+     * Generates the response payload for an API call when it fails.
+     *
+     * @param string $error Error message.
+     * @param array $response Other values that compose the response.
+     * @return string
+     */
+    public static function apiError($error, Array $response = array())
+    {
+        return json_encode(array_merge($response, array(
+            'status' => 'err',
+            'error' => $error,
+        )));
+    }
 }

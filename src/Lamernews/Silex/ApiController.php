@@ -29,32 +29,22 @@ class ApiController implements ControllerProviderInterface
             @list($auth, $apisecret) = $app['db']->verifyUserCredentials($username, $password);
 
             if (!isset($auth)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'No match for the specified username / password pair.',
-                ));
+                return Helpers::apiError('No match for the specified username / password pair.');
             }
 
-            return json_encode(array(
-                'status' => 'ok',
-                'auth' => $auth,
-                'apisecret' => $apisecret,
-            ));
+            return Helpers::apiOK(array('auth' => $auth, 'apisecret' => $apisecret));
         });
 
         $controllers->post('/logout', function(Lamer $app, Request $request) {
             $apisecret = $request->get('apisecret');
 
             if (!isset($app['user']) || !Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Wrong auth credentials or API secret.',
-                ));
+                return Helpers::apiError('Wrong auth credentials or API secret.');
             }
 
             $app['db']->updateAuthToken($app['user']['id']);
 
-            return json_encode(array('status' => 'ok'));
+            return Helpers::apiOK();
         });
 
         $controllers->post('/create_account', function(Lamer $app, Request $request) {
@@ -62,47 +52,29 @@ class ApiController implements ControllerProviderInterface
             $password = $request->get('password');
 
             if (!isset($username, $password)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Username and password are two required fields.',
-                ));
+                return Helpers::apiError('Username and password are two required fields.');
             }
 
             if (strlen($password) < ($minPwdLen = $app['db']->getOption('password_min_length'))) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => "Password is too short. Min length: $minPwdLen",
-                ));
+                return Helpers::apiError("Password is too short. Min length: $minPwdLen");
             }
 
             $authToken = $app['db']->createUser($username, $password);
             if (!$authToken) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Username is busy. Please select a different one.',
-                ));
+                return Helpers::apiError('Username is busy. Please select a different one.');
             }
 
-            return json_encode(array(
-                'status' => 'ok',
-                'auth' => $authToken,
-            ));
+            return Helpers::apiOK(array('auth' => $authToken));
         });
 
         $controllers->post('/submit', function(Lamer $app, Request $request) {
             if (!$app['user']) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Not authenticated.',
-                ));
+                return Helpers::apiError('Not authenticated.');
             }
 
             $apisecret = $request->get('apisecret');
             if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Wrong form secret.',
-                ));
+                return Helpers::apiError('Wrong form secret.');
             }
 
             $newsID = $request->get('news_id');
@@ -112,20 +84,14 @@ class ApiController implements ControllerProviderInterface
 
             // We can have an empty url or an empty first comment, but not both.
             if (!strlen($newsID) || !strlen($title) || (!strlen($url) && !strlen($text))) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Please specify a news title and address or text.',
-                ));
+                return Helpers::apiError('Please specify a news title and address or text.');
             }
 
             // Make sure the news has an accepted URI scheme (only http or https for now).
             if (strlen($url)) {
                 $scheme = parse_url($url, PHP_URL_SCHEME);
                 if ($scheme !== 'http' && $scheme !== 'https') {
-                    return json_encode(array(
-                        'status' => 'err',
-                        'error' => 'We only accept http:// and https:// news.',
-                    ));
+                    return Helpers::apiError('We only accept http:// and https:// news.');
                 }
             }
 
@@ -135,69 +101,45 @@ class ApiController implements ControllerProviderInterface
             else {
                 $newsID = $app['db']->editNews($newsID, $title, $url, $text, $app['user']['id']);
                 if (!$newsID) {
-                    return json_encode(array(
-                        'status' => 'err',
-                        'error' => 'Invalid parameters, news too old to be modified or URL recently posted',
-                    ));
+                    return Helpers::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
                 }
             }
 
-            return json_encode(array(
-                'status' => 'ok',
-                'news_id' => $newsID,
-            ));
+            return Helpers::apiOK(array('news_id' => $newsID));
         });
 
         $controllers->post('/votenews', function(Lamer $app, Request $request) {
             if (!$app['user']) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Not authenticated.',
-                ));
+                return Helpers::apiError('Not authenticated.');
             }
 
             $apisecret = $request->get('apisecret');
             if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Wrong form secret.',
-                ));
+                return Helpers::apiError('Wrong form secret.');
             }
 
             $newsID = $request->get('news_id');
             $voteType = $request->get('vote_type');
 
             if (!strlen($newsID) || ($voteType !== 'up' && $voteType !== 'down')) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Missing news ID or invalid vote type.',
-                ));
+                return Helpers::apiError('Missing news ID or invalid vote type.');
             }
 
             if ($app['db']->voteNews($newsID, $app['user'], $voteType) === false) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Invalid parameters or duplicated vote.',
-                ));
+                return Helpers::apiError('Invalid parameters or duplicated vote.');
             }
 
-            return json_encode(array('status' => 'ok'));
+            return Helpers::apiOK();
         });
 
         $controllers->post('/postcomment', function(Lamer $app, Request $request) {
             if (!$app['user']) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Not authenticated.',
-                ));
+                return Helpers::apiError('Not authenticated.');
             }
 
             $apisecret = $request->get('apisecret');
             if (!Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Wrong form secret.',
-                ));
+                return Helpers::apiError('Wrong form secret.');
             }
 
             $newsID = $request->get('news_id');
@@ -206,23 +148,16 @@ class ApiController implements ControllerProviderInterface
             $comment = $request->get('comment');
 
             if (!(strlen($newsID) && strlen($commentID) && strlen($parentID) && strlen($comment))) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Missing news_id, comment_id, parent_id, or comment parameter.',
-                ));
+                return Helpers::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 
             $info = $app['db']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
 
             if (!$info) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Invalid news, comment, or edit time expired.',
-                ));
+                return Helpers::apiError('Invalid news, comment, or edit time expirede.');
             }
 
-            return json_encode(array(
-                'status' => 'ok',
+            return Helpers::apiOK(array(
                 'op' => $info['op'],
                 'comment_id' => $info['comment_id'],
                 'parent_id' => $parentID,
@@ -232,20 +167,14 @@ class ApiController implements ControllerProviderInterface
 
         $controllers->post('/updateprofile', function(Lamer $app, Request $request) {
             if (!$app['user']) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Not authenticated.',
-                ));
+                return Helpers::apiError('Not authenticated.');
             }
 
             $about = $request->get('about');
             $email = $request->get('email');
 
             if (!strlen($about) || !strlen($email)) {
-                return json_encode(array(
-                    'status' => 'err',
-                    'error' => 'Missing parameters.',
-                ));
+                return Helpers::apiError('Missing parameters.');
             }
 
             $attributes = array(
@@ -255,7 +184,7 @@ class ApiController implements ControllerProviderInterface
 
             $app['db']->updateUserProfile($app['user'], $attributes);
 
-            return json_encode(array('status' => 'ok'));
+            return Helpers::apiOK();
         });
 
 
