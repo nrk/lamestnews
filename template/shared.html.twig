@@ -26,7 +26,7 @@
 
 {% macro render_comments(news, tree, parent_id, level) %}
     {% for comment in tree[parent_id] %}
-        {% set parents = tree[comment.id] is defined ? tree[comment.id] : [] %}
+        {% set parents = tree[comment.id] is defined ? tree[comment.id] : null %}
 
         {{ _self.render_comment(news, comment, level, parents) }}
 
@@ -40,7 +40,7 @@
     {% set css_indentation = level * app.db.getOption('comment_reply_shift') %}
     {% set user = comment.user %}
 
-    {% if comment.del is not defined or comment.del == false or parents %}
+    {% if comment.del is not defined or comment.del == false and parents %}
         <comment style="margin-left:{{ css_indentation }}px" id="{{ news.id }}-{{ comment.id }}">
             <avatar><img src="{{ gravatar(user.email) }}"></avatar>
             <info>
