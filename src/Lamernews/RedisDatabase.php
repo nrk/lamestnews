@@ -697,7 +697,7 @@ class RedisDatabase implements DatabaseInterface
             return false;
         }
 
-        $comment = array_merge(json_decode($comment), $updates);
+        $comment = array_merge(json_decode($json, true), $updates);
         $redis->hset($threadKey, $commentID, json_encode($comment));
 
         return true;

@@ -1,0 +1,28 @@
+{% extends 'layout.html.twig' %}
+{% from 'shared.html.twig' import render_news, render_comment %}
+
+{% block content %}
+
+{{ render_news(news) }}
+
+{{ render_comment(news, comment, 0) }}
+
+<form name="f">
+    <input type="hidden" name="news_id" value="{{ news.id }}">
+    <input type="hidden" name="comment_id" value="{{ comment.id }}">
+    <input type="hidden" name="parent_id" value="-1">
+    <textarea name="comment" cols="60" rows="10"></textarea><br>
+    <input value="Edit" type="button" name="post_comment">
+</form>
+
+<div id="errormsg"></div>
+
+<note>Note: to remove the comment remove all the text and press Edit.</note>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("input[name=post_comment]").click(post_comment);
+    });
+</script>
+
+{% endblock %}

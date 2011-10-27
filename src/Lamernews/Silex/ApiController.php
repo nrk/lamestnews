@@ -130,7 +130,7 @@ class ApiController implements ControllerProviderInterface
             $parentID = $request->get('parent_id');
             $comment = $request->get('comment');
 
-            if (!(strlen($newsID) && strlen($commentID) && strlen($parentID) && strlen($comment))) {
+            if (!strlen($newsID) || !strlen($commentID) || !strlen($parentID)) {
                 return Helpers::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 

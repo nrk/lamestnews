@@ -49,7 +49,7 @@
                 {% if app.user and comment.topcomment is not defined %}
                     <a href="/reply/{{ news.id }}/{{ comment.id }}" class="reply">reply</a>
                     {% if app.user.id == comment.user_id and comment.ctime %}
-                        <a href="/editcomment/4/1" class="reply">edit</a>
+                        <a href="/editcomment/{{ news.id }}/{{ comment.id }}" class="reply">edit</a>
                         {{ ((app.db.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int }} minutes left
                     {% endif %}
                 {% endif %}
