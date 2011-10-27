@@ -381,6 +381,7 @@ class RedisDatabase implements DatabaseInterface
         $realRank = $this->computeNewsRank($news);
         if (abs($realRank - (float) $news['rank']) > 0.001) {
             $pipe->hmset("news:{$news['id']}", 'rank', $realRank);
+            $pipe->zadd('news.top', $realRank , $news['id']);
             $news['rank'] = (string) $realRank;
         }
     }
@@ -562,6 +563,7 @@ class RedisDatabase implements DatabaseInterface
             'score' => $news['score'],
             'rank' => $rank,
         ));
+        $redis->zadd('news.top', $rank, $newsID);
 
         return $rank;
     }
