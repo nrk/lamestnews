@@ -7,23 +7,23 @@
 
 {% if not news_domain(news) %}
     <topcomment>
-        <comment style="margin-left:0px" id="{{ news.id }}-">
-            <avatar><img src="{{ gravatar(user.email) }}"></avatar>
-            <info>
-                <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
+        <article class="comment" style="margin-left:0px" id="{{ news.id }}-">
+            <span class="avatar"><img src="{{ gravatar(user.email) }}"></span>
+            <span class="info">
+                <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
                 {{ time_elapsed(news.ctime) }}.
-            </info>
+            </span>
             <pre>{{ news_text(news) }}</pre>
-        </comment>
+        </article>
     </topcomment>
 {% endif %}
 
 {% if app.user %}
     <form name="f">
-        <input value="{{ news.id }}" type="hidden" name="news_id">
-        <input value="-1" type="hidden" name="comment_id">
-        <input value="-1" type="hidden" name="parent_id">
-        <textarea cols="60" name="comment" rows="10"></textarea><br>
+        <input value="{{ news.id }}" type="hidden" id="news_id" name="news_id">
+        <input value="-1" type="hidden" id="comment_id" name="comment_id">
+        <input value="-1" type="hidden" id="parent_id" name="parent_id">
+        <textarea cols="60" id="comment" name="comment" rows="10"></textarea><br>
         <input value="Send comment" type="button" name="post_comment">
     </form>
 

@@ -2,22 +2,17 @@
 
 {% block content %}
 
-<userinfo>
-    <avatar>
-        <img src="{{ gravatar(user.email) }}">
-    </avatar>
-
+<div class="userinfo">
+    <span class="avatar"><img src="{{ gravatar(user.email) }}"></span>
     <h2>{{ user.username }}</h2>
-
     <pre>{{ user.about }}</pre>
-
     <ul>
         <li><b>created </b> {{ time_elapsed(user.ctime) }}</li>
         <li><b>karma </b>{{ user.karma }} points</li>
         <li><b>posted news </b>{{ user_counters.posted_news }}</li>
         <li><b>posted comments </b>{{ user_counters.posted_comments }}</li>
     </ul>
-</userinfo>
+</div>
 
 {% if app.user and app.user.id == user.id %}
 
@@ -25,10 +20,10 @@
 
 <form name="f">
     <label for="email">email (not visible, used for gravatar)</label><br>
-    <input value="{{ user.email }}" type="text" size="40" name="email"><br>
+    <input value="{{ user.email }}" type="text" size="40" id="email" name="email"><br>
 
     <label for="about">about</label><br>
-    <textarea cols="60" name="about" rows="10">{{ user.about }}</textarea><br>
+    <textarea cols="60" id="about" name="about" rows="10">{{ user.about }}</textarea><br>
 
     <input value="Update profile" type="button" name="update_profile">
 </form>

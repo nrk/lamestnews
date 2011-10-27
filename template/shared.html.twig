@@ -1,6 +1,6 @@
 {% macro render_news(news) %}
-    <news id="{{ news.id }}">
-        <uparrow class="{{ news.voted == 'up' ? 'voted' : (news.voted == 'down' ? 'disabled' : '') }}">&#9650;</uparrow>
+    <article data-news-id="{{ news.id }}">
+        <a href="#up" {{ _self.vote_class(news, 'up') }}>&#9650;</a>
 
         {% if news_domain(news) %}
             <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
@@ -13,15 +13,24 @@
             <a href="/editnews/{{ news.id }}">[edit]</a>
         {% endif %}
 
-        <downarrow class="{{ news.voted == 'down' ? 'voted' : (news.voted == 'up' ? 'disabled' : '') }}">&#9660;</downarrow>
+        <a href="#down" {{ _self.vote_class(news, 'down') }}>&#9660;</a>
 
         <p>
             {{ news.up }} up and {{ news.down }} down,
-            posted by <username><a href="/user/{{ news.username }}">{{ news.username }}</a></username>
+            posted by <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
             {{ time_elapsed(news.ctime) }}
             <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
         </p>
-    </news>
+    </article>
+{% endmacro %}
+
+{% macro vote_class(news, type) %}
+{% spaceless %}
+    {% if news.voted %}
+        {% set typearrow = type ~ 'arrow ' %}
+        class="{{ typearrow ~ (news.voted == type ? 'voted' : 'disabled') }}"
+    {% endif %}
+{% endspaceless %}
 {% endmacro %}
 
 {% macro render_comments(news, tree, parent_id, level) %}
@@ -41,10 +50,10 @@
     {% set user = comment.user %}
 
     {% if comment.del is not defined or comment.del == false and parents %}
-        <comment style="margin-left:{{ css_indentation }}px" id="{{ news.id }}-{{ comment.id }}">
-            <avatar><img src="{{ gravatar(user.email) }}"></avatar>
-            <info>
-                <username><a href="/user/{{ user.username }}">{{ user.username }}</a></username>
+        <article class="comment" style="margin-left:{{ css_indentation }}px" data-comment-id="{{ news.id }}-{{ comment.id }}">
+            <span class="avatar"><img src="{{ gravatar(user.email) }}"></span>
+            <span class="info">
+                <span class="username"><a href="/user/{{ user.username }}">{{ user.username }}</a></span>
                 {{ time_elapsed(comment.ctime) }}.
                 {% if app.user and comment.topcomment is not defined %}
                     <a href="/reply/{{ news.id }}/{{ comment.id }}" class="reply">reply</a>
@@ -53,12 +62,12 @@
                         {{ ((app.db.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int }} minutes left
                     {% endif %}
                 {% endif %}
-            </info>
+            </span>
             <pre>{{ comment.body }}</pre>
-        </comment>
+        </article>
     {% else %}
-        <comment style="margin-left:{{ css_indentation }}px" class="deleted">
+        <article class="comment deleted" style="margin-left:{{ css_indentation }}px">
             [comment deleted]
-        </comment>
+        </article>
     {% endif %}
 {% endmacro %}

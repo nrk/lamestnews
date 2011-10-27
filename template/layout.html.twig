@@ -3,10 +3,10 @@
     <head>
         <title>{{ title }} - Lamer News</title>
         <meta charset="utf8">
-        <link type="text/css" href="/css/style.css" rel="stylesheet">
+        <link type="text/css" href="/css/style.css?v=3" rel="stylesheet">
         <link href="/images/favicon.png" rel="shortcut icon">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
-        <script src="/js/app.js"></script>
+        <script src="/js/app.js?v=3"></script>
     </head>
     <body>
         <div class="container">
@@ -17,7 +17,7 @@
                     <a href="/latest">latest</a>
                     <a href="/submit">submit</a>
                 </nav>
-                <rnav>
+                <nav id="account">
                     {% if app.user %}
                         <a href="/user/{{ app.user.username | url_encode }}">{{ app.user.username }} ({{ app.user.karma }})</a> |
                         <a href="/logout?apisecret={{ app.user.apisecret }}">logout</a>
@@ -27,9 +27,9 @@
                 </rnav>
             </header>
 
-            <content>
+            <div id="content">
             {% block content %}{% endblock %}
-            </content>
+            </div>
 
             <footer>
                 The code for Lamer News (in PHP) is <a href=".">here</a>.<br />

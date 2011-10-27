@@ -2,18 +2,18 @@
 
 {% block content %}
 
-<login>
+<div id="login">
     <form name="f">
         <label for="username">username</label>
-        <input type="text" name="username">
+        <input type="text" id="username" name="username">
 
         <label for="password">password</label>
-        <input type="password" name="password"/><br/>
+        <input type="password" id="password" name="password"/><br/>
 
-        <input value="1" type="checkbox" name="register"/>create account<br/>
+        <input value="1" type="checkbox" id="register" name="register"/>create account<br/>
         <input value="Log in" type="button" name="do_login"/>
     </form>
-</login>
+</div>
 
 <div id="errormsg"></div>
 

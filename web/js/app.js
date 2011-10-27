@@ -102,12 +102,13 @@ function post_comment() {
 }
 
 // Install the onclick event in all news arrows the user did not voted already.
-$(document).ready(function() {
-    $('news').each(function(i,news) {
-        var news_id = news.id;
+$(function() {
+    $('#newslist article').each(function(i,news) {
+        var news_id = $(news).data("newsId");
         var up_class = news.children[0].getAttribute("class");
         if (!up_class) {
-            news.children[0].onclick=function() {
+            $(news.children[0]).click(function(e) {
+                e.preventDefault();
                 var data = {
                     news_id: news_id,
                     vote_type: "up",
@@ -120,19 +121,20 @@ $(document).ready(function() {
                     success: function(reply) {
                         var r = jQuery.parseJSON(reply);
                         if (r.status == "ok") {
-                            n = $("#"+news_id)[0];
-                            n.children[0].setAttribute("class","voted");
+                            n = $("article[data-news-id="+news_id+"]")[0];
+                            n.children[0].setAttribute("class","uparrow voted");
                             n.children[3].setAttribute("class","disabled");
                         } else {
                             alert("Vote not registered: "+r.error);
                         }
                     }
                 });
-            }
+            });
         }
         var down_class = news.children[3].getAttribute("class");
         if (!down_class) {
-            news.children[3].onclick=function() {
+            $(news.children[3]).click(function(e) {
+                e.preventDefault();
                 var data = {
                     news_id : news_id,
                     vote_type: "down",
@@ -145,15 +147,15 @@ $(document).ready(function() {
                     success: function(reply) {
                         var r = jQuery.parseJSON(reply);
                         if (r.status == "ok") {
-                            n = $("#"+news_id)[0];
+                            n = $("article[data-news-id="+news_id+"]")[0];
                             n.children[0].setAttribute("class","disabled");
-                            n.children[3].setAttribute("class","voted");
+                            n.children[3].setAttribute("class","downarrow voted");
                         } else {
                             alert("Vote not registered: "+r.error);
                         }
                     }
                 });
-            }
+            });
         }
     });
 });

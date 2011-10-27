@@ -5,10 +5,10 @@
 
 <h2>{{ title }}</h2>
 
-<newslist>
+<section id="newslist">
     {% for news in newslist %}
         {{ render_news(news) }}
     {% endfor %}
-</newslist>
+</section>
 
 {% endblock %}
