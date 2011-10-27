@@ -76,7 +76,9 @@ class ApiController implements ControllerProviderInterface
             $text = $request->get('text');
 
             // We can have an empty url or an empty first comment, but not both.
-            if (!strlen($newsID) || !strlen($title) || (!strlen($url) && !strlen($text))) {
+            if (!(strlen($newsID) && strlen($title) && isset($url) && isset($text))
+                    || (strlen($url) == 0 && strlen($text) == 0)) {
+
                 return Helpers::apiError('Please specify a news title and address or text.');
             }
 
@@ -130,7 +132,7 @@ class ApiController implements ControllerProviderInterface
             $parentID = $request->get('parent_id');
             $comment = $request->get('comment');
 
-            if (!strlen($newsID) || !strlen($commentID) || !strlen($parentID)) {
+            if (!strlen($newsID) || !strlen($commentID) || !strlen($parentID) || !isset($comment)) {
                 return Helpers::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 
