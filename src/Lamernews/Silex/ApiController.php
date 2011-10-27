@@ -157,8 +157,9 @@ class ApiController implements ControllerProviderInterface
 
             $about = $request->get('about');
             $email = $request->get('email');
+            $password = $request->get('password');
 
-            if (!strlen($about) || !strlen($email)) {
+            if (!isset($about) || !isset($email) || !isset($password)) {
                 return Helpers::apiError('Missing parameters.');
             }
 
@@ -166,6 +167,13 @@ class ApiController implements ControllerProviderInterface
                 'about' => $about,
                 'email' => $email,
             );
+
+            if (($pwdLen = strlen($password)) > 0) {
+                if ($pwdLen < ($minPwdLen = $app['db']->getOption('password_min_length'))) {
+                    return Helpers::apiError("Password is too short. Min length: $minPwdLen");
+                }
+                $attributes['password'] = Helpers::pbkdf2($password, $app['user']['salt']);
+            }
 
             $app['db']->updateUserProfile($app['user'], $attributes);
 

@@ -232,6 +232,7 @@ class RedisDatabase implements DatabaseInterface
         $this->getRedis()->hmset("user:{$user['id']}", array(
             'about' => substr($attributes['about'], 0, 4095),
             'email' => substr($attributes['email'], 0, 255),
+            'password' => $attributes['password'],
         ));
     }
 
