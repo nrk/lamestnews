@@ -273,9 +273,8 @@ class RedisDatabase implements DatabaseInterface
         if (!$newsIDs) {
             return array();
         }
-        if (!is_array($newsIDs)) {
-            $newsIDs = array((string) $newsIDs);
-        }
+
+        $newsIDs = !is_array($newsIDs) ? array($newsIDs) : array_values(array_filter($newsIDs));
 
         $redis = $this->getRedis();
 
