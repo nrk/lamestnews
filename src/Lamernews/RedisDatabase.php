@@ -240,8 +240,7 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getTopNews(Array $user = null)
     {
-        $newsIDs = $this->getRedis()
-                        ->zrevrange('news.top', 0, $this->getOption(top_news_per_page) - 1);
+        $newsIDs = $this->getRedis()->zrevrange('news.top', 0, $this->getOption('top_news_per_page') - 1);
 
         if (!$newsIDs) {
             return array();
