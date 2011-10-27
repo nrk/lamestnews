@@ -137,7 +137,7 @@ class ApiController implements ControllerProviderInterface
             $info = $app['db']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
 
             if (!$info) {
-                return Helpers::apiError('Invalid news, comment, or edit time expirede.');
+                return Helpers::apiError('Invalid news, comment, or edit time expired.');
             }
 
             return Helpers::apiOK(array(
