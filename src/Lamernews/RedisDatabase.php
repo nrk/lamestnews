@@ -64,6 +64,7 @@ class RedisDatabase implements DatabaseInterface
             'news_score_log_booster' => 2,
             'rank_aging_factor' => 1,
             'prevent_repost_time' => 3600 * 48,
+            'news_submission_break' => 60 * 15,
         );
     }
 
@@ -234,6 +235,13 @@ class RedisDatabase implements DatabaseInterface
             'email' => substr($attributes['email'], 0, 255),
             'password' => $attributes['password'],
         ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNewPostEta(Array $user) {
+        return $this->getRedis()->ttl("user:{$user['id']}:submitted_recently");
     }
 
     /**
@@ -469,8 +477,10 @@ class RedisDatabase implements DatabaseInterface
         $redis->zadd("user.posted:$userID", $ctime, $newsID);
         // Add the news into the chronological view.
         $redis->zadd('news.cron', $ctime, $newsID);
-        //  Add the news into the top view.
+        // Add the news into the top view.
         $redis->zadd('news.top', $newsRank, $newsID);
+        // Set a timeout indicating when the user may post again
+        $redis->setex("user:$userID:submitted_recently", $this->getOption('news_submission_break') ,'1');
 
         if (!$textPost) {
             // Avoid reposts for a certain amount of time using an expiring key.

@@ -97,6 +97,13 @@ interface DatabaseInterface
     public function updateUserProfile(Array $user, Array $attributes);
 
     /**
+     * Gets how many seconds the user has to wait before submitting a new post.
+     *
+     * @param array $user User details.
+     */
+    public function getNewPostEta(Array $user);
+
+    /**
      * Gets the list of the current top news items.
      *
      * @param array $user Current user.

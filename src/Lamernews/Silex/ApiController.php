@@ -70,6 +70,10 @@ class ApiController implements ControllerProviderInterface
                 return $error;
             }
 
+            if (($eta = $app['db']->getNewPostEta($app['user'])) > 0) {
+                return Helpers::apiError("You have submitted a story too recently, please wait $eta seconds");
+            }
+
             $newsID = $request->get('news_id');
             $title = $request->get('title');
             $url = $request->get('url');
