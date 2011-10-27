@@ -128,7 +128,32 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/editnews/{newsID}', function(Lamer $app, $newsID) {
-            // ...
+            if (!$app['user']) {
+                return $app->redirect('/login');
+            }
+
+            if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
+                return $app->abort(404, 'This news does not exist.');
+            }
+
+            list($news) = $news;
+
+            $user = $app['db']->getUserByID($news['user_id']);
+            if (!$user || $app['user']['id'] != $user['id']) {
+                return $app->abort(500, 'Permission denied.');
+            }
+
+            $text = '';
+            if (!Helpers::getNewsDomain($news)) {
+                $text = Helpers::getNewsText($news);
+                $news['url'] = '';
+            }
+
+            return $app['twig']->render('edit_news.html.twig', array(
+                'title' => 'Edit news',
+                'news' => $news,
+                'text' => $text,
+            ));
         });
 
         $controllers->get('/user/{username}', function(Lamer $app, $username) {

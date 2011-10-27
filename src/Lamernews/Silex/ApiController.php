@@ -92,7 +92,7 @@ class ApiController implements ControllerProviderInterface
                 $newsID = $app['db']->insertNews($title, $url, $text, $app['user']['id']);
             }
             else {
-                $newsID = $app['db']->editNews($newsID, $title, $url, $text, $app['user']['id']);
+                $newsID = $app['db']->editNews($app['user'], $newsID, $title, $url, $text);
                 if (!$newsID) {
                     return Helpers::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
                 }

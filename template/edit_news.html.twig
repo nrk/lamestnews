@@ -1,0 +1,36 @@
+{% extends 'layout.html.twig' %}
+{% from 'shared.html.twig' import render_news %}
+
+{% block content %}
+
+{{ render_news(news) }}
+
+<submitform>
+    <form name="f">
+        <input value="{{ news.id }}" type="hidden" name="news_id">
+
+        <label for="title">title</label>
+        <input type="text" size="80" name="title" value="{{ news.title }}"><br>
+
+        <label for="url">url</label><br/>
+        <input type="text" size="60" name="url" value="{{ news.url }}"><br>
+
+        or if you don't have an url type some text<br>
+        <label for="text">text</label>
+        <textarea cols="60" name="text" rows="10">{{ text }}</textarea>
+
+        <input value="Edit" type="button" name="edit_news">
+    </form>
+</submitform>
+
+<div id="errormsg"></div>
+
+<note>Note: to remove the news set an empty title.</note>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("input[name=edit_news]").click(submit);
+    });
+</script>
+
+{% endblock %}

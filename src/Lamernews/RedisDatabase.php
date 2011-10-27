@@ -482,9 +482,9 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function editNews($newsID, $title, $url, $text, $userID)
+    public function editNews(Array $user, $newsID, $title, $url, $text)
     {
-        $news = $this->getNewsByID($newsID);
+        $news = $this->getNewsByID($user, $newsID);
 
         if (!$news || $news['user_id'] != $userID) {
             return false;

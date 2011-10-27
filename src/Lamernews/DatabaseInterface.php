@@ -145,14 +145,14 @@ interface DatabaseInterface
     /**
      * Edit an already existing news item.
      *
+     * @param string $user User that edited the news.
      * @param string $newsID ID of the news item.
      * @param string $title Title of the news.
      * @param string $url URL of the news.
      * @param string $text Text of the news.
-     * @param string $userID User that sumbitted the news.
      * @return string
      */
-    public function editNews($newsID, $title, $url, $text, $userID);
+    public function editNews(Array $user, $newsID, $title, $url, $text);
 
     /**
      * Handles various kind of actions on a comment depending on the arguments.
