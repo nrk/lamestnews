@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+define('__VERSION__', '0.0.9');
 define('__VENDOR__', __DIR__.'/../vendor');
 
 require __VENDOR__.'/silex/silex.phar';
