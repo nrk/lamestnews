@@ -1,29 +1,33 @@
 {% macro render_news(news) %}
-    <article data-news-id="{{ news.id }}">
-        <a href="#up" {{ _self.vote_class(news, 'up') }}>&#9650;</a>
+    {% if news.del is not defined or news.del == false %}
+        <article data-news-id="{{ news.id }}">
+            <a href="#up" {{ _self.vote_class(news, 'up') }}>&#9650;</a>
 
-        {% set is_editable = news_editable(app.user, news, app.db.getOption('news_edit_time')) %}
+            {% set is_editable = news_editable(app.user, news, app.db.getOption('news_edit_time')) %}
 
-        {% if news_domain(news) %}
-            <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
-            <address>
-                at {{ news_domain(news) }}
-                {% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}
-            </address>
-        {% else %}
-            <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
-            <address>{% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}</address>
-        {% endif %}
+            {% if news_domain(news) %}
+                <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
+                <address>
+                    at {{ news_domain(news) }}
+                    {% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}
+                </address>
+            {% else %}
+                <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
+                <address>{% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}</address>
+            {% endif %}
 
-        <a href="#down" {{ _self.vote_class(news, 'down') }}>&#9660;</a>
+            <a href="#down" {{ _self.vote_class(news, 'down') }}>&#9660;</a>
 
-        <p>
-            {{ news.up }} up and {{ news.down }} down,
-            posted by <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
-            {{ time_elapsed(news.ctime) }}
-            <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
-        </p>
-    </article>
+            <p>
+                {{ news.up }} up and {{ news.down }} down,
+                posted by <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
+                {{ time_elapsed(news.ctime) }}
+                <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
+            </p>
+        </article>
+    {% else %}
+        <article class="deleted">[deleted news]</article>
+    {% endif %}
 {% endmacro %}
 
 {% macro vote_class(news, type) %}

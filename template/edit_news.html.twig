@@ -17,15 +17,15 @@
 
         or if you don't have an url type some text<br>
         <label for="text">text</label>
-        <textarea cols="60" id="text" name="text" rows="10">{{ text }}</textarea>
+        <textarea cols="60" id="text" name="text" rows="10">{{ text }}</textarea><br>
+
+        <input type="checkbox" name="del" value="1">delete this news<br>
 
         <input value="Edit" type="button" name="edit_news">
     </form>
 </form>
 
 <div id="errormsg"></div>
-
-<note>Note: to remove the news set an empty title.</note>
 
 <script>
     $(function() {

@@ -110,6 +110,23 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK(array('news_id' => $newsID));
         });
 
+        $controllers->post('/delnews', function(Lamer $app, Request $request) {
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
+            }
+
+            $newsID = $request->get('news_id');
+
+            if (!strlen($newsID)) {
+                return Helpers::apiError('Please specify a news title.');
+            }
+            if (!$app['db']->deleteNews($app['user'], $newsID)) {
+                return Helpers::apiError('News too old or wrong ID/owner.');
+            }
+
+            return Helpers::apiOK(array('news_id' => -1));
+        });
+
         $controllers->post('/votenews', function(Lamer $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;

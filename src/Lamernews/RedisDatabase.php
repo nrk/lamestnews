@@ -613,6 +613,28 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function deleteNews(Array $user, $newsID)
+    {
+        @list($news) = $this->getNewsByID($user, $newsID);
+
+        if (!$news || $news['user_id'] != $user['id']) {
+            return false;
+        }
+        if ((int)$news['ctime'] <= (time() - $this->getOption('news_edit_time'))) {
+            return false;
+        }
+
+        $redis = $this->getRedis();
+        $redis->hmset("news:$newsID", 'del', 1);
+        $redis->zrem('news.top', $newsID);
+        $redis->zrem('news.cron', $newsID);
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function handleComment(Array $user, $newsID, $commentID, $parentID, $body = null)
     {
         $redis = $this->getRedis();

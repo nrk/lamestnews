@@ -180,6 +180,15 @@ interface DatabaseInterface
     public function editNews(Array $user, $newsID, $title, $url, $text);
 
     /**
+     * Deletes an already existing news item.
+     *
+     * @param string $user User that edited the news.
+     * @param string $newsID ID of the news item.
+     * @return boolean
+     */
+    public function deleteNews(Array $user, $newsID);
+
+    /**
      * Handles various kind of actions on a comment depending on the arguments.
      *
      * 1) If comment_id is -1 insert a new comment into the specified news.
