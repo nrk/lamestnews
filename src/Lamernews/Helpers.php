@@ -159,10 +159,12 @@ class Helpers
     }
 
     /**
-     * Generates the response payload for an API call when it is successful.
+     * Verifies if the request for the user is valid.
      *
-     * @param array $response Other values that compose the response.
-     * @return string
+     * @param array $user User details.
+     * @param string $apisecret API secret token.
+     * @param string $response Error message on invalid requests.
+     * @return boolean
      */
     public static function isRequestValid(Array $user, $apisecret, &$response)
     {
