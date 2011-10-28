@@ -393,6 +393,7 @@ class RedisDatabase implements DatabaseInterface
             }
             $comment = json_decode($comment, true);
             $comment['id'] = $id;
+            $comment['voted'] = Helpers::commentVoted($user, $comment);
             $parentID = $comment['parent_id'];
 
             $userID = $comment['user_id'];
@@ -651,6 +652,7 @@ class RedisDatabase implements DatabaseInterface
                 'parent_id' => $parentID,
                 'user_id' => $user['id'],
                 'ctime' => time(),
+                'up' => array($user['id']),
             );
 
             $commentID = $this->postComment($newsID, $comment);
@@ -717,7 +719,6 @@ class RedisDatabase implements DatabaseInterface
     public function getComment($newsID, $commentID)
     {
         $json = $this->getRedis()->hget("thread:comment:$newsID", $commentID);
-
         if ($json) {
             return json_decode($json, true);
         }
@@ -746,6 +747,29 @@ class RedisDatabase implements DatabaseInterface
         $redis->hset($threadKey, $commentID, json_encode($comment));
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function voteComment(Array $user, $newsID, $commentID, $type)
+    {
+        if ($type !== 'up' && $type !== 'down') {
+            return false;
+        }
+
+        $comment = $this->getComment($newsID, $commentID);
+
+        if (!$comment) {
+            return false;
+        }
+        if (Helpers::commentVoted($user, $comment)) {
+            return false;
+        }
+
+        $votes[] = $user['id'];
+
+        return $this->editComment($newsID, $commentID, array($type => $votes));
     }
 
     /**

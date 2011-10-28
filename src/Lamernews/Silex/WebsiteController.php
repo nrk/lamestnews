@@ -128,8 +128,12 @@ class WebsiteController implements ControllerProviderInterface
             return $app['twig']->render('permalink_to_comment.html.twig', array(
                 'title' => $news['title'],
                 'news' => $news,
-                'comment' => array_merge($comment, array('id' => $commentID, 'user' => $user)),
-                'comments' => $app['db']->getNewsComments($user, $news),
+                'comment' => array_merge($comment, array(
+                    'id' => $commentID,
+                    'user' => $user,
+                    'voted' => Helpers::commentVoted($app['user'], $comment),
+                )),
+                'comments' => $app['db']->getNewsComments($app['user'], $news),
             ));
         });
 
@@ -155,7 +159,11 @@ class WebsiteController implements ControllerProviderInterface
             return $app['twig']->render('reply_to_comment.html.twig', array(
                 'title' => 'Reply to comment',
                 'news' => $news,
-                'comment' => array_merge($comment, array('id' => $commentID, 'user' => $user)),
+                'comment' => array_merge($comment, array(
+                    'id' => $commentID,
+                    'user' => $user,
+                    'voted' => Helpers::commentVoted($app['user'], $comment),
+                )),
             ));
         });
 
@@ -182,7 +190,11 @@ class WebsiteController implements ControllerProviderInterface
             return $app['twig']->render('edit_comment.html.twig', array(
                 'title' => 'Edit comment',
                 'news' => $news,
-                'comment' => array_merge($comment, array('id' => $commentID, 'user' => $user)),
+                'comment' => array_merge($comment, array(
+                    'id' => $commentID,
+                    'user' => $user,
+                    'voted' => Helpers::commentVoted($app['user'], $comment),
+                )),
             ));
         });
 

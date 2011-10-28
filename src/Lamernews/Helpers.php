@@ -221,4 +221,28 @@ class Helpers
             'error' => $error,
         )));
     }
+
+    /**
+     * Checks if a comment has been voted by the specified user and returns
+     * which kind of vote has been given, or FALSE.
+     *
+     * @param array $user User details.
+     * @param array $comment Comment details.
+     * @param string $vote Type of vote (either up or down)
+     * @return mixed
+     */
+     public static function commentVoted(Array $user, Array $comment)
+     {
+        $votes = isset($comment['up']) ? $comment['up'] : array();
+        if (in_array($user['id'], $votes)) {
+            return 'up';
+        }
+
+        $votes = isset($comment['down']) ? $comment['down'] : array();
+        if (in_array($user['id'], $votes)) {
+            return 'down';
+        }
+
+        return false;
+     }
 }

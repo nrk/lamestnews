@@ -1,7 +1,7 @@
 {% macro render_news(news) %}
     {% if news.del is not defined or news.del == false %}
         <article data-news-id="{{ news.id }}">
-            <a href="#up" {{ _self.vote_class(news, 'up') }}>&#9650;</a>
+            <a href="#up" class="{{ _self.vote_class(news, 'up') }}">&#9650;</a>
 
             {% set is_editable = news_editable(app.user, news, app.db.getOption('news_edit_time')) %}
 
@@ -16,7 +16,7 @@
                 <address>{% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}</address>
             {% endif %}
 
-            <a href="#down" {{ _self.vote_class(news, 'down') }}>&#9660;</a>
+            <a href="#down" class="{{ _self.vote_class(news, 'down') }}">&#9660;</a>
 
             <p>
                 {{ news.up }} up and {{ news.down }} down,
@@ -32,9 +32,11 @@
 
 {% macro vote_class(news, type) %}
 {% spaceless %}
-    {% if news.voted %}
-        {% set typearrow = type ~ 'arrow ' %}
-        class="{{ typearrow ~ (news.voted == type ? 'voted' : 'disabled') }}"
+    {% set typearrow = type ~ 'arrow ' %}
+    {% if news.voted is defined and news.voted %}
+        {{ typearrow ~ (news.voted == type ? 'voted' : 'disabled') }}
+    {% else %}
+        {{ typearrow }}
     {% endif %}
 {% endspaceless %}
 {% endmacro %}
@@ -63,6 +65,8 @@
                 <a href="/comment/{{ news.id }}/{{ comment.id }}" class="reply">link</a>
                 {% if app.user and comment.topcomment is not defined %}
                     <a href="/reply/{{ news.id }}/{{ comment.id }}" class="reply">reply</a>
+                    <a href="#up" class="{{ _self.vote_class(comment, 'up') }}">&#9650;</a>
+                    <a href="#down" class="{{ _self.vote_class(comment, 'down') }}">&#9660;</a>
                     {% if app.user.id == comment.user_id and edit_time_left > 0 %}
                         <a href="/editcomment/{{ news.id }}/{{ comment.id }}" class="reply">edit</a>
                         {{ edit_time_left }} minutes left

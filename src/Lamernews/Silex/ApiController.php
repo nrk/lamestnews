@@ -174,6 +174,28 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
+        $controllers->post('/votecomment', function(Lamer $app, Request $request) {
+            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+                return $error;
+            }
+
+            $compositeID = $request->get('comment_id');
+            $voteType = $request->get('vote_type');
+
+            if (!preg_match('/^\d+-\d+$/', $compositeID) || ($voteType !== 'up' && $voteType !== 'down')) {
+                return Helpers::apiError('Missing or invalid comment ID or invalid vote type.');
+            }
+
+            list($newsID, $commentID) = split('-', $compositeID);
+            if (!$app['db']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
+                return Helpers::apiError('Invalid parameters or duplicated vote.');
+            }
+
+            return Helpers::apiOK(array(
+                'comment_id' => $compositeID,
+            ));
+        });
+
         $controllers->post('/updateprofile', function(Lamer $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;

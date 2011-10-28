@@ -69,7 +69,7 @@ $app->before(function(Request $request) use ($app) {
         $app['db']->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
     }
 
-    $app['user'] = $app->share(function() use($user) { return $user; });
+    $app['user'] = $user;
 });
 
 $app->mount('/', new WebsiteController());

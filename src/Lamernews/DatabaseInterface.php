@@ -239,6 +239,18 @@ interface DatabaseInterface
     public function postComment($newsID, Array $comment);
 
     /**
+     * Registers a vote (up or down) for the specified comment.
+     *
+     * @param array $user Details of the voting user.
+     * @param string $newsID ID of the associated news item.
+     * @param string $commentID ID of the comment.
+     * @param string $type 'up' for upvoting a news item.
+     *                     'down' for downvoting a news item.
+     * @return boolean
+     */
+    public function voteComment(Array $user, $newsID, $commentID, $type);
+
+    /**
      * Edits the specified comment by updating only the passed values.
      *
      * @param string $newsID ID of the associated news item.

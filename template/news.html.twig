@@ -33,7 +33,9 @@
 {% endif %}
 
 {% if comments %}
+<div id="comments">
     {{ render_comments(news, comments, -1, 0) }}
+</div>
 {% endif %}
 
 <script>
