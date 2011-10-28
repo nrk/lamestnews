@@ -179,6 +179,22 @@ class Helpers
     }
 
     /**
+     * Checks if a news is editable by the specified user.
+     *
+     * @param array $user User details.
+     * @param array $news News details.
+     * @param int $timeLimit Limit in seconds for the editable status.
+     * @return boolean
+     */
+    public static function isNewsEditable(Array $user, Array $news, $timeLimit = 900)
+    {
+        if (!$user) {
+            return false;
+        }
+        return $user['id'] == $news['user_id'] && $news['ctime'] > (time() - $timeLimit);
+    }
+
+    /**
      * Generates the response payload for an API call when it is successful.
      *
      * @param array $response Other values that compose the response.

@@ -2,16 +2,17 @@
     <article data-news-id="{{ news.id }}">
         <a href="#up" {{ _self.vote_class(news, 'up') }}>&#9650;</a>
 
+        {% set is_editable = news_editable(app.user, news, app.db.getOption('news_edit_time')) %}
+
         {% if news_domain(news) %}
             <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
-            <address>at {{ news_domain(news) }}</address>
+            <address>
+                at {{ news_domain(news) }}
+                {% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}
+            </address>
         {% else %}
             <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
-            <address></address>
-        {% endif %}
-
-        {% if app.user and app.user.id == news.user_id and news.ctime > (now() - app.db.getOption('news_edit_time')) %}
-            <a href="/editnews/{{ news.id }}">[edit]</a>
+            <address>{% if is_editable %}<a href="/editnews/{{ news.id }}">[edit]</a>{% endif %}</address>
         {% endif %}
 
         <a href="#down" {{ _self.vote_class(news, 'down') }}>&#9660;</a>
