@@ -245,4 +245,17 @@ class Helpers
 
         return false;
      }
+
+    /**
+     * Computes a score for the specified comment.
+     *
+     * @param array $comment Comment details.
+     * @return int
+     */
+     public static function commentScore(Array $comment)
+     {
+         $upvotes = isset($comment['up']) ? count($comment['up']) : 0;
+         $downvotes = isset($comment['down']) ? count($comment['down']) : 0;
+         return $upvotes - $downvotes;
+     }
 }
