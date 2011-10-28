@@ -7,6 +7,7 @@
             <address>at {{ news_domain(news) }}</address>
         {% else %}
             <h2><a href="/news/{{ news.id }}">{{ news.title }}</a></h2>
+            <address></address>
         {% endif %}
 
         {% if app.user and app.user.id == news.user_id and news.ctime > (now() - app.db.getOption('news_edit_time')) %}
