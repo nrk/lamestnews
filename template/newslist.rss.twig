@@ -1,0 +1,20 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>{{ site_name }}</title>
+        <link>{{ site_url }}</link>
+        <description>{{ site_name }} - {{ description }}</description>
+{% for news in newslist %}
+{% set url_comments = site_url ~ 'news/' ~ news.id %}
+{% set news_url = news_domain(news) ? news.url : url_comments %}
+        <item>
+            <title>{{ news.title }}</title>
+            <guid>{{ news_url }}</guid>
+            <link>{{ news_url }}</link>
+            <description>
+                <![CDATA[ <a href="{{ url_comments }}">Comments</a> ]]>
+            </description>
+            <comments>{{ url_comments }}</comments>
+        </item>
+{% endfor %}
+    </channel>
+</rss>

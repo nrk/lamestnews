@@ -4,6 +4,7 @@ namespace Lamernews\Silex;
 
 use Silex\Application as Lamer;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Silex\ControllerProviderInterface;
 use Silex\ControllerCollection;
 use Lamernews\Helpers;
@@ -26,6 +27,19 @@ class WebsiteController implements ControllerProviderInterface
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Top news',
                 'newslist' => $app['db']->getTopNews($app['user']),
+            ));
+        });
+
+        $controllers->get('/rss', function(Lamer $app, Request $request) {
+            $rss = $app['twig']->render('newslist.rss.twig', array(
+                'site_name' => 'Lamer News',
+                'site_url' => $request->getUriForPath('/'),
+                'description' => 'Latest news',
+                'newslist' => $app['db']->getLatestNews(),
+            ));
+
+            return new Response($rss, 200, array(
+                'Content-Type' => 'text/xml',
             ));
         });
 
