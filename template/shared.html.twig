@@ -42,9 +42,7 @@
 {% macro render_comments(news, tree, parent_id, level) %}
     {% for comment in tree[parent_id] %}
         {% set parents = tree[comment.id] is defined ? tree[comment.id] : null %}
-
         {{ _self.render_comment(news, comment, level, parents) }}
-
         {% if parents %}
             {{ _self.render_comments(news, tree, comment.id, level + 1) }}
         {% endif %}
@@ -52,8 +50,9 @@
 {% endmacro %}
 
 {% macro render_comment(news, comment, level, parents) %}
-    {% set css_indentation = level * app.db.getOption('comment_reply_shift') %}
     {% set user = comment.user %}
+    {% set css_indentation = level * app.db.getOption('comment_reply_shift') %}
+    {% set edit_time_left = ((app.db.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int %}
 
     {% if comment.del is not defined or comment.del == false and parents %}
         <article class="comment" style="margin-left:{{ css_indentation }}px" data-comment-id="{{ news.id }}-{{ comment.id }}">
@@ -61,11 +60,12 @@
             <span class="info">
                 <span class="username"><a href="/user/{{ user.username }}">{{ user.username }}</a></span>
                 {{ time_elapsed(comment.ctime) }}.
+                <a href="/comment/{{ news.id }}/{{ comment.id }}" class="reply">link</a>
                 {% if app.user and comment.topcomment is not defined %}
                     <a href="/reply/{{ news.id }}/{{ comment.id }}" class="reply">reply</a>
-                    {% if app.user.id == comment.user_id and comment.ctime %}
+                    {% if app.user.id == comment.user_id and edit_time_left > 0 %}
                         <a href="/editcomment/{{ news.id }}/{{ comment.id }}" class="reply">edit</a>
-                        {{ ((app.db.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int }} minutes left
+                        {{ edit_time_left }} minutes left
                     {% endif %}
                 {% endif %}
             </span>

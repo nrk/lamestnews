@@ -1,0 +1,22 @@
+{% extends 'layout.html.twig' %}
+{% from 'shared.html.twig' import render_news, render_comments, render_comment %}
+
+{% block content %}
+
+<section id="newslist">
+    {{ render_news(news) }}
+</section>
+
+<div class="singlecomment">
+    {{ render_comment(news, comment, 0) }}
+</div>
+
+<div class="commentreplies"><h2>Replies</h2></div>
+
+<div id="comments">
+    {% if comments[comment.id] is defined %}
+        {{ render_comments(news, comments, comment.id, 0) }}
+    {% endif %}
+</div>
+
+{% endblock %}
