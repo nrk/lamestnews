@@ -3,7 +3,9 @@
 
 {% block content %}
 
-{{ render_news(news) }}
+<section id="newslist">
+    {{ render_news(news) }}
+</section>
 
 {% if not news_domain(news) %}
     <topcomment>
