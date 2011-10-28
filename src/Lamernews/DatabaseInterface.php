@@ -19,6 +19,15 @@ namespace Lamernews;
 interface DatabaseInterface
 {
     /**
+     * Implements a generic and persisted rate limiting mechanism.
+     *
+     * @param int $delay Delay for the rate limite.
+     * @param array $tags List of tags to create a limit key.
+     * @return boolean
+     */
+    public function rateLimited($delay, Array $tags);
+
+    /**
      * Creates a new user and returns a new autorization token.
      *
      * @param $username Username for the new user.

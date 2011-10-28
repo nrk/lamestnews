@@ -53,6 +53,10 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Username and password are two required fields.');
             }
 
+            if ($app['db']->rateLimited(3600 * 15, array('create_user', $request->getClientIp()))) {
+                return Helpers::apiError('Please wait some time before creating a new user.');
+            }
+
             if (strlen($password) < ($minPwdLen = $app['db']->getOption('password_min_length'))) {
                 return Helpers::apiError("Password is too short. Min length: $minPwdLen");
             }

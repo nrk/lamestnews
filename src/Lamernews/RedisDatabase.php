@@ -72,6 +72,24 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function rateLimited($delay, Array $tags)
+    {
+        if (!$tags) {
+            return false;
+        }
+
+        $key = "limit:" . join($tags, '.');
+        if ($this->getRedis()->exists($key)) {
+            return true;
+        }
+        $this->getRedis()->setex($key, $delay, 1);
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createUser($username, $password)
     {
         $redis = $this->getRedis();
