@@ -65,6 +65,7 @@ class RedisDatabase implements DatabaseInterface
             'rank_aging_factor' => 1,
             'prevent_repost_time' => 3600 * 48,
             'news_submission_break' => 60 * 15,
+            'saved_news_per_page' => 10,
         );
     }
 
@@ -272,6 +273,19 @@ class RedisDatabase implements DatabaseInterface
     {
         $newsIDs = $this->getRedis()->zrevrange('news.cron', 0, $this->getOption('latest_news_per_page') - 1);
         return $this->getNewsByID($user ?: array(), $newsIDs, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSavedNews(Array $user, $start = 0)
+    {
+        $redis = $this->getRedis();
+        $newsIDs = $redis->zrevrange("user.saved:{$user['id']}", $start, $start + $this->getOption('saved_news_per_page'));
+        return array(
+            'news' => $this->getNewsByID($user, $newsIDs),
+            'count' => $redis->zcard("user.saved:{$user['id']}"),
+        );
     }
 
     /**

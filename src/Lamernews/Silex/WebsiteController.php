@@ -36,6 +36,28 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
+        $controllers->get('/saved/{start}', function(Lamer $app, $start) {
+            if (!$app['user']) {
+                return $app->redirect('/login');
+            }
+
+            if (($start = (int)$start) < 0) {
+                $start = 0;
+            }
+
+            $saved = $app['db']->getSavedNews($app['user'], $start);
+
+            return $app['twig']->render('news_saved.html.twig', array(
+                'title' => 'Saved news',
+                'newslist' => $saved['news'],
+                'pagination' => array(
+                    'start' => $start,
+                    'count' => $saved['count'],
+                    'perpage' => $app['db']->getOption('saved_news_per_page'),
+                ),
+            ));
+        });
+
         $controllers->get('/login', function(Lamer $app) {
             return $app['twig']->render('login.html.twig', array(
                 'title' => 'Login',

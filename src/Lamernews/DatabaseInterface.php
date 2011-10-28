@@ -120,6 +120,15 @@ interface DatabaseInterface
     public function getLatestNews(Array $user = null);
 
     /**
+     * Gets the list of the saved news for the specified user.
+     *
+     * @param array $user Current user.
+     * @param int $start Offset from which to start in the list of saved news.
+     * @return array
+     */
+    public function getSavedNews(Array $user, $start = 0);
+
+    /**
      * Retrieves one or more news items using their IDs.
      *
      * @param array $user Details of the current user.

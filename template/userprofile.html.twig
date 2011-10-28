@@ -1,4 +1,5 @@
 {% extends 'layout.html.twig' %}
+{% set owner = app.user and app.user.id == user.id %}
 
 {% block content %}
 
@@ -11,10 +12,13 @@
         <li><b>karma </b>{{ user.karma }} points</li>
         <li><b>posted news </b>{{ user_counters.posted_news }}</li>
         <li><b>posted comments </b>{{ user_counters.posted_comments }}</li>
+        {% if owner %}
+            <li><a href="/saved/0">saved news</a></li>
+        {% endif %}
     </ul>
 </div>
 
-{% if app.user and app.user.id == user.id %}
+{% if owner %}
 
 <br>
 

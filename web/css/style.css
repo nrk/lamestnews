@@ -218,6 +218,10 @@ topcomment {
     margin:20px;
 }
 
+.userinfo a {
+    text-decoration: underline;
+}
+
 .userinfo ul li {
     list-style-type: none;
     margin-bottom:10px;
