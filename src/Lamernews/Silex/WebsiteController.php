@@ -95,8 +95,7 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/news/{newsID}', function(Lamer $app, $newsID) {
-            $user = $app['user'] ?: array();
-            list($news) = $app['db']->getNewsByID($user, array($newsID));
+            list($news) = $app['db']->getNewsByID($app['user'], array($newsID));
 
             if (!$news) {
                 return $app->abort(404, 'This news does not exist.');
@@ -106,7 +105,7 @@ class WebsiteController implements ControllerProviderInterface
                 'title' => $news['title'],
                 'news' => $news,
                 'user' => $app['db']->getUserByID($news['user_id']),
-                'comments' => $app['db']->getNewsComments($user, $news),
+                'comments' => $app['db']->getNewsComments($app['user'], $news),
             ));
         });
 

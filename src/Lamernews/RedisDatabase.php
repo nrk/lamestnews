@@ -56,13 +56,13 @@ class RedisDatabase implements DatabaseInterface
             'karma_increment_amount' => 1,
 
             // news and ranking
-            'news_age_padding' => 60 * 10,
+            'news_age_padding' => 60 * 60 * 8,
             'top_news_per_page' => 30,
             'latest_news_per_page' => 100,
             'news_edit_time' => 60 * 15,
             'news_score_log_start' => 10,
             'news_score_log_booster' => 2,
-            'rank_aging_factor' => 1,
+            'rank_aging_factor' => 1.6,
             'prevent_repost_time' => 3600 * 48,
             'news_submission_break' => 60 * 15,
             'saved_news_per_page' => 10,
@@ -278,7 +278,7 @@ class RedisDatabase implements DatabaseInterface
 
         // Sort by rank before returning, since we adjusted ranks during iteration.
         usort($result, function($a, $b) {
-            return (float) $b['rank'] - (float) $a['rank'];
+            return $a['rank'] != $b['rank'] ? ($a['rank'] < $b['rank'] ? 1 : -1) : 0;
         });
 
         return $result;
@@ -332,7 +332,7 @@ class RedisDatabase implements DatabaseInterface
         $result = array();
 
         // Get all the news
-        $redis->pipeline(function($pipe) use($newslist, &$result) {
+        $redis->pipeline(function($pipe) use($newslist, $updateRank, &$result) {
             foreach ($newslist as $news) {
                 // Adjust rank if too different from the real-time value.
                 if ($updateRank) {
@@ -420,10 +420,10 @@ class RedisDatabase implements DatabaseInterface
     protected function updateNewsRank(PipelineContext $pipe, Array &$news)
     {
         $realRank = $this->computeNewsRank($news);
-        if (abs($realRank - (float) $news['rank']) > 0.001) {
+        if (abs($realRank - $news['rank']) > 0.001) {
             $pipe->hmset("news:{$news['id']}", 'rank', $realRank);
             $pipe->zadd('news.top', $realRank , $news['id']);
-            $news['rank'] = (string) $realRank;
+            $news['rank'] = $realRank;
         }
     }
 
@@ -466,7 +466,7 @@ class RedisDatabase implements DatabaseInterface
     protected function computeNewsRank(Array $news)
     {
         $age = time() - (int) $news['ctime'] + $this->getOption('news_age_padding');
-        return (((float) $news['score']) * 1000) / ($age * $this->getOption('rank_aging_factor'));
+        return ((float) $news['score']) / pow($age / 3600, $this->getOption('rank_aging_factor'));
     }
 
     /**
@@ -581,6 +581,7 @@ class RedisDatabase implements DatabaseInterface
             return false;
         }
 
+        list($news) = $news;
         $redis = $this->getRedis();
 
         // Verify that the user has not already voted the news item.
