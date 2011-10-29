@@ -21,7 +21,9 @@
                     <a href="/">top</a>
                     <a href="/latest">latest</a>
                     <a href="/submit">submit</a>
-                    <a href="/replies" class="replies">replies{% if replies %} <sup>{{ replies }}</sup>{% endif %}</a>
+                    {% if app.user %}
+                        <a href="/replies" class="replies">replies{% if replies %} <sup>{{ replies }}</sup>{% endif %}</a>
+                    {% endif %}
                 </nav>
                 <nav id="account">
                     {% if app.user %}
