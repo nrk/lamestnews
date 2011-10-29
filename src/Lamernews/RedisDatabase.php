@@ -184,6 +184,8 @@ class RedisDatabase implements DatabaseInterface
             return;
         }
 
+        $this->_user = $user;
+
         return array(
             $user['auth'],
             $user['apisecret'],
@@ -268,11 +270,11 @@ class RedisDatabase implements DatabaseInterface
      * {@inheritdoc}
      */
     public function updateUserProfile(Array $user, Array $attributes) {
-        $this->getRedis()->hmset("user:{$user['id']}", array(
+        $attributes = array_merge($attributes, array(
             'about' => substr($attributes['about'], 0, 4095),
             'email' => substr($attributes['email'], 0, 255),
-            'password' => $attributes['password'],
         ));
+        $this->getRedis()->hmset("user:{$user['id']}", $attributes);
     }
 
     /**

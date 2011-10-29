@@ -11,7 +11,7 @@
         <input type="password" id="password" name="password"/><br/>
 
         <input value="1" type="checkbox" id="register" name="register"/>create account<br/>
-        <input value="Log in" type="button" name="do_login"/>
+        <input type="submit" value="Log in" name="do_login"/>
     </form>
 </div>
 
@@ -19,7 +19,7 @@
 
 <script>
     $(function() {
-        $("input[name=do_login]").click(login);
+        $("form[name=f]").submit(login);
     });
 </script>
 

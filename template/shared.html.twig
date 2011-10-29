@@ -2,7 +2,6 @@
     {% if news.del is not defined or news.del == false %}
         <article data-news-id="{{ news.id }}">
             <a href="#up" class="{{ _self.vote_class(news, 'up') }}">&#9650;</a>
-
             {% set is_editable = news_editable(app.user, news, app.db.getOption('news_edit_time')) %}
 
             {% if news_domain(news) %}
@@ -17,12 +16,10 @@
             {% endif %}
 
             <a href="#down" class="{{ _self.vote_class(news, 'down') }}">&#9660;</a>
-
             <p>
                 {{ news.up }} up and {{ news.down }} down,
                 posted by <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
-                {{ time_elapsed(news.ctime) }}
-                <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
+                {{ time_elapsed(news.ctime) }} <a href="/news/{{ news.id }}">{{ news.comments }} comments</a>
             </p>
         </article>
     {% else %}
@@ -77,8 +74,6 @@
             <pre>{{ comment.body }}</pre>
         </article>
     {% else %}
-        <article class="comment deleted" style="margin-left:{{ css_indentation }}px">
-            [comment deleted]
-        </article>
+        <article class="comment deleted" style="margin-left:{{ css_indentation }}px">[comment deleted]</article>
     {% endif %}
 {% endmacro %}

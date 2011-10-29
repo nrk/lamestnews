@@ -26,6 +26,10 @@ class ApiController implements ControllerProviderInterface
             $username = $request->get('username');
             $password = $request->get('password');
 
+            if (!strlen(trim($username)) || !strlen(trim($password))) {
+                return Helpers::apiError('Username and password are two required fields.');
+            }
+
             @list($auth, $apisecret) = $app['db']->verifyUserCredentials($username, $password);
 
             if (!isset($auth)) {
@@ -49,7 +53,7 @@ class ApiController implements ControllerProviderInterface
             $username = $request->get('username');
             $password = $request->get('password');
 
-            if (!isset($username, $password)) {
+            if (!strlen(trim($username)) || !strlen(trim($password))) {
                 return Helpers::apiError('Username and password are two required fields.');
             }
 
@@ -80,14 +84,12 @@ class ApiController implements ControllerProviderInterface
             $text = $request->get('text');
 
             // We can have an empty url or an empty first comment, but not both.
-            if (!(strlen($newsID) && strlen($title) && isset($url) && isset($text))
-                    || (strlen($url) == 0 && strlen($text) == 0)) {
-
+            if (empty($newsID) || empty($title) || (!strlen(trim($url)) && !strlen(trim($text)))) {
                 return Helpers::apiError('Please specify a news title and address or text.');
             }
 
             // Make sure the news has an accepted URI scheme (only http or https for now).
-            if (strlen($url)) {
+            if (!empty($url)) {
                 $scheme = parse_url($url, PHP_URL_SCHEME);
                 if ($scheme !== 'http' && $scheme !== 'https') {
                     return Helpers::apiError('We only accept http:// and https:// news.');
@@ -117,7 +119,7 @@ class ApiController implements ControllerProviderInterface
 
             $newsID = $request->get('news_id');
 
-            if (!strlen($newsID)) {
+            if (empty($newsID)) {
                 return Helpers::apiError('Please specify a news title.');
             }
             if (!$app['db']->deleteNews($app['user'], $newsID)) {
@@ -135,7 +137,7 @@ class ApiController implements ControllerProviderInterface
             $newsID = $request->get('news_id');
             $voteType = $request->get('vote_type');
 
-            if (!strlen($newsID) || ($voteType !== 'up' && $voteType !== 'down')) {
+            if (empty($newsID) || ($voteType !== 'up' && $voteType !== 'down')) {
                 return Helpers::apiError('Missing news ID or invalid vote type.');
             }
 
@@ -156,7 +158,7 @@ class ApiController implements ControllerProviderInterface
             $parentID = $request->get('parent_id');
             $comment = $request->get('comment');
 
-            if (!strlen($newsID) || !strlen($commentID) || !strlen($parentID) || !isset($comment)) {
+            if (empty($newsID) || empty($commentID) || empty($parentID) || !isset($comment)) {
                 return Helpers::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 
@@ -205,10 +207,6 @@ class ApiController implements ControllerProviderInterface
             $email = $request->get('email');
             $password = $request->get('password');
 
-            if (!isset($about) || !isset($email) || !isset($password)) {
-                return Helpers::apiError('Missing parameters.');
-            }
-
             $attributes = array(
                 'about' => $about,
                 'email' => $email,
@@ -225,7 +223,6 @@ class ApiController implements ControllerProviderInterface
 
             return Helpers::apiOK();
         });
-
 
         return $controllers;
     }

@@ -5,7 +5,7 @@
 
 {{ render_news(news) }}
 
-<form id="submitform">
+<div id="submitform">
     <form name="f">
         <input value="{{ news.id }}" type="hidden" id="news_id" name="news_id">
 
@@ -23,7 +23,7 @@
 
         <input value="Edit" type="button" name="edit_news">
     </form>
-</form>
+</div>
 
 <div id="errormsg"></div>
 
