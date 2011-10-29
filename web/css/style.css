@@ -50,7 +50,7 @@ footer {
     display:block;
     border-top: 1px #ccc solid;
     text-align: center;
-    color:#999;
+    color:#ccc;
     font-size:14px;
     margin-bottom:30px;
 }
@@ -78,7 +78,7 @@ nav a {
     margin-right:10px;
 }
 
-#login, #submitform {
+#login,#submitform {
     display:block;
     position:relative;
     width:150px;
@@ -228,10 +228,6 @@ topcomment {
     margin:20px;
 }
 
-.userinfo a {
-    text-decoration: underline;
-}
-
 .singlecomment {
     background-color: #eee;
     border: 1px dotted #ccc;
@@ -267,4 +263,8 @@ topcomment {
     display:inline;
     font-size:28px;
     color: #444;
+}
+
+.userinfo a {
+    text-decoration: underline;
 }
