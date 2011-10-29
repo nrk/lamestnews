@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf8">
-        <title>{{ title }} - Lamer News</title>
+        <title>{{ title }} - {{ constant('__SITENAME__') }}</title>
         <meta content="nofollow" name="robots">
         <link type="text/css" href="/css/style.css?v=6" rel="stylesheet">
         <link href="/images/favicon.png" rel="shortcut icon">
@@ -36,8 +36,8 @@
             </div>
 
             <footer>
-                The code for Lamer News (in PHP) is <a href=".">here</a>.<br />
-                You can find the code of the original Ruby implementation <a href="http://github.com/antirez/lamernews">here</a>.
+                <a href=".">source code</a> | <a href="/rss">rss feed</a><br>
+                Alpaca v{{ constant('__VERSION__') }} is based on <a href="http://github.com/antirez/lamernews">Lamer News</a> v{{ constant('__COMPATIBILITY__') }}
             </footer>
 
             {% if app.user %}

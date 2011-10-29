@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Lamer News application.
+ * This file is part of the Alpaca application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Lamernews;
+namespace Alpaca;
 
 use Predis\Client;
 use Predis\Pipeline\PipelineContext;
 
 /**
- * Main abstraction to access the data of Lamer News stored in Redis.
+ * Main abstraction to access the data of Alpaca stored in Redis.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */

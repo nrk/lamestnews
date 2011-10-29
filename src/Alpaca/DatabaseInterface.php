@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Lamer News application.
+ * This file is part of the Alpaca application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,15 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Lamernews;
+namespace Alpaca;
 
 /**
- * Interface for abstractions that access to a Lamer News data storage.
+ * Interface for abstractions that access to a data storage for Alpaca.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
 interface DatabaseInterface
 {
+    const VERSION = '0.1.0';
+    const COMPATIBILITY = '0.6.1';
+
     /**
      * Implements a generic and persisted rate limiting mechanism.
      *

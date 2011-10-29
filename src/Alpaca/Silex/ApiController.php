@@ -1,12 +1,21 @@
 <?php
 
-namespace Lamernews\Silex;
+/*
+ * This file is part of the Alpaca application.
+ *
+ * (c) Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-use Silex\Application as Lamer;
+namespace Alpaca\Silex;
+
+use Alpaca\Helpers;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Silex\ControllerProviderInterface;
 use Silex\ControllerCollection;
-use Lamernews\Helpers;
 
 /**
  * Defines methods and routes exposing the public API of the application.
@@ -18,11 +27,11 @@ class ApiController implements ControllerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function connect(Lamer $app)
+    public function connect(Application $app)
     {
         $controllers = new ControllerCollection();
 
-        $controllers->get('/login', function(Lamer $app, Request $request) {
+        $controllers->get('/login', function(Application $app, Request $request) {
             $username = $request->get('username');
             $password = $request->get('password');
 
@@ -39,7 +48,7 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK(array('auth' => $auth, 'apisecret' => $apisecret));
         });
 
-        $controllers->post('/logout', function(Lamer $app, Request $request) {
+        $controllers->post('/logout', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -49,7 +58,7 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK();
         });
 
-        $controllers->post('/create_account', function(Lamer $app, Request $request) {
+        $controllers->post('/create_account', function(Application $app, Request $request) {
             $username = $request->get('username');
             $password = $request->get('password');
 
@@ -73,7 +82,7 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK(array('auth' => $authToken));
         });
 
-        $controllers->post('/submit', function(Lamer $app, Request $request) {
+        $controllers->post('/submit', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -112,7 +121,7 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK(array('news_id' => $newsID));
         });
 
-        $controllers->post('/delnews', function(Lamer $app, Request $request) {
+        $controllers->post('/delnews', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -129,7 +138,7 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK(array('news_id' => -1));
         });
 
-        $controllers->post('/votenews', function(Lamer $app, Request $request) {
+        $controllers->post('/votenews', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -148,7 +157,7 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK();
         });
 
-        $controllers->post('/postcomment', function(Lamer $app, Request $request) {
+        $controllers->post('/postcomment', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -176,7 +185,7 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->post('/votecomment', function(Lamer $app, Request $request) {
+        $controllers->post('/votecomment', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -198,7 +207,7 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->post('/updateprofile', function(Lamer $app, Request $request) {
+        $controllers->post('/updateprofile', function(Application $app, Request $request) {
             if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }

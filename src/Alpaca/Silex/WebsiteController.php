@@ -1,13 +1,22 @@
 <?php
 
-namespace Lamernews\Silex;
+/*
+ * This file is part of the Alpaca application.
+ *
+ * (c) Daniele Alessandri <suppakilla@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-use Silex\Application as Lamer;
+namespace Alpaca\Silex;
+
+use Alpaca\Helpers;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Silex\ControllerProviderInterface;
 use Silex\ControllerCollection;
-use Lamernews\Helpers;
 
 /**
  * Defines the methods and routes for the website.
@@ -19,18 +28,18 @@ class WebsiteController implements ControllerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function connect(Lamer $app)
+    public function connect(Application $app)
     {
         $controllers = new ControllerCollection();
 
-        $controllers->get('/', function(Lamer $app) {
+        $controllers->get('/', function(Application $app) {
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Top news',
                 'newslist' => $app['db']->getTopNews($app['user']),
             ));
         });
 
-        $controllers->get('/rss', function(Lamer $app, Request $request) {
+        $controllers->get('/rss', function(Application $app, Request $request) {
             $rss = $app['twig']->render('newslist.rss.twig', array(
                 'site_name' => 'Lamer News',
                 'site_url' => $request->getUriForPath('/'),
@@ -43,14 +52,14 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/latest', function(Lamer $app) {
+        $controllers->get('/latest', function(Application $app) {
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Latest news',
                 'newslist' => $app['db']->getLatestNews($app['user']),
             ));
         });
 
-        $controllers->get('/saved/{start}', function(Lamer $app, $start) {
+        $controllers->get('/saved/{start}', function(Application $app, $start) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
@@ -72,7 +81,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/usercomments/{username}/{start}', function(Lamer $app, $username, $start) {
+        $controllers->get('/usercomments/{username}/{start}', function(Application $app, $username, $start) {
             $user = $app['db']->getUserByUsername($username);
 
             if (!$user) {
@@ -94,13 +103,13 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/login', function(Lamer $app) {
+        $controllers->get('/login', function(Application $app) {
             return $app['twig']->render('login.html.twig', array(
                 'title' => 'Login',
             ));
         });
 
-        $controllers->get('/logout', function(Lamer $app, Request $request) {
+        $controllers->get('/logout', function(Application $app, Request $request) {
             $apisecret = $request->get('apisecret');
 
             if (isset($app['user']) && Helpers::verifyApiSecret($app['user'], $apisecret)) {
@@ -110,13 +119,13 @@ class WebsiteController implements ControllerProviderInterface
             return $app->redirect('/');
         });
 
-        $controllers->get('/submit', function(Lamer $app) {
+        $controllers->get('/submit', function(Application $app) {
             return $app['twig']->render('submit_news.html.twig', array(
                 'title' => 'Submit a new story',
             ));
         });
 
-        $controllers->get('/news/{newsID}', function(Lamer $app, $newsID) {
+        $controllers->get('/news/{newsID}', function(Application $app, $newsID) {
             list($news) = $app['db']->getNewsByID($app['user'], array($newsID));
 
             if (!$news) {
@@ -131,7 +140,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/comment/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
+        $controllers->get('/comment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
             if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
                 return $app->abort(404, 'This news does not exist.');
             }
@@ -158,7 +167,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/reply/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
+        $controllers->get('/reply/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
@@ -188,7 +197,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/editcomment/{newsID}/{commentID}', function(Lamer $app, $newsID, $commentID) {
+        $controllers->get('/editcomment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
@@ -219,7 +228,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/editnews/{newsID}', function(Lamer $app, $newsID) {
+        $controllers->get('/editnews/{newsID}', function(Application $app, $newsID) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
@@ -248,7 +257,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/user/{username}', function(Lamer $app, $username) {
+        $controllers->get('/user/{username}', function(Application $app, $username) {
             $user = $app['db']->getUserByUsername($username);
 
             if (!$user) {

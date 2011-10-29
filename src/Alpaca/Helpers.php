@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Lamer News application.
+ * This file is part of the Alpaca application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Lamernews;
+namespace Alpaca;
 
 /**
  * Shared helpers for the application.
@@ -29,7 +29,7 @@ class Helpers
             throw new \Exception("Cannot generate a random ID (Unreadable /dev/urandom)");
         }
 
-        $resource = fopen('/dev/urandom', 'r'); 
+        $resource = fopen('/dev/urandom', 'r');
         $urandom = fread($resource, 20);
         fclose($resource);
 
@@ -65,9 +65,9 @@ class Helpers
             }
 
             $derivedKey .= $block;
-        } 
+        }
 
-        // Return derived key of correct length 
+        // Return derived key of correct length
         return bin2hex(substr($derivedKey, 0, $keyLength));
     }
 
