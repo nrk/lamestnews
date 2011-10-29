@@ -296,4 +296,11 @@ interface DatabaseInterface
      * @return boolean
      */
     public function deleteComment($newsID, $commentID);
+
+    /**
+     * Returns the currently authenticated user.
+     *
+     * @return array
+     */
+    public function getUser();
 }

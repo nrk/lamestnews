@@ -23,6 +23,7 @@ class RedisDatabase implements DatabaseInterface
 {
     private $_redis;
     private $_options;
+    private $_user;
 
     /**
      * Initializes the database class.
@@ -207,6 +208,8 @@ class RedisDatabase implements DatabaseInterface
         if (!$user) {
             return;
         }
+
+        $this->_user = $user;
 
         return $user;
     }
@@ -870,5 +873,13 @@ class RedisDatabase implements DatabaseInterface
     public function getRedis()
     {
         return $this->_redis;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUser()
+    {
+        return $this->_user ?: array();
     }
 }
