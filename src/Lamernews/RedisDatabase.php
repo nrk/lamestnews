@@ -653,7 +653,7 @@ class RedisDatabase implements DatabaseInterface
                 'parent_id' => $parentID,
                 'user_id' => $user['id'],
                 'ctime' => time(),
-                'up' => array($user['id']),
+                'up' => array((int) $user['id']),
             );
 
             $commentID = $this->postComment($newsID, $comment);
@@ -768,7 +768,7 @@ class RedisDatabase implements DatabaseInterface
             return false;
         }
 
-        $votes[] = $user['id'];
+        $votes[] = (int) $user['id'];
 
         return $this->editComment($newsID, $commentID, array($type => $votes));
     }
