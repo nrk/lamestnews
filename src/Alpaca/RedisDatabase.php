@@ -785,7 +785,7 @@ class RedisDatabase implements DatabaseInterface
         }
         else {
             $update = array('body' => $body);
-            if ($comment['del'] == true) {
+            if (isset($comment['del']) && $comment['del'] == true) {
                 $update['del'] = 0;
             }
             if (!$this->editComment($newsID, $commentID, $update)) {
@@ -832,7 +832,7 @@ class RedisDatabase implements DatabaseInterface
         if ($total > 0) {
             $commentIDs = $redis->zrevrange("user.comments:{$user['id']}", $start, $count);
             foreach ($commentIDs as $compositeID) {
-                list($newsID, $commentID) = split('-', $compositeID);
+                list($newsID, $commentID) = explode('-', $compositeID);
                 $comment = $this->getComment($newsID, $commentID);
                 if ($comment) {
                     $comment = array_merge($comment, array(

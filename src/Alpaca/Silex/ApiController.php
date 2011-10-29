@@ -197,7 +197,7 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Missing or invalid comment ID or invalid vote type.');
             }
 
-            list($newsID, $commentID) = split('-', $compositeID);
+            list($newsID, $commentID) = explode('-', $compositeID);
             if (!$app['db']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
                 return Helpers::apiError('Invalid parameters or duplicated vote.');
             }
