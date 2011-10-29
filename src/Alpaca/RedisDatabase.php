@@ -255,7 +255,7 @@ class RedisDatabase implements DatabaseInterface
         }
 
         $redis->hincrby($userKey, 'karma', $increment);
-        $user['karma'] = (int) $user['karma'] + $increment;
+        $user['karma'] = isset($user['karma']) ? $user['karma'] + $increment : $increment;
 
         return true;
     }
@@ -398,7 +398,7 @@ class RedisDatabase implements DatabaseInterface
 
         // Load user's vote information if we are in the context of a
         // registered user.
-        if (isset($user)) {
+        if ($user) {
             $votes = $redis->pipeline(function($pipe) use ($result, $user) {
                 foreach ($result as $news) {
                     $pipe->zscore("news.up:{$news['id']}", $user['id']);

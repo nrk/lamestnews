@@ -233,6 +233,10 @@ class Helpers
      */
      public static function commentVoted(Array $user, Array $comment)
      {
+        if (!$user) {
+            return false;
+        }
+
         $votes = isset($comment['up']) ? $comment['up'] : array();
         if (in_array($user['id'], $votes)) {
             return 'up';
