@@ -42,7 +42,7 @@
 {% endmacro %}
 
 {% macro render_comments(news, tree, parent_id, level) %}
-    {% for comment in tree[parent_id] %}
+    {% for comment in sort_comments(tree[parent_id]) %}
         {% set parents = tree[comment.id] is defined ? tree[comment.id] : null %}
         {{ _self.render_comment(news, comment, level, parents) }}
         {% if parents %}

@@ -53,6 +53,7 @@ $twig->addFunction('news_editable', new Twig_Function_Function('Lamernews\Helper
 $twig->addFunction('news_domain', new Twig_Function_Function('Lamernews\Helpers::getNewsDomain'));
 $twig->addFunction('news_text', new Twig_Function_Function('Lamernews\Helpers::getNewsText'));
 $twig->addFunction('comment_score', new Twig_Function_Function('Lamernews\Helpers::commentScore'));
+$twig->addFunction('sort_comments', new Twig_Function_Function('Lamernews\Helpers::sortComments'));
 
 $app['db'] = $app->share(function(Lamer $app) {
     return new Lamernews\RedisDatabase($app['predis']);

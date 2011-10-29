@@ -258,4 +258,24 @@ class Helpers
          $downvotes = isset($comment['down']) ? count($comment['down']) : 0;
          return $upvotes - $downvotes;
      }
+
+     /**
+      * Sort the passed list of comments.
+      *
+      * @param array $comments List of comments.
+      * @return array
+      */
+     public static function sortComments(Array $comments)
+     {
+        uasort($comments, function($a, $b) {
+            $ascore = Helpers::commentScore($a);
+            $bscore = Helpers::commentScore($b);
+            if ($ascore == $bscore) {
+                return $a['ctime'] != $b['ctime'] ? ($b['ctime'] < $a['ctime'] ? -1 : 1) : 0;
+            }
+            return $bscore < $ascore ? -1 : 1;
+        });
+
+        return $comments;
+     }
 }
