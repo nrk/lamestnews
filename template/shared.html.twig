@@ -63,13 +63,13 @@
                 <a href="/comment/{{ news_id }}/{{ comment.id }}" class="reply">link</a>
                 {% if app.user and comment.topcomment is not defined %}
                     <a href="/reply/{{ news_id }}/{{ comment.id }}" class="reply">reply</a>
-                    {{ comment_score(comment) }} points
-                    <a href="#up" class="{{ _self.vote_class(comment, 'up') }}">&#9650;</a>
-                    <a href="#down" class="{{ _self.vote_class(comment, 'down') }}">&#9660;</a>
-                    {% if app.user.id == comment.user_id and edit_time_left > 0 %}
-                        <a href="/editcomment/{{ news_id }}/{{ comment.id }}" class="reply">edit</a>
-                        ({{ edit_time_left }} minutes left)
-                    {% endif %}
+                {% endif %}
+                {{ comment_score(comment) }} points
+                <a href="#up" class="{{ _self.vote_class(comment, 'up') }}">&#9650;</a>
+                <a href="#down" class="{{ _self.vote_class(comment, 'down') }}">&#9660;</a>
+                {% if app.user and app.user.id == comment.user_id and edit_time_left > 0 %}
+                    <a href="/editcomment/{{ news_id }}/{{ comment.id }}" class="reply">edit</a>
+                    ({{ edit_time_left }} minutes left)
                 {% endif %}
             </span>
             <pre>{{ comment.body }}</pre>
