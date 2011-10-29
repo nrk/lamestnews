@@ -139,8 +139,8 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Missing news ID or invalid vote type.');
             }
 
-            if ($app['db']->voteNews($newsID, $app['user'], $voteType) === false) {
-                return Helpers::apiError('Invalid parameters or duplicated vote.');
+            if ($app['db']->voteNews($newsID, $app['user'], $voteType, $error) === false) {
+                return Helpers::apiError($error);
             }
 
             return Helpers::apiOK();

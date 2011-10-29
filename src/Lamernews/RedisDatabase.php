@@ -51,9 +51,16 @@ class RedisDatabase implements DatabaseInterface
             'comment_edit_time' => 3600 * 2,
             'comment_reply_shift' => 60,
 
-            // user
+            // karma
+            'user_initial_karma' => 1,
             'karma_increment_interval' => 3600 * 3,
             'karma_increment_amount' => 1,
+            'news_downvote_min_karma' => 30,
+            'news_downvote_karma_cost' => 6,
+            'news_upvote_min_karma' => 0,
+            'news_upvote_karma_cost' => 1,
+            'news_upvote_karma_transfered' => 1,
+            'karma_increment_comment' => 1,
 
             // news and ranking
             'news_age_padding' => 60 * 60 * 8,
@@ -108,7 +115,7 @@ class RedisDatabase implements DatabaseInterface
             'salt' => $salt,
             'password' => Helpers::pbkdf2($password, $salt),
             'ctime' => time(),
-            'karma' => 10,
+            'karma' => $this->getOption('user_initial_karma'),
             'about' => '',
             'email' => '',
             'auth' => $authToken,
@@ -227,22 +234,31 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function incrementUserKarma(Array &$user, $increment, $interval)
+    public function incrementUserKarma(Array &$user, $increment, $interval = 0)
     {
-        $now = time();
-        if ((int) $user['karma_incr_time'] >= $now - $interval) {
-            return false;
-        }
-
         $userKey = "user:{$user['id']}";
         $redis = $this->getRedis();
 
-        $redis->hset($userKey, 'karma_incr_time', $now);
-        $redis->hincrby($userKey, 'karma', $increment);
+        if ($interval > 0) {
+            $now = time();
+            if ($user['karma_incr_time'] >= $now - $interval) {
+                return false;
+            }
+            $redis->hset($userKey, 'karma_incr_time', $now);
+        }
 
+        $redis->hincrby($userKey, 'karma', $increment);
         $user['karma'] = (int) $user['karma'] + $increment;
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserKarma(Array $user)
+    {
+        return (int) $this->getRedis()->hget("user:{$user['id']}", 'karma') ?: 0;
     }
 
     /**
@@ -569,15 +585,17 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function voteNews($newsID, $user, $type)
+    public function voteNews($newsID, $user, $type, &$error = null)
     {
         if ($type !== 'up' && $type !== 'down') {
+            $error = 'Vote must be either up or down.';
             return false;
         }
 
         $user = is_array($user) ? $user : $this->getUserByID($user);
         $news = $this->getNewsByID($user, $newsID);
         if (!$user || !$news) {
+            $error = 'No such news or user.';
             return false;
         }
 
@@ -588,7 +606,19 @@ class RedisDatabase implements DatabaseInterface
         $hasUpvoted = $redis->zscore("news.up:$newsID", $user['id']);
         $hasDownvoted = $redis->zscore("news.down:$newsID", $user['id']);
         if ($hasUpvoted || $hasDownvoted) {
+            $error = 'Duplicated vote.';
             return false;
+        }
+
+        // Check if the user has enough karma to perform this operation
+        if ($user['id'] != $news['user_id']) {
+            $noUpvote = $type == 'up' && $user['karma'] < $this->getOption('news_upvote_min_karma');
+            $noDownvote = $type == 'down' && $user['karma'] < $this->getOption('news_downvote_min_karma');
+
+            if ($noUpvote || $noDownvote) {
+                $error = "You don't have enough karma to vote $type";
+                return false;
+            }
         }
 
         $now = time();
@@ -608,6 +638,19 @@ class RedisDatabase implements DatabaseInterface
             'rank' => $rank,
         ));
         $redis->zadd('news.top', $rank, $newsID);
+
+        // Adjust the karma of the user on vote, and transfer karma to the news owner if upvoted.
+        if ($user['id'] != $news['user_id']) {
+            if ($type == 'up') {
+                $this->incrementUserKarma($user, -$this->getOption('news_upvote_karma_cost'));
+                // TODO: yes, I know, it's an uber-hack...
+                $transfedUser = array('id' => $news['user_id']);
+                $this->incrementUserKarma($transfedUser, $this->getOption('news_upvote_karma_transfered'));
+            }
+            else {
+                $this->incrementUserKarma($user, -$this->getOption('news_downvote_karma_cost'));
+            }
+        }
 
         return $rank;
     }
@@ -664,6 +707,8 @@ class RedisDatabase implements DatabaseInterface
 
             $redis->hincrby("news:$newsID", 'comments', 1);
             $redis->zadd("user.comments:{$user['id']}", time(), "$newsID-$commentID");
+
+            $this->incrementUserKarma($user, $this->getOption('karma_increment_comment'));
 
             return array(
                 'news_id' => $newsID,

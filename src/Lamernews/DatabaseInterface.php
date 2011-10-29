@@ -95,7 +95,15 @@ interface DatabaseInterface
      * @param int $interval Interval of time in seconds.
      * @return boolean
      */
-    public function incrementUserKarma(Array &$user, $increment, $interval);
+    public function incrementUserKarma(Array &$user, $increment, $interval = 0);
+
+    /**
+     * Gets the karma of the specified user.
+     *
+     * @param array $user User details.
+     * @return int
+     */
+    public function getUserKarma(Array $user);
 
     /**
      * Updates the profile for the given user.
@@ -178,6 +186,26 @@ interface DatabaseInterface
      * @return string
      */
     public function editNews(Array $user, $newsID, $title, $url, $text);
+
+    /**
+     * Upvotes or downvotes the specified news item.
+     *
+     * The function ensures that:
+     *   1) The vote is not duplicated.
+     *   2) The karma is decreased for the voting user, accordingly to the vote type.
+     *   3) The karma is transferred to the author of the post, if different.
+     *   4) The news score is updated.
+     *
+     * It returns the news rank if the vote was inserted, or false upon failure.
+     *
+     * @param string $newsID ID of the news being voted.
+     * @param array|string $user Instance or string ID of the voting user.
+     * @param string $type 'up' for upvoting a news item.
+     *                     'down' for downvoting a news item.
+     * @param string $error Error message returned on a failed vote.
+     * @return mixed New rank for the voted news, or FALSE upon error.
+     */
+    public function voteNews($newsID, $user, $type, &$error = null);
 
     /**
      * Deletes an already existing news item.
@@ -268,23 +296,4 @@ interface DatabaseInterface
      * @return boolean
      */
     public function deleteComment($newsID, $commentID);
-
-    /**
-     * Upvotes or downvotes the specified news item.
-     *
-     * The function ensures that:
-     *   1) The vote is not duplicated.
-     *   2) The karma is decreased for the voting user, accordingly to the vote type.
-     *   3) The karma is transferred to the author of the post, if different.
-     *   4) The news score is updated.
-     *
-     * It returns the news rank if the vote was inserted, or false upon failure.
-     *
-     * @param string $newsID ID of the news being voted.
-     * @param array|string $user Instance or string ID of the voting user.
-     * @param string $type 'up' for upvoting a news item.
-     *                     'down' for downvoting a news item.
-     * @return mixed
-     */
-    public function voteNews($newsID, $user, $type);
 }
