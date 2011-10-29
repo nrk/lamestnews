@@ -51,6 +51,7 @@ class RedisDatabase implements DatabaseInterface
             'comment_max_length' => 4096,
             'comment_edit_time' => 3600 * 2,
             'comment_reply_shift' => 60,
+            'user_comments_per_page' => 10,
 
             // karma
             'user_initial_karma' => 1,
@@ -773,6 +774,38 @@ class RedisDatabase implements DatabaseInterface
         if ($json) {
             return json_decode($json, true);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserComments(Array $user, Array $target, $start = 0, $count = -1)
+    {
+        $comments = array();
+        $userID = $target['id'];
+        $redis = $this->getRedis();
+        $total = $redis->zcard("user.comments:$userID");
+
+        if ($total > 0) {
+            $commentIDs = $redis->zrevrange("user.comments:$userID", $start, $count);
+            foreach ($commentIDs as $compositeID) {
+                list($newsID, $commentID) = split('-', $compositeID);
+                $comment = $this->getComment($newsID, $commentID);
+                if ($comment) {
+                    $comments[] = array_merge($comment, array(
+                        'id' => $commentID,
+                        'user' => $target,
+                        'news_id' => $newsID,
+                        'voted' => Helpers::commentVoted($user, $comment),
+                    ));
+                }
+            }
+        }
+
+        return array(
+            'list' => $comments,
+            'total' => $total,
+        );
     }
 
     /**

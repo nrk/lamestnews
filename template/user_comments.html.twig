@@ -1,0 +1,21 @@
+{% extends 'layout.html.twig' %}
+{% from 'shared.html.twig' import render_comment %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+<div id="comments">
+    {% for comment in comments %}
+        {{ render_comment(comment.news_id, comment) }}
+    {% endfor %}
+
+    {% if pagination is defined %}
+        {% set nextpage = pagination.start + pagination.perpage %}
+        {% if nextpage < pagination.count %}
+        	<a href="/usercomment/{{ username }}/{{ nextpage }}" class="more">[more]</a>
+		{% endif %}
+    {% endif %}
+</div>
+
+{% endblock %}

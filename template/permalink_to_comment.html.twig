@@ -8,14 +8,14 @@
 </section>
 
 <div class="singlecomment">
-    {{ render_comment(news, comment, 0) }}
+    {{ render_comment(news.id, comment, 0) }}
 </div>
 
 <div class="commentreplies"><h2>Replies</h2></div>
 
 <div id="comments">
     {% if comments[comment.id] is defined %}
-        {{ render_comments(news, comments, comment.id, 0) }}
+        {{ render_comments(news.id, comments, comment.id, 0) }}
     {% endif %}
 </div>
 

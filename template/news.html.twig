@@ -34,7 +34,7 @@
 
 {% if comments %}
 <div id="comments">
-    {{ render_comments(news, comments, -1, 0) }}
+    {{ render_comments(news.id, comments, -1, 0) }}
 </div>
 {% endif %}
 

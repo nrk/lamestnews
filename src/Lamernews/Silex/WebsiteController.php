@@ -72,6 +72,28 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
+        $controllers->get('/usercomments/{username}/{start}', function(Lamer $app, $username, $start) {
+            $user = $app['db']->getUserByUsername($username);
+
+            if (!$user) {
+                return $app->abort(404, 'Non existing user');
+            }
+
+            $perpage = $app['db']->getOption('user_comments_per_page');
+            $comments = $app['db']->getUserComments($app['user'], $user, $start ?: 0, $perpage);
+
+            return $app['twig']->render('user_comments.html.twig', array(
+                'title' => "$username comments",
+                'comments' => $comments['list'],
+                'username' => $username,
+                'pagination' => array(
+                    'start' => $start,
+                    'count' => $comments['total'],
+                    'perpage' => $perpage,
+                ),
+            ));
+        });
+
         $controllers->get('/login', function(Lamer $app) {
             return $app['twig']->render('login.html.twig', array(
                 'title' => 'Login',
