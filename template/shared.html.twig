@@ -38,18 +38,19 @@
 {% endspaceless %}
 {% endmacro %}
 
-{% macro render_comments(news_id, tree, parent_id, level) %}
+{% macro render_comments(tree, parent_id, level) %}
     {% for comment in sort_comments(tree[parent_id]) %}
         {% set parents = tree[comment.id] is defined ? tree[comment.id] : null %}
-        {{ _self.render_comment(news_id, comment, level, parents) }}
+        {{ _self.render_comment(comment, level, parents) }}
         {% if parents %}
-            {{ _self.render_comments(news_id, tree, comment.id, level + 1) }}
+            {{ _self.render_comments(tree, comment.id, level + 1) }}
         {% endif %}
     {% endfor %}
 {% endmacro %}
 
-{% macro render_comment(news_id, comment, level, parents) %}
+{% macro render_comment(comment, level, parents) %}
     {% set user = comment.user %}
+    {% set news_id = comment.thread_id %}
     {% set css_indentation = level * app.db.getOption('comment_reply_shift') %}
     {% set edit_time_left = ((app.db.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int %}
 

@@ -89,7 +89,7 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             $perpage = $app['db']->getOption('user_comments_per_page');
-            $comments = $app['db']->getUserComments($app['user'], $user, $start ?: 0, $perpage);
+            $comments = $app['db']->getUserComments($user, $start ?: 0, $perpage);
 
             return $app['twig']->render('user_comments.html.twig', array(
                 'title' => "$username comments",
@@ -194,6 +194,18 @@ class WebsiteController implements ControllerProviderInterface
                     'user' => $user,
                     'voted' => Helpers::commentVoted($app['user'], $comment),
                 )),
+            ));
+        });
+
+        $controllers->get('/replies', function(Application $app) {
+            if (!$app['user']) {
+                return $app->redirect('/login');
+            }
+
+            $comments = $app['db']->getReplies($app['user'], $app['db']->getOption('subthreads_in_replies_page') - 1, true);
+            return $app['twig']->render('user_replies.html.twig', array(
+                'title' => 'Your threads',
+                'comments' => $comments,
             ));
         });
 

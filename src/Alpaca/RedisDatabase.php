@@ -52,6 +52,7 @@ class RedisDatabase implements DatabaseInterface
             'comment_edit_time' => 3600 * 2,
             'comment_reply_shift' => 60,
             'user_comments_per_page' => 10,
+            'subthreads_in_replies_page' => 10,
 
             // karma
             'user_initial_karma' => 1,
@@ -331,6 +332,26 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function getReplies(Array $user, $maxSubThreads, $reset = false)
+    {
+        $threadCallback = function($comment) use($user) {
+            $thread = array('id' => $comment['thread_id']);
+            $comment['replies'] = $this->getNewsComments($user, $thread);
+            return $comment;
+        };
+
+        $comments = $this->getUserComments($user, 0, $maxSubThreads, $threadCallback);
+
+        if ($reset) {
+            $this->getRedis()->hset("user:{$user['id']}", 'replies', 0);
+        }
+
+        return $comments['list'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getNewsByID(Array $user, $newsIDs, $updateRank = false)
     {
         if (!$newsIDs) {
@@ -413,21 +434,25 @@ class RedisDatabase implements DatabaseInterface
             if ($id == 'nextid') {
                 continue;
             }
+
             $comment = json_decode($comment, true);
-            $comment['id'] = $id;
-            $comment['voted'] = Helpers::commentVoted($user, $comment);
-            $parentID = $comment['parent_id'];
 
             $userID = $comment['user_id'];
             if (!isset($users[$userID])) {
                 $users[$userID] = $this->getUserByID($userID);
             }
-            $comment['user'] = $users[$userID];
 
+            $parentID = $comment['parent_id'];
             if (!isset($tree[$parentID])) {
                 $tree[$parentID] = array();
             }
-            $tree[$parentID][] = $comment;
+
+            $tree[$parentID][] = array_merge($comment, array(
+                'id' => $id,
+                'thread_id' => $news['id'],
+                'voted' => Helpers::commentVoted($user, $comment),
+                'user' => $users[$userID],
+            ));
         }
 
         return $tree;
@@ -696,6 +721,13 @@ class RedisDatabase implements DatabaseInterface
         }
 
         if ($commentID == -1) {
+            if ($parentID != -1) {
+                $parent = $this->getComment($newsID, $parentID);
+                if (!$parent) {
+                    return false;
+                }
+            }
+
             $comment = array(
                 'score' => 0,
                 'body' => $body,
@@ -715,6 +747,9 @@ class RedisDatabase implements DatabaseInterface
             $redis->zadd("user.comments:{$user['id']}", time(), "$newsID-$commentID");
 
             $this->incrementUserKarma($user, $this->getOption('karma_increment_comment'));
+            if (isset($parent) && $redis->exists("user:{$parent['user_id']}")) {
+                $redis->hincrby("user:{$parent['user_id']}", 'replies', 1);
+            }
 
             return array(
                 'news_id' => $newsID,
@@ -771,33 +806,40 @@ class RedisDatabase implements DatabaseInterface
     public function getComment($newsID, $commentID)
     {
         $json = $this->getRedis()->hget("thread:comment:$newsID", $commentID);
-        if ($json) {
-            return json_decode($json, true);
+        if (!$json) {
+            return;
         }
+
+        return array_merge(json_decode($json, true), array(
+            'thread_id' => $newsID,
+            'id' => $commentID,
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserComments(Array $user, Array $target, $start = 0, $count = -1)
+    public function getUserComments(Array $user, $start = 0, $count = -1, $callback = null)
     {
+        if (isset($callback) && !is_callable($callback)) {
+            throw new \InvalidArgumentException('The callback arguments must be a valid callable.');
+        }
+
         $comments = array();
-        $userID = $target['id'];
         $redis = $this->getRedis();
-        $total = $redis->zcard("user.comments:$userID");
+        $total = $redis->zcard("user.comments:{$user['id']}");
 
         if ($total > 0) {
-            $commentIDs = $redis->zrevrange("user.comments:$userID", $start, $count);
+            $commentIDs = $redis->zrevrange("user.comments:{$user['id']}", $start, $count);
             foreach ($commentIDs as $compositeID) {
                 list($newsID, $commentID) = split('-', $compositeID);
                 $comment = $this->getComment($newsID, $commentID);
                 if ($comment) {
-                    $comments[] = array_merge($comment, array(
-                        'id' => $commentID,
-                        'user' => $target,
-                        'news_id' => $newsID,
+                    $comment = array_merge($comment, array(
+                        'user' => $this->getUserByID($comment['user_id']),
                         'voted' => Helpers::commentVoted($user, $comment),
                     ));
+                    $comments[] = isset($callback) ? $callback($comment) : $comment;
                 }
             }
         }

@@ -1,0 +1,22 @@
+{% extends 'layout.html.twig' %}
+{% from 'shared.html.twig' import render_comments, render_comment %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+{% for comment in comments %}
+    <div class="singlecomment">
+        {{ render_comment(comment) }}
+    </div>
+
+    <div class="commentreplies">
+        <div id="comments">
+            {% if comment.replies[comment.id] is defined %}
+                {{ render_comments(comment.replies, comment.id) }}
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock %}

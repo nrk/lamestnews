@@ -7,7 +7,7 @@
 
 <div id="comments">
     {% for comment in comments %}
-        {{ render_comment(comment.news_id, comment) }}
+        {{ render_comment(comment) }}
     {% endfor %}
 
     {% if pagination is defined %}

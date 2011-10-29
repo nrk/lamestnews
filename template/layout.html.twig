@@ -1,13 +1,14 @@
+{% set replies = app.user and app.user.replies is defined ? app.user.replies : 0 %}
 <!DOCTYPE HTML>
 <html lang="en">
     <head>
         <meta charset="utf8">
         <title>{{ title }} - {{ constant('__SITENAME__') }}</title>
         <meta content="nofollow" name="robots">
-        <link type="text/css" href="/css/style.css?v=6" rel="stylesheet">
+        <link type="text/css" href="/css/style.css?v=7" rel="stylesheet">
         <link href="/images/favicon.png" rel="shortcut icon">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
-        <script src="/js/app.js?v=6"></script>
+        <script src="/js/app.js?v=7"></script>
     </head>
     <body>
         <div class="container">
@@ -20,6 +21,7 @@
                     <a href="/">top</a>
                     <a href="/latest">latest</a>
                     <a href="/submit">submit</a>
+                    <a href="/replies" class="replies">replies{% if replies %} <sup>{{ replies }}</sup>{% endif %}</a>
                 </nav>
                 <nav id="account">
                     {% if app.user %}

@@ -19,7 +19,7 @@ namespace Alpaca;
 interface DatabaseInterface
 {
     const VERSION = '0.1.0';
-    const COMPATIBILITY = '0.6.1';
+    const COMPATIBILITY = '0.7.0';
 
     /**
      * Implements a generic and persisted rate limiting mechanism.
@@ -149,6 +149,17 @@ interface DatabaseInterface
     public function getSavedNews(Array $user, $start = 0);
 
     /**
+     * Gets the list of comments for the specified user that received one or more
+     * (including them).
+     *
+     * @param array $user Current user.
+     * @param int $maxSubThreads Number of comments to retrieve.
+     * @param boolean $reset Reset the unread replies count.
+     * @return array
+     */
+    public function getReplies(Array $user, $maxSubThreads, $reset = false);
+
+    /**
      * Retrieves one or more news items using their IDs.
      *
      * @param array $user Details of the current user.
@@ -259,6 +270,17 @@ interface DatabaseInterface
      * @return array
      */
     public function getComment($newsID, $commentID);
+
+    /**
+     * Retrieves the list of comments for the specified user.
+     *
+     * @param array $user Details of the current user.
+     * @param string $start Offset for the list of comments.
+     * @param string $count Maximum number of comments (-1 to retrieve all of them).
+     * @param mixed $callback Callback invoked on each comment.
+     * @return array
+     */
+    public function getUserComments(Array $user, $start = 0, $count = -1, $callback = null);
 
     /**
      * Post a new comment on the specified news item.
