@@ -158,6 +158,54 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function addUserFlags($userID, $flags)
+    {
+        $user = $this->getUserByID($userID);
+        if (!$user) {
+            return false;
+        }
+
+        $flags = $user['flags'];
+        foreach (str_split($flags) as $flag) {
+            if ($this->checkUserFlags($flag)) {
+                $flags .= $flag;
+            }
+        }
+        $this->getRedis()->hset("user:$userID", "flags", $flags);
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function checkUserFlags(Array $user, $flags)
+    {
+        if (!$user) {
+            return false;
+        }
+
+        $userflags = $user['flags'];
+        foreach (str_split($flags) as $flag) {
+            if (stripos($userflags, $flag) === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isUserAdmin(Array $user)
+    {
+        return $this->checkUserFlags($user, 'a');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getUserCounters(Array $user)
     {
         $counters = $this->getRedis()->pipeline(function($pipe) use($user) {

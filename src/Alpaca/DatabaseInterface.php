@@ -56,6 +56,32 @@ interface DatabaseInterface
     public function getUserByUsername($username);
 
     /**
+     * Adds the specified flags to the user.
+     *
+     * @param string $userID ID of the user.
+     * @param string $flags Sequence of flags.
+     * @return boolean
+     */
+    public function addUserFlags($userID, $flags);
+
+    /**
+     * Checks if one or more flags are set for the specified user.
+     *
+     * @param array $user User details.
+     * @param string $flags Sequence of flags.
+     * @return boolean
+     */
+    public function checkUserFlags(Array $user, $flags);
+
+    /**
+     * Checks if the specified user is an administrator.
+     *
+     * @param array $user User details.
+     * @return boolean
+     */
+    public function isUserAdmin(Array $user);
+
+    /**
      * Returns some counters for the specified user.
      *
      * @param array $user User details.
