@@ -76,6 +76,9 @@ class RedisDatabase implements DatabaseInterface
             'prevent_repost_time' => 3600 * 48,
             'news_submission_break' => 60 * 15,
             'saved_news_per_page' => 10,
+
+            # API
+            'api_max_news_count' => 32,
         );
     }
 

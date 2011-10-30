@@ -235,6 +235,30 @@ class ApiController implements ControllerProviderInterface
             return Helpers::apiOK();
         });
 
+        $controllers->get('/getnews/{sort}/{start}/{count}', function(Application $app, $sort, $start, $count) {
+            $alpaca = $app['alpaca'];
+
+            if ($sort !== 'latest' && $sort !== 'top') {
+                return Helpers::apiError('Invalid sort parameter');
+            }
+            if ($count > $alpaca->getOption('api_max_news_count')) {
+                return Helpers::apiError('Count is too big');
+            }
+            if ($start < 0) {
+                $start = 0;
+            }
+
+            $newslist = $alpaca->{"get{$sort}News"}($app['user'], $start, $count);
+            foreach ($newslist['news'] as &$news) {
+                unset($news['rank'], $news['score'], $news['user_id']);
+            }
+
+            return Helpers::apiOK(array(
+                'news' => $newslist['news'],
+                'count' => $newslist['count'],
+            ));
+        });
+
         return $controllers;
     }
 }
