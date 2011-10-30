@@ -575,12 +575,12 @@ class RedisDatabase implements DatabaseInterface
      */
     public function editNews(Array $user, $newsID, $title, $url, $text)
     {
-        $news = $this->getNewsByID($user, $newsID);
+        @list($news) = $this->getNewsByID($user, $newsID);
 
-        if (!$news || $news['user_id'] != $userID) {
+        if (!$news || $news['user_id'] != $user['id']) {
             return false;
         }
-        if ((int) $news['ctime'] > time() - $this->getOption('news_edit_time')) {
+        if ($news['ctime'] < time() - $this->getOption('news_edit_time')) {
             return false;
         }
 
@@ -601,7 +601,7 @@ class RedisDatabase implements DatabaseInterface
             // Prevent DOS attacks by locking the new URL after it has been changed.
             $redis->del("url:{$news['url']}");
             if (!$textPost) {
-                $redis->setex("url:$url", $this->getOption('prevent_repost_time', $newsID));
+                $redis->setex("url:$url", $this->getOption('prevent_repost_time'), $newsID);
             }
         }
 
