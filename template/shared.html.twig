@@ -72,7 +72,7 @@
                     ({{ edit_time_left }} minutes left)
                 {% endif %}
             </span>
-            <pre>{{ comment.body }}</pre>
+            <pre>{{ comment.body | linkify | raw }}</pre>
         </article>
     {% else %}
         <article class="comment deleted" style="margin-left:{{ css_indentation }}px">[comment deleted]</article>

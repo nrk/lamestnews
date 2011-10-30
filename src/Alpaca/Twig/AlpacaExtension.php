@@ -11,6 +11,7 @@
 
 namespace Alpaca\Twig;
 
+use \Twig_Environment;
 use \Twig_Extension;
 use \Twig_Filter_Method;
 use \Twig_Filter_Function;
@@ -45,6 +46,7 @@ class AlpacaExtension extends Twig_Extension
 
         return array(
             'to_int' => new Twig_Filter_Function('intval'),
+            'linkify' => new Twig_Filter_Method($this, 'linkifyURL', $options),
         );
     }
 
@@ -160,5 +162,32 @@ class AlpacaExtension extends Twig_Extension
         });
 
         return $comments;
+    }
+
+     /**
+      * Scans the given text and convert URLs into HTML a tags.
+      *
+      * The returned string MUST not be escaped.
+      *
+      * @param Twig_Environment $env Twig environment.
+      * @param string $text Text to scan and convert.
+      * @return string
+      */
+    public function linkifyURL($env, $text)
+    {
+        static::$_linkifier = function($matches) {
+            $url = $matches[0];
+            $dot = '';
+            if ($url[strlen($url) - 1] === '.') {
+                $url = substr($url, 0, -1);
+                $dot = '.';
+            }
+            return "<a href=\"$url\">$url</a>$dot";
+        };
+
+        $escaper = $env->getFilter('escape')->compile();
+        $text = $escaper($env, $text);
+
+        return preg_replace_callback(self::COMMENT_LINKS, self::$_linkifier, $text);
     }
 }
