@@ -65,13 +65,11 @@ $app->before(function(Request $request) use ($app) {
     $alpaca = $app['alpaca'];
     $authToken = $request->cookies->get('auth');
 
-    if (!$user = $alpaca->authenticateUser($authToken)) {
-        return;
+    if ($user = $alpaca->authenticateUser($authToken)) {
+        $karmaIncrement = $alpaca->getOption('karma_increment_amount');
+        $karmaInterval = $alpaca->getOption('karma_increment_interval');
+        $alpaca->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
     }
-
-    $karmaIncrement = $alpaca->getOption('karma_increment_amount');
-    $karmaInterval = $alpaca->getOption('karma_increment_interval');
-    $alpaca->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
 });
 
 $app->mount('/', new WebsiteController());
