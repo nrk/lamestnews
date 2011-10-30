@@ -153,9 +153,11 @@ interface DatabaseInterface
      * Gets the list of the current top news items.
      *
      * @param array $user Current user.
+     * @param int $start Offset from which to start in the list of latest news.
+     * @param int $count Maximum number of news items.
      * @return array
      */
-    public function getTopNews(Array $user = null);
+    public function getTopNews(Array $user = null, $start = 0, $count = null);
 
     /**
      * Gets the list of the latest news in chronological order.

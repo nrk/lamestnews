@@ -33,9 +33,12 @@ class WebsiteController implements ControllerProviderInterface
         $controllers = new ControllerCollection();
 
         $controllers->get('/', function(Application $app) {
+            $newslist = $app['alpaca']->getTopNews($app['user']);
+
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Top news',
-                'newslist' => $app['alpaca']->getTopNews($app['user']),
+                'head_title' => 'Top news',
+                'newslist' => $newslist['news'],
             ));
         });
 

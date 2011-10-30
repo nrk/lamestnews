@@ -337,22 +337,27 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function getTopNews(Array $user = null)
+    public function getTopNews(Array $user = null, $start = 0, $count = null)
     {
-        $newsIDs = $this->getRedis()->zrevrange('news.top', 0, $this->getOption('top_news_per_page') - 1);
+        $redis = $this->getRedis();
+        $count = $count ?: $this->getOption('top_news_per_page');
+        $newsIDs = $redis->zrevrange('news.top', $start, $start + $count - 1);
 
         if (!$newsIDs) {
             return array();
         }
 
-        $result = $this->getNewsByID($user ?: array(), $newsIDs, true);
+        $newslist = $this->getNewsByID($user, $newsIDs, true);
 
         // Sort by rank before returning, since we adjusted ranks during iteration.
-        usort($result, function($a, $b) {
+        usort($newslist, function($a, $b) {
             return $a['rank'] != $b['rank'] ? ($a['rank'] < $b['rank'] ? 1 : -1) : 0;
         });
 
-        return $result;
+        return array(
+            'news' => $newslist,
+            'count' => $redis->zcard('news.top'),
+        );
     }
 
     /**
