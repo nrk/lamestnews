@@ -66,7 +66,6 @@ class AlpacaExtension extends Twig_Extension
 
             'news_domain' => new Twig_Function_Function('Alpaca\Helpers::getNewsDomain'),
             'news_text' => new Twig_Function_Function('Alpaca\Helpers::getNewsText'),
-
         );
     }
 
@@ -107,11 +106,13 @@ class AlpacaExtension extends Twig_Extension
     {
         $options = array_merge(array('s' => 48, 'd' => 'mm'), $options);
         $url = 'http://gravatar.com/avatar/' . md5($email) . '?';
+
         if ($options) {
             foreach ($options as $k => $v) {
                 $url .= urlencode($k) . '=' . urlencode($v) . '&';
             }
         }
+
         return substr($url, 0, -1);
     }
 
@@ -128,6 +129,7 @@ class AlpacaExtension extends Twig_Extension
         if (!$user) {
             return false;
         }
+
         return $user['id'] == $news['user_id'] && $news['ctime'] > (time() - $timeLimit);
     }
 
@@ -141,6 +143,7 @@ class AlpacaExtension extends Twig_Extension
      {
          $upvotes = isset($comment['up']) ? count($comment['up']) : 0;
          $downvotes = isset($comment['down']) ? count($comment['down']) : 0;
+
          return $upvotes - $downvotes;
      }
 
