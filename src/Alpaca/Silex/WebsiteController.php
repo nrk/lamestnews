@@ -43,11 +43,12 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/rss', function(Application $app, Request $request) {
+            $newslist = $app['alpaca']->getLatestNews($app['user']);
+
             $rss = $app['twig']->render('newslist.rss.twig', array(
                 'site_name' => 'Lamer News',
-                'site_url' => $request->getUriForPath('/'),
                 'description' => 'Latest news',
-                'newslist' => $app['alpaca']->getLatestNews(),
+                'newslist' => $newslist['news'],
             ));
 
             return new Response($rss, 200, array(

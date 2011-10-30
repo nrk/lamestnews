@@ -64,6 +64,7 @@ class AlpacaExtension extends Twig_Extension
             'comment_score' => new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::commentScore'),
             'sort_comments'=> new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::sortComments'),
 
+            'full_url' => new Twig_Function_Function('Alpaca\Helpers::getSiteURL'),
             'news_domain' => new Twig_Function_Function('Alpaca\Helpers::getNewsDomain'),
             'news_text' => new Twig_Function_Function('Alpaca\Helpers::getNewsText'),
         );

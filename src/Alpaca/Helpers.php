@@ -11,6 +11,7 @@
 
 namespace Alpaca;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -136,6 +137,17 @@ class Helpers
         }
 
         return true;
+    }
+
+    /**
+     * Returns the full URL for the specified path depending on the request.
+     *
+     * @param string $path Absolute path.
+     * @return string
+     */
+    public static function getSiteURL(Request $request, $path = '/')
+    {
+        return $request->getUriForPath($path);
     }
 
     /**

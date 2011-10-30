@@ -1,10 +1,10 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>{{ site_name }}</title>
-        <link>{{ site_url }}</link>
+        <link>{{ full_url(app.request, '/') }}</link>
         <description>{{ site_name }} - {{ description }}</description>
 {% for news in newslist %}
-{% set url_comments = site_url ~ 'news/' ~ news.id %}
+{% set url_comments = full_url(app.request, '/news/') ~ news.id %}
 {% set news_url = news_domain(news) ? news.url : url_comments %}
         <item>
             <title>{{ news.title }}</title>
