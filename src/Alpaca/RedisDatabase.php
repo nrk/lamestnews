@@ -802,7 +802,8 @@ class RedisDatabase implements DatabaseInterface
             $redis->hincrby("news:$newsID", 'comments', 1);
             $redis->zadd("user.comments:{$user['id']}", time(), "$newsID-$commentID");
 
-            $this->incrementUserKarma($user, $this->getOption('karma_increment_comment'));
+            // NOTE: karma updates on new comments has been temporarily disabled in LN v0.9.0
+            // $this->incrementUserKarma($user, $this->getOption('karma_increment_comment'));
             if (isset($parent) && $redis->exists("user:{$parent['user_id']}")) {
                 $redis->hincrby("user:{$parent['user_id']}", 'replies', 1);
             }
