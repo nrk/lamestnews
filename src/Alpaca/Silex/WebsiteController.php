@@ -170,7 +170,7 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             if (!($user = $alpaca->getUserByID($comment['user_id']))) {
-                $user = array('username' => 'deleted_user', 'email' => '', 'id' => -1);
+                $user = Helpers::getDeletedUser();
             }
 
             list($news) = $news;

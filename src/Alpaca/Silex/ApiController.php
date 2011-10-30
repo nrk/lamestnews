@@ -259,6 +259,58 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
+        $controllers->get('/getcomments/{newsID}', function(Application $app, $newsID) {
+            $alpaca = $app['alpaca'];
+            $user = $app['user'];
+
+            @list($news) = $alpaca->getNewsByID($user, $newsID);
+            if (!$news) {
+                return Helpers::apiError('Wrong news ID.');
+            }
+
+            $topcomments = array();
+            $thread = $alpaca->getNewsComments($user, $news);
+
+            foreach ($thread as $parentID => &$replies) {
+                if ($parentID == -1) {
+                    $topcomments = &$replies;
+                }
+
+                foreach ($replies as &$reply) {
+                    $user = $alpaca->getUserByID($reply['user_id']) ?: Helpers::getDeletedUser();
+
+                    $reply['username'] = $user['username'];
+
+                    if (isset($thread[$reply['id']])) {
+                        $reply['replies'] = &$thread[$reply['id']];
+                    }
+                    else {
+                        $reply['replies'] = array();
+                    }
+
+                    if (!Helpers::commentVoted($user, $reply)) {
+                        unset($reply['voted']);
+                    }
+
+                    if (isset($reply['up'])) {
+                        $reply['up'] = count($reply['up']);
+                    }
+                    if (isset($reply['down'])) {
+                        $reply['down'] = count($reply['down']);
+                    }
+
+                    unset(
+                        $reply['user'], $reply['id'], $reply['thread_id'],
+                        $reply['score'], $reply['parent_id'], $reply['user_id']
+                    );
+                }
+            }
+
+            return Helpers::apiOK(array(
+                'comments' => $topcomments,
+            ));
+        });
+
         return $controllers;
     }
 }
