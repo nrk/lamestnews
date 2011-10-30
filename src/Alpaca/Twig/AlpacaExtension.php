@@ -25,7 +25,7 @@ use \Twig_Function_Function;
  */
 class AlpacaExtension extends Twig_Extension
 {
-    const COMMENT_LINKS = '/((https?:\/\/|www\.)([-\w\.]+)+(:\d+)?(\/([\w\/_\.]*(\?\S+)?)?)?)/';
+    const COMMENT_LINKS = '/((https?:\/\/|www\.)([-\w\.]+)+(:\d+)?(\/([\w\/_\.\-\%]*(\?\S+)?)?)?)/';
 
     private static $_linkifier;
 
