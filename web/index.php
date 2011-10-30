@@ -17,6 +17,7 @@ use Alpaca\Helpers;
 use Alpaca\RedisDatabase;
 use Alpaca\Silex\WebsiteController;
 use Alpaca\Silex\ApiController;
+use Alpaca\Twig\AlpacaExtension as AlpacaTwigExtension;
 use Silex\Application as Application;
 use Silex\Provider\TwigServiceProvider as TwigProvider;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,16 +45,7 @@ $app->register(new TwigProvider(), array(
     'twig.path' => __DIR__.'/../template',
 ));
 
-$twig = $app['twig'];
-$twig->addFilter('to_int', new Twig_Filter_Function('intval'));
-$twig->addFunction('now', new Twig_Function_Function('time'));
-$twig->addFunction('time_elapsed', new Twig_Function_Function('Alpaca\Helpers::timeElapsed'));
-$twig->addFunction('gravatar', new Twig_Function_Function('Alpaca\Helpers::getGravatarLink'));
-$twig->addFunction('news_editable', new Twig_Function_Function('Alpaca\Helpers::isNewsEditable'));
-$twig->addFunction('news_domain', new Twig_Function_Function('Alpaca\Helpers::getNewsDomain'));
-$twig->addFunction('news_text', new Twig_Function_Function('Alpaca\Helpers::getNewsText'));
-$twig->addFunction('comment_score', new Twig_Function_Function('Alpaca\Helpers::commentScore'));
-$twig->addFunction('sort_comments', new Twig_Function_Function('Alpaca\Helpers::sortComments'));
+$app['twig']->addExtension(new AlpacaTwigExtension());
 
 $app['alpaca'] = $app->share(function(Application $app) {
     return new RedisDatabase($app['predis']);
