@@ -72,7 +72,7 @@ class RedisDatabase implements DatabaseInterface
             'news_edit_time' => 60 * 15,
             'news_score_log_start' => 10,
             'news_score_log_booster' => 2,
-            'rank_aging_factor' => 1.6,
+            'rank_aging_factor' => 2.2,
             'prevent_repost_time' => 3600 * 48,
             'news_submission_break' => 60 * 15,
             'saved_news_per_page' => 10,
