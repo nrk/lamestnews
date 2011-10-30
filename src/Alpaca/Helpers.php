@@ -171,8 +171,8 @@ class Helpers
      * @param string $vote Type of vote (either up or down)
      * @return mixed
      */
-     public static function commentVoted(Array $user, Array $comment)
-     {
+    public static function commentVoted(Array $user, Array $comment)
+    {
         if (!$user) {
             return false;
         }
@@ -188,7 +188,7 @@ class Helpers
         }
 
         return false;
-     }
+    }
 
     /**
      * Returns the details for a generic deleted user.
