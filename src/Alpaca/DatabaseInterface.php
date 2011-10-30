@@ -19,7 +19,7 @@ namespace Alpaca;
 interface DatabaseInterface
 {
     const VERSION = '0.1.0';
-    const COMPATIBILITY = '0.8.0';
+    const COMPATIBILITY = '0.9.2';
 
     /**
      * Implements a generic and persisted rate limiting mechanism.
