@@ -133,13 +133,15 @@ class WebsiteController implements ControllerProviderInterface
             return $app->redirect('/');
         });
 
-        $controllers->get('/submit', function(Application $app) {
+        $controllers->get('/submit', function(Application $app, Request $request) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
 
             return $app['twig']->render('submit_news.html.twig', array(
                 'title' => 'Submit a new story',
+                'bm_url' => $request->get('u'),
+                'bm_title' => $request->get('t'),
             ));
         });
 

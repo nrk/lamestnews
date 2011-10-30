@@ -9,10 +9,10 @@
         <input value="-1" type="hidden" name="news_id">
 
         <label for="title">title</label>
-        <input type="text" size="80" id="title" name="title"><br>
+        <input type="text" size="80" id="title" name="title" value="{{ bm_title }}"><br>
 
         <label for="url">url</label><br/>
-        <input type="text" size="60" id="url" name="url"><br>
+        <input type="text" size="60" id="url" name="url" value="{{ bm_url }}"><br>
 
         or if you don't have an url type some text<br>
         <label for="text">text</label>
@@ -23,6 +23,8 @@
 </div>
 
 <div id="errormsg"></div>
+
+<p>Submitting news is simpler using the <a href="javascript:window.location=%22{{ full_url(app.request, '/submit') }}?u=%22+encodeURIComponent(document.location)+%22&amp;t=%22+encodeURIComponent(document.title)">bookmarklet</a> (drag the link to your browser toolbar)</p>
 
 <script>
     $(function() {
