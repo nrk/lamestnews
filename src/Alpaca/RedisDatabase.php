@@ -14,6 +14,8 @@ namespace Alpaca;
 use Predis\Client;
 use Predis\Pipeline\PipelineContext;
 
+use Alpaca\Helpers as H;
+
 /**
  * Main abstraction to access the data of Alpaca stored in Redis.
  *
@@ -112,20 +114,20 @@ class RedisDatabase implements DatabaseInterface
         }
 
         $userID = $redis->incr('users.count');
-        $authToken = Helpers::generateRandom();
-        $salt = Helpers::generateRandom();
+        $authToken = H::generateRandom();
+        $salt = H::generateRandom();
 
         $userDetails = array(
             'id' => $userID,
             'username' => $username,
             'salt' => $salt,
-            'password' => Helpers::pbkdf2($password, $salt),
+            'password' => H::pbkdf2($password, $salt),
             'ctime' => time(),
             'karma' => $this->getOption('user_initial_karma'),
             'about' => '',
             'email' => '',
             'auth' => $authToken,
-            'apisecret' => Helpers::generateRandom(),
+            'apisecret' => H::generateRandom(),
             'flags' => '',
             'karma_incr_time' => time(),
         );
@@ -232,7 +234,7 @@ class RedisDatabase implements DatabaseInterface
             return;
         }
 
-        $hashedPassword = Helpers::pbkdf2($password, $user['salt']);
+        $hashedPassword = H::pbkdf2($password, $user['salt']);
         if ($user['password'] !== $hashedPassword) {
             return;
         }
@@ -282,7 +284,7 @@ class RedisDatabase implements DatabaseInterface
         $redis = $this->getRedis();
         $redis->del("auth:{$user['auth']}");
 
-        $newAuthToken = Helpers::generateRandom();
+        $newAuthToken = H::generateRandom();
         $redis->hmset("user:$userID","auth", $newAuthToken);
         $redis->set("auth:$newAuthToken", $userID);
 
@@ -514,7 +516,7 @@ class RedisDatabase implements DatabaseInterface
             $tree[$parentID][] = array_merge($comment, array(
                 'id' => $id,
                 'thread_id' => $news['id'],
-                'voted' => Helpers::commentVoted($user, $comment),
+                'voted' => H::commentVoted($user, $comment),
                 'user' => $users[$userID],
             ));
         }
@@ -902,7 +904,7 @@ class RedisDatabase implements DatabaseInterface
                 if ($comment) {
                     $comment = array_merge($comment, array(
                         'user' => $this->getUserByID($comment['user_id']),
-                        'voted' => Helpers::commentVoted($user, $comment),
+                        'voted' => H::commentVoted($user, $comment),
                     ));
                     $comments[] = isset($callback) ? $callback($comment) : $comment;
                 }
@@ -954,7 +956,7 @@ class RedisDatabase implements DatabaseInterface
         if (!$comment) {
             return false;
         }
-        if (Helpers::commentVoted($user, $comment)) {
+        if (H::commentVoted($user, $comment)) {
             return false;
         }
 

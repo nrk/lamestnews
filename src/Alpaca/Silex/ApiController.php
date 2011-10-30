@@ -11,7 +11,7 @@
 
 namespace Alpaca\Silex;
 
-use Alpaca\Helpers;
+use Alpaca\Helpers as H;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Silex\ControllerProviderInterface;
@@ -36,26 +36,26 @@ class ApiController implements ControllerProviderInterface
             $password = $request->get('password');
 
             if (!strlen(trim($username)) || !strlen(trim($password))) {
-                return Helpers::apiError('Username and password are two required fields.');
+                return H::apiError('Username and password are two required fields.');
             }
 
             @list($auth, $apisecret) = $app['alpaca']->verifyUserCredentials($username, $password);
 
             if (!isset($auth)) {
-                return Helpers::apiError('No match for the specified username / password pair.');
+                return H::apiError('No match for the specified username / password pair.');
             }
 
-            return Helpers::apiOK(array('auth' => $auth, 'apisecret' => $apisecret));
+            return H::apiOK(array('auth' => $auth, 'apisecret' => $apisecret));
         });
 
         $controllers->post('/logout', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
             $app['alpaca']->updateAuthToken($app['user']['id']);
 
-            return Helpers::apiOK();
+            return H::apiOK();
         });
 
         $controllers->post('/create_account', function(Application $app, Request $request) {
@@ -64,27 +64,27 @@ class ApiController implements ControllerProviderInterface
             $password = $request->get('password');
 
             if (!strlen(trim($username)) || !strlen(trim($password))) {
-                return Helpers::apiError('Username and password are two required fields.');
+                return H::apiError('Username and password are two required fields.');
             }
 
             if ($alpaca->rateLimited(3600 * 15, array('create_user', $request->getClientIp()))) {
-                return Helpers::apiError('Please wait some time before creating a new user.');
+                return H::apiError('Please wait some time before creating a new user.');
             }
 
             if (strlen($password) < ($minPwdLen = $alpaca->getOption('password_min_length'))) {
-                return Helpers::apiError("Password is too short. Min length: $minPwdLen");
+                return H::apiError("Password is too short. Min length: $minPwdLen");
             }
 
             $authToken = $alpaca->createUser($username, $password);
             if (!$authToken) {
-                return Helpers::apiError('Username is busy. Please select a different one.');
+                return H::apiError('Username is busy. Please select a different one.');
             }
 
-            return Helpers::apiOK(array('auth' => $authToken));
+            return H::apiOK(array('auth' => $authToken));
         });
 
         $controllers->post('/submit', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
@@ -96,52 +96,52 @@ class ApiController implements ControllerProviderInterface
 
             // We can have an empty url or an empty first comment, but not both.
             if (empty($newsID) || empty($title) || (!strlen(trim($url)) && !strlen(trim($text)))) {
-                return Helpers::apiError('Please specify a news title and address or text.');
+                return H::apiError('Please specify a news title and address or text.');
             }
 
             // Make sure the news has an accepted URI scheme (only http or https for now).
             if (!empty($url)) {
                 $scheme = parse_url($url, PHP_URL_SCHEME);
                 if ($scheme !== 'http' && $scheme !== 'https') {
-                    return Helpers::apiError('We only accept http:// and https:// news.');
+                    return H::apiError('We only accept http:// and https:// news.');
                 }
             }
 
             if ($newsID == -1) {
                 if (($eta = $alpaca->getNewPostEta($app['user'])) > 0) {
-                    return Helpers::apiError("You have submitted a story too recently, please wait $eta seconds.");
+                    return H::apiError("You have submitted a story too recently, please wait $eta seconds.");
                 }
                 $newsID = $alpaca->insertNews($title, $url, $text, $app['user']['id']);
             }
             else {
                 $newsID = $alpaca->editNews($app['user'], $newsID, $title, $url, $text);
                 if (!$newsID) {
-                    return Helpers::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
+                    return H::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
                 }
             }
 
-            return Helpers::apiOK(array('news_id' => $newsID));
+            return H::apiOK(array('news_id' => $newsID));
         });
 
         $controllers->post('/delnews', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
             $newsID = $request->get('news_id');
 
             if (empty($newsID)) {
-                return Helpers::apiError('Please specify a news title.');
+                return H::apiError('Please specify a news title.');
             }
             if (!$app['alpaca']->deleteNews($app['user'], $newsID)) {
-                return Helpers::apiError('News too old or wrong ID/owner.');
+                return H::apiError('News too old or wrong ID/owner.');
             }
 
-            return Helpers::apiOK(array('news_id' => -1));
+            return H::apiOK(array('news_id' => -1));
         });
 
         $controllers->post('/votenews', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
@@ -149,18 +149,18 @@ class ApiController implements ControllerProviderInterface
             $voteType = $request->get('vote_type');
 
             if (empty($newsID) || ($voteType !== 'up' && $voteType !== 'down')) {
-                return Helpers::apiError('Missing news ID or invalid vote type.');
+                return H::apiError('Missing news ID or invalid vote type.');
             }
 
             if ($app['alpaca']->voteNews($newsID, $app['user'], $voteType, $error) === false) {
-                return Helpers::apiError($error);
+                return H::apiError($error);
             }
 
-            return Helpers::apiOK();
+            return H::apiOK();
         });
 
         $controllers->post('/postcomment', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
@@ -170,16 +170,16 @@ class ApiController implements ControllerProviderInterface
             $comment = $request->get('comment');
 
             if (empty($newsID) || empty($commentID) || empty($parentID) || !isset($comment)) {
-                return Helpers::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
+                return H::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 
             $info = $app['alpaca']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
 
             if (!$info) {
-                return Helpers::apiError('Invalid news, comment, or edit time expired.');
+                return H::apiError('Invalid news, comment, or edit time expired.');
             }
 
-            return Helpers::apiOK(array(
+            return H::apiOK(array(
                 'op' => $info['op'],
                 'comment_id' => $info['comment_id'],
                 'parent_id' => $parentID,
@@ -188,7 +188,7 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->post('/votecomment', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
@@ -196,21 +196,21 @@ class ApiController implements ControllerProviderInterface
             $voteType = $request->get('vote_type');
 
             if (!preg_match('/^\d+-\d+$/', $compositeID) || ($voteType !== 'up' && $voteType !== 'down')) {
-                return Helpers::apiError('Missing or invalid comment ID or invalid vote type.');
+                return H::apiError('Missing or invalid comment ID or invalid vote type.');
             }
 
             list($newsID, $commentID) = explode('-', $compositeID);
             if (!$app['alpaca']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
-                return Helpers::apiError('Invalid parameters or duplicated vote.');
+                return H::apiError('Invalid parameters or duplicated vote.');
             }
 
-            return Helpers::apiOK(array(
+            return H::apiOK(array(
                 'comment_id' => $compositeID,
             ));
         });
 
         $controllers->post('/updateprofile', function(Application $app, Request $request) {
-            if (!Helpers::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
+            if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
 
@@ -225,24 +225,24 @@ class ApiController implements ControllerProviderInterface
 
             if (($pwdLen = strlen($password)) > 0) {
                 if ($pwdLen < ($minPwdLen = $app['alpaca']->getOption('password_min_length'))) {
-                    return Helpers::apiError("Password is too short. Min length: $minPwdLen");
+                    return H::apiError("Password is too short. Min length: $minPwdLen");
                 }
-                $attributes['password'] = Helpers::pbkdf2($password, $app['user']['salt']);
+                $attributes['password'] = H::pbkdf2($password, $app['user']['salt']);
             }
 
             $app['alpaca']->updateUserProfile($app['user'], $attributes);
 
-            return Helpers::apiOK();
+            return H::apiOK();
         });
 
         $controllers->get('/getnews/{sort}/{start}/{count}', function(Application $app, $sort, $start, $count) {
             $alpaca = $app['alpaca'];
 
             if ($sort !== 'latest' && $sort !== 'top') {
-                return Helpers::apiError('Invalid sort parameter');
+                return H::apiError('Invalid sort parameter');
             }
             if ($count > $alpaca->getOption('api_max_news_count')) {
-                return Helpers::apiError('Count is too big');
+                return H::apiError('Count is too big');
             }
             if ($start < 0) {
                 $start = 0;
@@ -253,7 +253,7 @@ class ApiController implements ControllerProviderInterface
                 unset($news['rank'], $news['score'], $news['user_id']);
             }
 
-            return Helpers::apiOK(array(
+            return H::apiOK(array(
                 'news' => $newslist['news'],
                 'count' => $newslist['count'],
             ));
@@ -265,7 +265,7 @@ class ApiController implements ControllerProviderInterface
 
             @list($news) = $alpaca->getNewsByID($user, $newsID);
             if (!$news) {
-                return Helpers::apiError('Wrong news ID.');
+                return H::apiError('Wrong news ID.');
             }
 
             $topcomments = array();
@@ -277,7 +277,7 @@ class ApiController implements ControllerProviderInterface
                 }
 
                 foreach ($replies as &$reply) {
-                    $user = $alpaca->getUserByID($reply['user_id']) ?: Helpers::getDeletedUser();
+                    $user = $alpaca->getUserByID($reply['user_id']) ?: H::getDeletedUser();
 
                     $reply['username'] = $user['username'];
 
@@ -288,7 +288,7 @@ class ApiController implements ControllerProviderInterface
                         $reply['replies'] = array();
                     }
 
-                    if (!Helpers::commentVoted($user, $reply)) {
+                    if (!H::commentVoted($user, $reply)) {
                         unset($reply['voted']);
                     }
 
@@ -306,7 +306,7 @@ class ApiController implements ControllerProviderInterface
                 }
             }
 
-            return Helpers::apiOK(array(
+            return H::apiOK(array(
                 'comments' => $topcomments,
             ));
         });

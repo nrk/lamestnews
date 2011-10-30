@@ -11,7 +11,7 @@
 
 namespace Alpaca\Silex;
 
-use Alpaca\Helpers;
+use Alpaca\Helpers as H;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -126,7 +126,7 @@ class WebsiteController implements ControllerProviderInterface
         $controllers->get('/logout', function(Application $app, Request $request) {
             $apisecret = $request->get('apisecret');
 
-            if (isset($app['user']) && Helpers::verifyApiSecret($app['user'], $apisecret)) {
+            if (isset($app['user']) && H::verifyApiSecret($app['user'], $apisecret)) {
                 $app['alpaca']->updateAuthToken($app['user']['id']);
             }
 
@@ -173,7 +173,7 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             if (!($user = $alpaca->getUserByID($comment['user_id']))) {
-                $user = Helpers::getDeletedUser();
+                $user = H::getDeletedUser();
             }
 
             list($news) = $news;
@@ -184,7 +184,7 @@ class WebsiteController implements ControllerProviderInterface
                 'comment' => array_merge($comment, array(
                     'id' => $commentID,
                     'user' => $user,
-                    'voted' => Helpers::commentVoted($app['user'], $comment),
+                    'voted' => H::commentVoted($app['user'], $comment),
                 )),
                 'comments' => $alpaca->getNewsComments($app['user'], $news),
             ));
@@ -217,7 +217,7 @@ class WebsiteController implements ControllerProviderInterface
                 'comment' => array_merge($comment, array(
                     'id' => $commentID,
                     'user' => $user,
-                    'voted' => Helpers::commentVoted($app['user'], $comment),
+                    'voted' => H::commentVoted($app['user'], $comment),
                 )),
             ));
         });
@@ -264,7 +264,7 @@ class WebsiteController implements ControllerProviderInterface
                 'comment' => array_merge($comment, array(
                     'id' => $commentID,
                     'user' => $user,
-                    'voted' => Helpers::commentVoted($app['user'], $comment),
+                    'voted' => H::commentVoted($app['user'], $comment),
                 )),
             ));
         });
@@ -288,8 +288,8 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             $text = '';
-            if (!Helpers::getNewsDomain($news)) {
-                $text = Helpers::getNewsText($news);
+            if (!H::getNewsDomain($news)) {
+                $text = H::getNewsText($news);
                 $news['url'] = '';
             }
 
