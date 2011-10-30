@@ -35,7 +35,7 @@ class WebsiteController implements ControllerProviderInterface
         $controllers->get('/', function(Application $app) {
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Top news',
-                'newslist' => $app['db']->getTopNews($app['user']),
+                'newslist' => $app['alpaca']->getTopNews($app['user']),
             ));
         });
 
@@ -44,7 +44,7 @@ class WebsiteController implements ControllerProviderInterface
                 'site_name' => 'Lamer News',
                 'site_url' => $request->getUriForPath('/'),
                 'description' => 'Latest news',
-                'newslist' => $app['db']->getLatestNews(),
+                'newslist' => $app['alpaca']->getLatestNews(),
             ));
 
             return new Response($rss, 200, array(
@@ -55,7 +55,7 @@ class WebsiteController implements ControllerProviderInterface
         $controllers->get('/latest', function(Application $app) {
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Latest news',
-                'newslist' => $app['db']->getLatestNews($app['user']),
+                'newslist' => $app['alpaca']->getLatestNews($app['user']),
             ));
         });
 
@@ -68,7 +68,7 @@ class WebsiteController implements ControllerProviderInterface
                 $start = 0;
             }
 
-            $saved = $app['db']->getSavedNews($app['user'], $start);
+            $saved = $app['alpaca']->getSavedNews($app['user'], $start);
 
             return $app['twig']->render('news_saved.html.twig', array(
                 'title' => 'Saved news',
@@ -76,20 +76,20 @@ class WebsiteController implements ControllerProviderInterface
                 'pagination' => array(
                     'start' => $start,
                     'count' => $saved['count'],
-                    'perpage' => $app['db']->getOption('saved_news_per_page'),
+                    'perpage' => $app['alpaca']->getOption('saved_news_per_page'),
                 ),
             ));
         });
 
         $controllers->get('/usercomments/{username}/{start}', function(Application $app, $username, $start) {
-            $user = $app['db']->getUserByUsername($username);
+            $user = $app['alpaca']->getUserByUsername($username);
 
             if (!$user) {
                 return $app->abort(404, 'Non existing user');
             }
 
-            $perpage = $app['db']->getOption('user_comments_per_page');
-            $comments = $app['db']->getUserComments($user, $start ?: 0, $perpage);
+            $perpage = $app['alpaca']->getOption('user_comments_per_page');
+            $comments = $app['alpaca']->getUserComments($user, $start ?: 0, $perpage);
 
             return $app['twig']->render('user_comments.html.twig', array(
                 'title' => "$username comments",
@@ -113,7 +113,7 @@ class WebsiteController implements ControllerProviderInterface
             $apisecret = $request->get('apisecret');
 
             if (isset($app['user']) && Helpers::verifyApiSecret($app['user'], $apisecret)) {
-                $app['db']->updateAuthToken($app['user']['id']);
+                $app['alpaca']->updateAuthToken($app['user']['id']);
             }
 
             return $app->redirect('/');
@@ -130,7 +130,8 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/news/{newsID}', function(Application $app, $newsID) {
-            list($news) = $app['db']->getNewsByID($app['user'], array($newsID));
+            $alpaca = $app['alpaca'];
+            list($news) = $alpaca->getNewsByID($app['user'], array($newsID));
 
             if (!$news) {
                 return $app->abort(404, 'This news does not exist.');
@@ -139,21 +140,23 @@ class WebsiteController implements ControllerProviderInterface
             return $app['twig']->render('news.html.twig', array(
                 'title' => $news['title'],
                 'news' => $news,
-                'user' => $app['db']->getUserByID($news['user_id']),
-                'comments' => $app['db']->getNewsComments($app['user'], $news),
+                'user' => $alpaca->getUserByID($news['user_id']),
+                'comments' => $alpaca->getNewsComments($app['user'], $news),
             ));
         });
 
         $controllers->get('/comment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
-            if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
+            $alpaca = $app['alpaca'];
+
+            if (!($news = $alpaca->getNewsByID($app['user'], $newsID))) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
-            if (!($comment = $app['db']->getComment($newsID, $commentID))) {
+            if (!($comment = $alpaca->getComment($newsID, $commentID))) {
                 return $app->abort(404, 'This comment does not exist.');
             }
 
-            if (!($user = $app['db']->getUserByID($comment['user_id']))) {
+            if (!($user = $alpaca->getUserByID($comment['user_id']))) {
                 $user = array('username' => 'deleted_user', 'email' => '', 'id' => -1);
             }
 
@@ -167,24 +170,26 @@ class WebsiteController implements ControllerProviderInterface
                     'user' => $user,
                     'voted' => Helpers::commentVoted($app['user'], $comment),
                 )),
-                'comments' => $app['db']->getNewsComments($app['user'], $news),
+                'comments' => $alpaca->getNewsComments($app['user'], $news),
             ));
         });
 
         $controllers->get('/reply/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
+            $alpaca = $app['alpaca'];
+
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
 
-            if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
+            if (!($news = $alpaca->getNewsByID($app['user'], $newsID))) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
-            if (!($comment = $app['db']->getComment($newsID, $commentID))) {
+            if (!($comment = $alpaca->getComment($newsID, $commentID))) {
                 return $app->abort(404, 'This comment does not exist.');
             }
 
-            if (!($user = $app['db']->getUserByID($comment['user_id']))) {
+            if (!($user = $alpaca->getUserByID($comment['user_id']))) {
                 $user = array('username' => 'deleted_user', 'email' => '', 'id' => -1);
             }
 
@@ -202,11 +207,13 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/replies', function(Application $app) {
+            $alpaca = $app['alpaca'];
+
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
 
-            $comments = $app['db']->getReplies($app['user'], $app['db']->getOption('subthreads_in_replies_page') - 1, true);
+            $comments = $alpaca->getReplies($app['user'], $alpaca->getOption('subthreads_in_replies_page') - 1, true);
             return $app['twig']->render('user_replies.html.twig', array(
                 'title' => 'Your threads',
                 'comments' => $comments,
@@ -214,19 +221,21 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/editcomment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
+            $alpaca = $app['alpaca'];
+
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
 
-            if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
+            if (!($news = $alpaca->getNewsByID($app['user'], $newsID))) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
-            if (!($comment = $app['db']->getComment($newsID, $commentID))) {
+            if (!($comment = $alpaca->getComment($newsID, $commentID))) {
                 return $app->abort(404, 'This comment does not exist.');
             }
 
-            $user = $app['db']->getUserByID($comment['user_id']);
+            $user = $alpaca->getUserByID($comment['user_id']);
             if (!$user || $app['user']['id'] != $user['id']) {
                 return $app->abort(500, 'Permission denied.');
             }
@@ -245,17 +254,19 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/editnews/{newsID}', function(Application $app, $newsID) {
+            $alpaca = $app['alpaca'];
+
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
 
-            if (!($news = $app['db']->getNewsByID($app['user'], $newsID))) {
+            if (!($news = $alpaca->getNewsByID($app['user'], $newsID))) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
             list($news) = $news;
 
-            $user = $app['db']->getUserByID($news['user_id']);
+            $user = $alpaca->getUserByID($news['user_id']);
             if (!$user || $app['user']['id'] != $user['id']) {
                 return $app->abort(500, 'Permission denied.');
             }
@@ -274,7 +285,8 @@ class WebsiteController implements ControllerProviderInterface
         });
 
         $controllers->get('/user/{username}', function(Application $app, $username) {
-            $user = $app['db']->getUserByUsername($username);
+            $alpaca = $app['alpaca'];
+            $user = $alpaca->getUserByUsername($username);
 
             if (!$user) {
                 return $app->abort(404, 'Non existing user');
@@ -283,7 +295,7 @@ class WebsiteController implements ControllerProviderInterface
             return $app['twig']->render('userprofile.html.twig', array(
                 'title' => $username,
                 'user' => $user,
-                'user_counters' => $app['db']->getUserCounters($user),
+                'user_counters' => $alpaca->getUserCounters($user),
             ));
         });
 

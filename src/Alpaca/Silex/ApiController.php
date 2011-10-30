@@ -39,7 +39,7 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Username and password are two required fields.');
             }
 
-            @list($auth, $apisecret) = $app['db']->verifyUserCredentials($username, $password);
+            @list($auth, $apisecret) = $app['alpaca']->verifyUserCredentials($username, $password);
 
             if (!isset($auth)) {
                 return Helpers::apiError('No match for the specified username / password pair.');
@@ -53,12 +53,13 @@ class ApiController implements ControllerProviderInterface
                 return $error;
             }
 
-            $app['db']->updateAuthToken($app['user']['id']);
+            $app['alpaca']->updateAuthToken($app['user']['id']);
 
             return Helpers::apiOK();
         });
 
         $controllers->post('/create_account', function(Application $app, Request $request) {
+            $alpaca = $app['alpaca'];
             $username = $request->get('username');
             $password = $request->get('password');
 
@@ -66,15 +67,15 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Username and password are two required fields.');
             }
 
-            if ($app['db']->rateLimited(3600 * 15, array('create_user', $request->getClientIp()))) {
+            if ($alpaca->rateLimited(3600 * 15, array('create_user', $request->getClientIp()))) {
                 return Helpers::apiError('Please wait some time before creating a new user.');
             }
 
-            if (strlen($password) < ($minPwdLen = $app['db']->getOption('password_min_length'))) {
+            if (strlen($password) < ($minPwdLen = $alpaca->getOption('password_min_length'))) {
                 return Helpers::apiError("Password is too short. Min length: $minPwdLen");
             }
 
-            $authToken = $app['db']->createUser($username, $password);
+            $authToken = $alpaca->createUser($username, $password);
             if (!$authToken) {
                 return Helpers::apiError('Username is busy. Please select a different one.');
             }
@@ -87,6 +88,7 @@ class ApiController implements ControllerProviderInterface
                 return $error;
             }
 
+            $alpaca = $app['alpaca'];
             $newsID = $request->get('news_id');
             $title = $request->get('title');
             $url = $request->get('url');
@@ -106,13 +108,13 @@ class ApiController implements ControllerProviderInterface
             }
 
             if ($newsID == -1) {
-                if (($eta = $app['db']->getNewPostEta($app['user'])) > 0) {
+                if (($eta = $alpaca->getNewPostEta($app['user'])) > 0) {
                     return Helpers::apiError("You have submitted a story too recently, please wait $eta seconds.");
                 }
-                $newsID = $app['db']->insertNews($title, $url, $text, $app['user']['id']);
+                $newsID = $alpaca->insertNews($title, $url, $text, $app['user']['id']);
             }
             else {
-                $newsID = $app['db']->editNews($app['user'], $newsID, $title, $url, $text);
+                $newsID = $alpaca->editNews($app['user'], $newsID, $title, $url, $text);
                 if (!$newsID) {
                     return Helpers::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
                 }
@@ -131,7 +133,7 @@ class ApiController implements ControllerProviderInterface
             if (empty($newsID)) {
                 return Helpers::apiError('Please specify a news title.');
             }
-            if (!$app['db']->deleteNews($app['user'], $newsID)) {
+            if (!$app['alpaca']->deleteNews($app['user'], $newsID)) {
                 return Helpers::apiError('News too old or wrong ID/owner.');
             }
 
@@ -150,7 +152,7 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Missing news ID or invalid vote type.');
             }
 
-            if ($app['db']->voteNews($newsID, $app['user'], $voteType, $error) === false) {
+            if ($app['alpaca']->voteNews($newsID, $app['user'], $voteType, $error) === false) {
                 return Helpers::apiError($error);
             }
 
@@ -171,7 +173,7 @@ class ApiController implements ControllerProviderInterface
                 return Helpers::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 
-            $info = $app['db']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
+            $info = $app['alpaca']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
 
             if (!$info) {
                 return Helpers::apiError('Invalid news, comment, or edit time expired.');
@@ -198,7 +200,7 @@ class ApiController implements ControllerProviderInterface
             }
 
             list($newsID, $commentID) = explode('-', $compositeID);
-            if (!$app['db']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
+            if (!$app['alpaca']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
                 return Helpers::apiError('Invalid parameters or duplicated vote.');
             }
 
@@ -222,13 +224,13 @@ class ApiController implements ControllerProviderInterface
             );
 
             if (($pwdLen = strlen($password)) > 0) {
-                if ($pwdLen < ($minPwdLen = $app['db']->getOption('password_min_length'))) {
+                if ($pwdLen < ($minPwdLen = $app['alpaca']->getOption('password_min_length'))) {
                     return Helpers::apiError("Password is too short. Min length: $minPwdLen");
                 }
                 $attributes['password'] = Helpers::pbkdf2($password, $app['user']['salt']);
             }
 
-            $app['db']->updateUserProfile($app['user'], $attributes);
+            $app['alpaca']->updateUserProfile($app['user'], $attributes);
 
             return Helpers::apiOK();
         });

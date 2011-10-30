@@ -55,8 +55,12 @@ $twig->addFunction('news_text', new Twig_Function_Function('Alpaca\Helpers::getN
 $twig->addFunction('comment_score', new Twig_Function_Function('Alpaca\Helpers::commentScore'));
 $twig->addFunction('sort_comments', new Twig_Function_Function('Alpaca\Helpers::sortComments'));
 
-$app['db'] = $app->share(function(Application $app) {
+$app['alpaca'] = $app->share(function(Application $app) {
     return new RedisDatabase($app['predis']);
+});
+
+$app['user'] = $app->share(function(Application $app) {
+    return $app['alpaca']->getUser();
 });
 
 // ************************************************************************** //
@@ -66,16 +70,16 @@ define('__VERSION__', Alpaca\DatabaseInterface::VERSION);
 define('__COMPATIBILITY__', Alpaca\DatabaseInterface::COMPATIBILITY);
 
 $app->before(function(Request $request) use ($app) {
+    $alpaca = $app['alpaca'];
     $authToken = $request->cookies->get('auth');
-    $user = $app['db']->authenticateUser($authToken);
 
-    if ($user) {
-        $karmaIncrement = $app['db']->getOption('karma_increment_amount');
-        $karmaInterval = $app['db']->getOption('karma_increment_interval');
-        $app['db']->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
+    if (!$user = $alpaca->authenticateUser($authToken)) {
+        return;
     }
 
-    $app['user'] = $app->share(function() use($app) { return $app['db']->getUser(); });
+    $karmaIncrement = $alpaca->getOption('karma_increment_amount');
+    $karmaInterval = $alpaca->getOption('karma_increment_interval');
+    $alpaca->incrementUserKarma($user, $karmaIncrement, $karmaInterval);
 });
 
 $app->mount('/', new WebsiteController());
