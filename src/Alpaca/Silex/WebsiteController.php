@@ -52,34 +52,44 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/latest', function(Application $app) {
+        $controllers->get('/latest/{start}', function(Application $app, $start) {
+            $alpaca = $app['alpaca'];
+            $perpage = $alpaca->getOption('latest_news_per_page');
+            $newslist = $alpaca->getLatestNews($app['user'], $start, $perpage);
+
             return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Latest news',
-                'newslist' => $app['alpaca']->getLatestNews($app['user']),
+                'newslist' => $newslist['news'],
+                'pagination' => array(
+                    'start' => $start,
+                    'count' => $newslist['count'],
+                    'perpage' => $perpage,
+                    'linkbase' => 'latest',
+                ),
             ));
-        });
+        })->value('start', 0);
 
         $controllers->get('/saved/{start}', function(Application $app, $start) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
 
-            if (($start = (int)$start) < 0) {
-                $start = 0;
-            }
+            $alpaca = $app['alpaca'];
+            $perpage = $alpaca->getOption('latest_news_per_page');
+            $newslist = $alpaca->getSavedNews($app['user'], $start);
 
-            $saved = $app['alpaca']->getSavedNews($app['user'], $start);
-
-            return $app['twig']->render('news_saved.html.twig', array(
+            return $app['twig']->render('newslist.html.twig', array(
                 'title' => 'Saved news',
-                'newslist' => $saved['news'],
+                'head_title' => 'Your saved news',
+                'newslist' => $newslist['news'],
                 'pagination' => array(
                     'start' => $start,
-                    'count' => $saved['count'],
-                    'perpage' => $app['alpaca']->getOption('saved_news_per_page'),
+                    'count' => $newslist['count'],
+                    'perpage' => $perpage,
+                    'linkbase' => 'saved',
                 ),
             ));
-        });
+        })->value('start', 0);
 
         $controllers->get('/usercomments/{username}/{start}', function(Application $app, $username, $start) {
             $user = $app['alpaca']->getUserByUsername($username);

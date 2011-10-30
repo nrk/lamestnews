@@ -3,12 +3,21 @@
 
 {% block content %}
 
-<h2>{{ title }}</h2>
+{% if head_title is defined %}
+    <h2>{{ title }}</h2>
+{% endif %}
 
 <section id="newslist">
     {% for news in newslist %}
         {{ render_news(news) }}
     {% endfor %}
+
+    {% if pagination is defined %}
+        {% set nextpage = pagination.start + pagination.perpage %}
+        {% if nextpage < pagination.count %}
+            <a href="/{{ pagination.linkbase }}/{{ nextpage }}" class="more">[more]</a>
+        {% endif %}
+    {% endif %}
 </section>
 
 {% endblock %}

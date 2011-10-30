@@ -310,19 +310,27 @@ class RedisDatabase implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public function getLatestNews(Array $user = null)
+    public function getLatestNews(Array $user = null, $start = 0, $count = null)
     {
-        $newsIDs = $this->getRedis()->zrevrange('news.cron', 0, $this->getOption('latest_news_per_page') - 1);
-        return $this->getNewsByID($user ?: array(), $newsIDs, true);
+        $redis = $this->getRedis();
+        $count = $count ?: $this->getOption('latest_news_per_page');
+        $newsIDs = $redis->zrevrange('news.cron', $start, $start + $count - 1);
+
+        return array(
+            'news' => $this->getNewsByID($user, $newsIDs, true),
+            'count' => $redis->zcard('news.cron'),
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSavedNews(Array $user, $start = 0)
+    public function getSavedNews(Array $user, $start = 0, $count = null)
     {
         $redis = $this->getRedis();
-        $newsIDs = $redis->zrevrange("user.saved:{$user['id']}", $start, $start + $this->getOption('saved_news_per_page'));
+        $count = $count ?: $this->getOption('saved_news_per_page');
+        $newsIDs = $redis->zrevrange("user.saved:{$user['id']}", $start, $start + $count - 1);
+
         return array(
             'news' => $this->getNewsByID($user, $newsIDs),
             'count' => $redis->zcard("user.saved:{$user['id']}"),

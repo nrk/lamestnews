@@ -135,18 +135,21 @@ interface DatabaseInterface
      * Gets the list of the latest news in chronological order.
      *
      * @param array $user Current user.
+     * @param int $start Offset from which to start in the list of latest news.
+     * @param int $count Maximum number of news items.
      * @return array
      */
-    public function getLatestNews(Array $user = null);
+    public function getLatestNews(Array $user = null, $start = 0, $count = null);
 
     /**
      * Gets the list of the saved news for the specified user.
      *
      * @param array $user Current user.
      * @param int $start Offset from which to start in the list of saved news.
+     * @param int $count Maximum number of news items.
      * @return array
      */
-    public function getSavedNews(Array $user, $start = 0);
+    public function getSavedNews(Array $user, $start = 0, $count = null);
 
     /**
      * Gets the list of comments for the specified user that received one or more
