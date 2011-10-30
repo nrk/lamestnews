@@ -11,6 +11,8 @@
 
 namespace Alpaca;
 
+use Symfony\Component\HttpFoundation\Response;
+
 /**
  * Shared helpers for the application.
  *
@@ -144,7 +146,11 @@ class Helpers
      */
     public static function apiOK(Array $response = array())
     {
-        return json_encode(array_merge($response, array('status' => 'ok')));
+        $json = json_encode(array_merge($response, array('status' => 'ok')));
+
+        return new Response($json, 200, array(
+            'Content-Type' => 'application/json',
+        ));
     }
 
     /**
@@ -156,10 +162,14 @@ class Helpers
      */
     public static function apiError($error, Array $response = array())
     {
-        return json_encode(array_merge($response, array(
+        $json = json_encode(array_merge($response, array(
             'status' => 'err',
             'error' => $error,
         )));
+
+        return new Response($json, 200, array(
+            'Content-Type' => 'application/json',
+        ));
     }
 
     /**
