@@ -55,7 +55,8 @@
     {% set edit_time_left = ((app.alpaca.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int %}
 
     {% if comment.del is not defined or comment.del == false and parents %}
-        <article class="comment" style="margin-left:{{ css_indentation }}px" data-comment-id="{{ news_id }}-{{ comment.id }}">
+        {% set comment_id = news_id ~ '-' ~ comment.id %}
+        <article class="comment" style="margin-left:{{ css_indentation }}px" data-comment-id="{{ comment_id }}" id="{{ comment_id }}">
             <span class="avatar"><img src="{{ gravatar(user.email) }}"></span>
             <span class="info">
                 <span class="username"><a href="/user/{{ user.username }}">{{ user.username }}</a></span>
