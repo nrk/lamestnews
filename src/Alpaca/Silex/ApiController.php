@@ -277,9 +277,9 @@ class ApiController implements ControllerProviderInterface
                 }
 
                 foreach ($replies as &$reply) {
-                    $user = $alpaca->getUserByID($reply['user_id']) ?: H::getDeletedUser();
+                    $poster = $alpaca->getUserByID($reply['user_id']) ?: H::getDeletedUser();
 
-                    $reply['username'] = $user['username'];
+                    $reply['username'] = $poster['username'];
 
                     if (isset($thread[$reply['id']])) {
                         $reply['replies'] = &$thread[$reply['id']];
