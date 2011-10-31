@@ -157,8 +157,8 @@ class AlpacaExtension extends Twig_Extension
     public static function sortComments(Array $comments)
     {
         uasort($comments, function($a, $b) {
-            $ascore = self::commentScore($a);
-            $bscore = self::commentScore($b);
+            $ascore = AlpacaExtension::commentScore($a);
+            $bscore = AlpacaExtension::commentScore($b);
             if ($ascore == $bscore) {
                 return $a['ctime'] != $b['ctime'] ? ($b['ctime'] < $a['ctime'] ? -1 : 1) : 0;
             }
