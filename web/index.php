@@ -42,13 +42,13 @@ $app->register(new TwigProvider(), array(
 
 $app->register(new AlpacaServiceProvider());
 
-$app['twig']->addExtension(new AlpacaTwigExtension());
-
 // ************************************************************************** //
 
 define('__SITENAME__', 'Lamer News');
 define('__VERSION__', Alpaca\DatabaseInterface::VERSION);
 define('__COMPATIBILITY__', Alpaca\DatabaseInterface::COMPATIBILITY);
+
+$app['twig']->addExtension(new AlpacaTwigExtension());
 
 $app->mount('/', new WebsiteController());
 $app->mount('/api', new ApiController());
