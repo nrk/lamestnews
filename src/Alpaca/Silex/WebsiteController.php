@@ -147,7 +147,7 @@ class WebsiteController implements ControllerProviderInterface
 
         $controllers->get('/news/{newsID}', function(Application $app, $newsID) {
             $alpaca = $app['alpaca'];
-            list($news) = $alpaca->getNewsByID($app['user'], array($newsID));
+            @list($news) = $alpaca->getNewsByID($app['user'], $newsID);
 
             if (!$news) {
                 return $app->abort(404, 'This news does not exist.');

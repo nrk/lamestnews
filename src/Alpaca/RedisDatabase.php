@@ -444,6 +444,11 @@ class RedisDatabase implements DatabaseInterface
         // Get all the news.
         $pipe = $redis->pipeline();
         foreach ($newslist as $news) {
+            if (!$news) {
+                // TODO: how should we notify the caller of missing news items when
+                // asking for more than one news at time?
+                continue;
+            }
             // Adjust rank if too different from the real-time value.
             if ($updateRank) {
                 $this->updateNewsRank($pipe, $news);
