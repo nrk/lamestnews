@@ -400,9 +400,10 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getReplies(Array $user, $maxSubThreads, $reset = false)
     {
-        $threadCallback = function($comment) use($user) {
+        $alpaca = $this;
+        $threadCallback = function($comment) use($alpaca, $user) {
             $thread = array('id' => $comment['thread_id']);
-            $comment['replies'] = $this->getNewsComments($user, $thread);
+            $comment['replies'] = $alpaca->getNewsComments($user, $thread);
             return $comment;
         };
 
@@ -440,16 +441,15 @@ class RedisDatabase implements DatabaseInterface
 
         $result = array();
 
-        // Get all the news
-        $redis->pipeline(function($pipe) use($newslist, $updateRank, &$result) {
-            foreach ($newslist as $news) {
-                // Adjust rank if too different from the real-time value.
-                if ($updateRank) {
-                    $this->updateNewsRank($pipe, $news);
-                }
-                $result[] = $news;
+        // Get all the news.
+        $pipe = $redis->pipeline();
+        foreach ($newslist as $news) {
+            // Adjust rank if too different from the real-time value.
+            if ($updateRank) {
+                $this->updateNewsRank($pipe, $news);
             }
-        });
+            $result[] = $news;
+        }
 
         // Get the associated users information.
         $usernames = $redis->pipeline(function($pipe) use($result) {
