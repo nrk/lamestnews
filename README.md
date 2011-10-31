@@ -21,22 +21,38 @@ Once the Git repository has been cloned, enter the directory and initialize/upda
 ```
 
 If you are using PHP 5.4 (which is currently in BETA) you can leverage its internal webserver to start
-using Alpaca right away with the following command:
+experimenting with Alpaca right away using the following command:
 
 ```bash
   $ php -S localhost:8000 -t web/
 ```
 
-Or you can just use any webserver by following the usual configuration instructions and pointing the
-document root to the `web` subdirectory of the repository.
+For production environments you can just use any webserver by following the usual configuration instructions
+and pointing the document root to the `web` subdirectory of the repository.
+
+
+## Development
+
+When modifying Alpaca please be sure that no warnings or notices are emitted by PHP by running
+the interpreter in your development environment with the `error_reporting` variable set to
+`E_ALL | E_STRICT`.
+
+The recommended way to contribute to Alpaca is to fork the project on GitHub, create new topic
+branches on your newly created repository to fix or add features and then open a new pull request
+with a description of the applied changes. Obviously, you can use any other Git hosting provider
+of your preference. Diff patches will be accepted too, even though they are not the preferred way
+to contribute to Alpaca.
+
+When reporting issues on the bug tracker please provide as much information as possible if you do
+not want to be redirected [here](http://yourbugreportneedsmore.info/).
 
 
 ## Dependencies
 
-- [PHP](http://www.php.net) >= v5.3.2
+- [PHP](http://www.php.net) >= 5.3.2
 - [Silex](http://silex.sensiolabs.com)
 - [Twig](http://twig.sensiolabs.com)
-- [Predis](http://github.com/nrk/predis) >= v0.7.0-dev
+- [Predis](http://github.com/nrk/predis) >= 0.7.0-dev
 - [PredisServiceProvider](http://github.com/nrk/PredisServiceProvider)
 
 
