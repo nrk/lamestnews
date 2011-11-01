@@ -46,9 +46,11 @@
             </footer>
 
             {% if app.user %}
-            <script>
-                var apisecret = '{{ app.user.apisecret }}';
-            </script>
+            <script>var apisecret = '{{ app.user.apisecret }}';</script>
+            {% endif %}
+
+            {% if app.alpaca.getOption('keyboard_navigation') %}
+            <script>setKeyboardNavigation();</script>
             {% endif %}
         </div>
     </body>

@@ -80,8 +80,11 @@ class RedisDatabase implements DatabaseInterface
             'news_submission_break' => 60 * 15,
             'saved_news_per_page' => 10,
 
-            # API
+            // API
             'api_max_news_count' => 32,
+
+            // UI Elements
+            'keyboard_navigation' => true,
         );
     }
 
