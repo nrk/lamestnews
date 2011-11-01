@@ -37,6 +37,7 @@ class RedisDatabase implements DatabaseInterface
     {
         $this->_redis = $redis;
         $this->_options = array_merge($this->getDefaults(), $options);
+        $this->_user = array();
     }
 
     /**
@@ -1037,6 +1038,6 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getUser()
     {
-        return $this->_user ?: array();
+        return $this->_user;
     }
 }
