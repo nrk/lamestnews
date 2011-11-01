@@ -40,13 +40,13 @@ $app->register(new TwigProvider(), array(
     'twig.path' => __DIR__.'/../template',
 ));
 
-$app->register(new AlpacaServiceProvider());
+$app->register(new AlpacaServiceProvider(), array(
+    'alpaca.options' => array(
+        'site_name' => 'Lamer News',
+    ),
+));
 
 // ************************************************************************** //
-
-define('__SITENAME__', 'Lamer News');
-define('__VERSION__', Alpaca\DatabaseInterface::VERSION);
-define('__COMPATIBILITY__', Alpaca\DatabaseInterface::COMPATIBILITY);
 
 $app['twig']->addExtension(new AlpacaTwigExtension());
 

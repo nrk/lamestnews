@@ -28,8 +28,12 @@ class AlpacaServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
+        if (!isset($app['alpaca.options'])) {
+            $app['alpaca.options'] = array();
+        }
+
         $app['alpaca'] = $app->share(function(Application $app) {
-            return new RedisDatabase($app['predis']);
+            return new RedisDatabase($app['predis'], $app['alpaca.options']);
         });
 
         $app['user'] = $app->share(function(Application $app) {

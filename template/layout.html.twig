@@ -1,9 +1,10 @@
 {% set replies = app.user and app.user.replies is defined ? app.user.replies : 0 %}
+{% set site_name = app.alpaca.getOption('site_name') %}
 <!DOCTYPE HTML>
 <html lang="en">
     <head>
         <meta charset="utf8">
-        <title>{{ title }} - {{ constant('__SITENAME__') }}</title>
+        <title>{{ title }} - {{ site_name }}</title>
         <meta content="nofollow" name="robots">
         <link type="text/css" href="/css/style.css?v=8" rel="stylesheet">
         <link href="/images/favicon.png" rel="shortcut icon">
@@ -14,8 +15,8 @@
         <div class="container">
             <header>
                 <h1>
-                    <a href="/">Lamer News</a>
-                    <small>{{ constant('__COMPATIBILITY__') }}</small>
+                    <a href="/">{{ site_name }}</a>
+                    <small>{{ constant('Alpaca\\DatabaseInterface::COMPATIBILITY') }}</small>
                 </h1>
                 <nav>
                     <a href="/">top</a>
@@ -41,7 +42,7 @@
 
             <footer>
                 <a href="http://github.com/nrk/alpaca">source code</a> | <a href="/rss">rss feed</a><br>
-                Alpaca v{{ constant('__VERSION__') }} is based on <a href="http://github.com/antirez/lamernews">Lamer News</a> v{{ constant('__COMPATIBILITY__') }}
+                Alpaca v{{ constant('Alpaca\\DatabaseInterface::VERSION') }} is based on <a href="http://github.com/antirez/lamernews">Lamer News</a> v{{ constant('Alpaca\\DatabaseInterface::COMPATIBILITY') }}
             </footer>
 
             {% if app.user %}
