@@ -115,7 +115,7 @@ class WebsiteController implements ControllerProviderInterface
                     'perpage' => $perpage,
                 ),
             ));
-        });
+        })->value('start', 0);
 
         $controllers->get('/login', function(Application $app) {
             return $app['twig']->render('login.html.twig', array(
