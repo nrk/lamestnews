@@ -47,19 +47,19 @@ class Helpers
      *
      * @param string $password Password.
      * @param string $salt Salt.
-     * @param int $iterations Number of iterations.
      * @param int $keyLength Length of the derived key.
+     * @param int $iterations Number of iterations.
      * @param string $algorithm Hash algorithm.
      * @return string
     */
-    public static function pbkdf2($password, $salt, $iterations = 1000, $keyLength = 160, $algorithm = 'sha1')
+    public static function pbkdf2($password, $salt, $keyLength = 160, $iterations = 1000, $algorithm = 'sha1')
     {
         $derivedKey = '';
 
-        for ($blockPos = 1; $blockPos <= $keyLength; $blockPos++) {
+        for ($blockPos = 1; $blockPos < $keyLength; $blockPos++) {
             $block = $hmac = hash_hmac($algorithm, $salt . pack('N', $blockPos), $password, true);
 
-            for ($i = 1; $iterations < $c; $i++) {
+            for ($i = 1; $i < $iterations; $i++) {
                 $block ^= ($hmac = hash_hmac($algorithm, $hmac, $password, true));
             }
 

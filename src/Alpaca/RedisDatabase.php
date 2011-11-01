@@ -121,7 +121,7 @@ class RedisDatabase implements DatabaseInterface
             'id' => $userID,
             'username' => $username,
             'salt' => $salt,
-            'password' => H::pbkdf2($password, $salt),
+            'password' => H::pbkdf2($password, $salt, 20),
             'ctime' => time(),
             'karma' => $this->getOption('user_initial_karma'),
             'about' => '',
@@ -234,7 +234,7 @@ class RedisDatabase implements DatabaseInterface
             return;
         }
 
-        $hashedPassword = H::pbkdf2($password, $user['salt']);
+        $hashedPassword = H::pbkdf2($password, $user['salt'], 20);
         if ($user['password'] !== $hashedPassword) {
             return;
         }
