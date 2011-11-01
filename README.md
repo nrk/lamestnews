@@ -8,7 +8,13 @@ access the Redis datastore.
 
 While Alpaca tries to stick to the original Ruby implementation as much as possible, especially when it
 comes to the layout of the data stored in Redis and the look and feel of its web interface, some things
-may differ.
+might differ (one of them is the use of a templating engine).
+
+Right now Alpaca is a work in progress and the priority so far has been to catch up with Lamer News, so
+there are still a lot of areas that could be improved and tests are still missing. As for performances,
+they are worse than the original Ruby implementation, even with an opcode cache like APC or XCache, mostly
+due to the fact that the application is reloaded on each request instead of being long-running, but a few experiments using [AiP](http://github.com/indeyets/appserver-in-php) showed that following such an approach
+would result in noticeable gains by bringing latency down to 5ms from the current 11ms.
 
 
 ## Installation
