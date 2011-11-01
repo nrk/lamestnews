@@ -40,7 +40,7 @@ class Helpers
     }
 
     /**
-     *  Generates PBKDF2 Implementation
+     * Generates a key from password and salt using the PBKDF2 algorithm.
      *
      * @link http://www.ietf.org/rfc/rfc2898.txt
      * @link http://gist.github.com/1162409
@@ -56,21 +56,16 @@ class Helpers
     {
         $derivedKey = '';
 
-        // Create key
         for ($blockPos = 1; $blockPos <= $keyLength; $blockPos++) {
-            // Initial hash for this block.
             $block = $hmac = hash_hmac($algorithm, $salt . pack('N', $blockPos), $password, true);
 
-            // Perform block iterations.
             for ($i = 1; $iterations < $c; $i++) {
-                // XOR each iterate.
                 $block ^= ($hmac = hash_hmac($algorithm, $hmac, $password, true));
             }
 
             $derivedKey .= $block;
         }
 
-        // Return derived key of correct length
         return bin2hex(substr($derivedKey, 0, $keyLength));
     }
 
