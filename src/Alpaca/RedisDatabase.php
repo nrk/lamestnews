@@ -956,7 +956,7 @@ class RedisDatabase implements DatabaseInterface
         $commentID = $redis->hincrby($threadKey, 'nextid', 1);
         $redis->hset($threadKey, $commentID, json_encode($comment));
 
-        return true;
+        return $commentID;
     }
 
     /**
