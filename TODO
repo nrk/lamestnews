@@ -1,0 +1,9 @@
+* Rename Alpaca\DatabaseInterface to Alpaca\EngineInterface and rename the
+  Alpaca\RedisDatabase class to Alpaca\Redis\Engine.
+
+* Verify if we can abstract objects like user, news and comment to PHP classes
+  that implement ArrayAccess (to maintain the current flexibility when adding,
+  removing or simply accessing fields).
+
+* Remove silex.phar from the repository and use git submodules, for development
+  it is really the best way. For deployment we can just rely on Composer later.
