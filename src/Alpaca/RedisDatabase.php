@@ -349,7 +349,7 @@ class RedisDatabase implements DatabaseInterface
         $newsIDs = $redis->zrevrange('news.top', $start, $start + $count - 1);
 
         if (!$newsIDs) {
-            return array();
+            return array('news' => array(), 'count' => 0);
         }
 
         $newslist = $this->getNewsByID($user, $newsIDs, true);
@@ -374,6 +374,10 @@ class RedisDatabase implements DatabaseInterface
         $count = $count ?: $this->getOption('latest_news_per_page');
         $newsIDs = $redis->zrevrange('news.cron', $start, $start + $count - 1);
 
+        if (!$newsIDs) {
+            return array('news' => array(), 'count' => 0);
+        }
+
         return array(
             'news' => $this->getNewsByID($user, $newsIDs, true),
             'count' => $redis->zcard('news.cron'),
@@ -388,6 +392,10 @@ class RedisDatabase implements DatabaseInterface
         $redis = $this->getRedis();
         $count = $count ?: $this->getOption('saved_news_per_page');
         $newsIDs = $redis->zrevrange("user.saved:{$user['id']}", $start, $start + $count - 1);
+
+        if (!$newsIDs) {
+            return array('news' => array(), 'count' => 0);
+        }
 
         return array(
             'news' => $this->getNewsByID($user, $newsIDs),
