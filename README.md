@@ -12,9 +12,10 @@ might differ (one of them is the use of a templating engine).
 
 Right now Alpaca is a work in progress and the priority so far has been to catch up with Lamer News, so
 there are still a lot of areas that could be improved and tests are still missing. As for performances,
-they are worse than the original Ruby implementation, even with an opcode cache like APC or XCache, mostly
-due to the fact that the application is reloaded on each request instead of being long-running, but a few experiments using [AiP](http://github.com/indeyets/appserver-in-php) showed that following such an approach
-would result in noticeable gains by bringing latency down to 5ms from the current 11ms.
+they are worse than the original Ruby implementation, even with an opcode cache like APC or XCache,
+mostly due to the fact that the application is reloaded on each request instead of being long-running,
+but a few experiments using [AiP](http://github.com/indeyets/appserver-in-php) showed that following
+such an approach would result in noticeable gains by bringing latency down to 5ms from the current 11ms.
 
 
 ## Installation
@@ -26,15 +27,15 @@ Once the Git repository has been cloned, enter the directory and initialize/upda
   $ git submodule update
 ```
 
-If you are using PHP 5.4 (which is currently in BETA) you can leverage its internal webserver to start
-experimenting with Alpaca right away using the following command:
+If you are using PHP 5.4 (which is currently in BETA) you can leverage its internal webserver to
+start experimenting with Alpaca right away using the following command:
 
 ```bash
   $ php -S localhost:8000 -t web/
 ```
 
-For production environments you can just use any webserver by following the usual configuration instructions
-and pointing the document root to the `web` subdirectory of the repository.
+For production environments you can just use any webserver by following the usual configuration
+instructions and pointing the document root to the `web` subdirectory of the repository.
 
 
 ## Development
