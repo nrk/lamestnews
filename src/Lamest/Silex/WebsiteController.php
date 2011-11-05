@@ -164,15 +164,15 @@ class WebsiteController implements ControllerProviderInterface
         $controllers->get('/comment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
             $engine = $app['lamest'];
 
-            if (!($news = $engine->getNewsByID($app['user'], $newsID))) {
+            if (!$news = $engine->getNewsByID($app['user'], $newsID)) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
-            if (!($comment = $engine->getComment($newsID, $commentID))) {
+            if (!$comment = $engine->getComment($newsID, $commentID)) {
                 return $app->abort(404, 'This comment does not exist.');
             }
 
-            if (!($user = $engine->getUserByID($comment['user_id']))) {
+            if (!$user = $engine->getUserByID($comment['user_id'])) {
                 $user = H::getDeletedUser();
             }
 
@@ -197,15 +197,15 @@ class WebsiteController implements ControllerProviderInterface
                 return $app->redirect('/login');
             }
 
-            if (!($news = $engine->getNewsByID($app['user'], $newsID))) {
+            if (!$news = $engine->getNewsByID($app['user'], $newsID)) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
-            if (!($comment = $engine->getComment($newsID, $commentID))) {
+            if (!$comment = $engine->getComment($newsID, $commentID)) {
                 return $app->abort(404, 'This comment does not exist.');
             }
 
-            if (!($user = $engine->getUserByID($comment['user_id']))) {
+            if (!$user = $engine->getUserByID($comment['user_id'])) {
                 $user = array('username' => 'deleted_user', 'email' => '', 'id' => -1);
             }
 
@@ -243,11 +243,11 @@ class WebsiteController implements ControllerProviderInterface
                 return $app->redirect('/login');
             }
 
-            if (!($news = $engine->getNewsByID($app['user'], $newsID))) {
+            if (!$news = $engine->getNewsByID($app['user'], $newsID)) {
                 return $app->abort(404, 'This news does not exist.');
             }
 
-            if (!($comment = $engine->getComment($newsID, $commentID))) {
+            if (!$comment = $engine->getComment($newsID, $commentID)) {
                 return $app->abort(404, 'This comment does not exist.');
             }
 
@@ -276,7 +276,7 @@ class WebsiteController implements ControllerProviderInterface
                 return $app->redirect('/login');
             }
 
-            if (!($news = $engine->getNewsByID($app['user'], $newsID))) {
+            if (!$news = $engine->getNewsByID($app['user'], $newsID)) {
                 return $app->abort(404, 'This news does not exist.');
             }
 

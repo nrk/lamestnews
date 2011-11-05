@@ -851,7 +851,7 @@ class RedisEngine implements EngineInterface
         if (!$comment || $comment['user_id'] != $user['id']) {
             return false;
         }
-        if (!($comment['ctime'] > (time() - $this->getOption('comment_edit_time')))) {
+        if (!$comment['ctime'] > (time() - $this->getOption('comment_edit_time'))) {
             return false;
         }
 
