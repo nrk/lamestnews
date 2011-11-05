@@ -17,21 +17,21 @@ use Predis\Pipeline\PipelineContext;
 use Lamest\Helpers as H;
 
 /**
- * Main abstraction to access the data of Lamest stored in Redis.
+ * Implements a Lamest engine that uses Redis as the underlying data storage.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class RedisDatabase implements DatabaseInterface
+class RedisEngine implements EngineInterface
 {
     private $_redis;
     private $_options;
     private $_user;
 
     /**
-     * Initializes the database class.
+     * Initializes the engine class.
      *
-     * @param Client $redis Redis client used to access the database
-     * @param array $options Array of options
+     * @param Client $redis Redis client used to access the data storage.
+     * @param array $options Array of options.
      */
     public function __construct(Client $redis, Array $options = array())
     {
@@ -41,7 +41,7 @@ class RedisDatabase implements DatabaseInterface
     }
 
     /**
-     * Gets the default options to process the data stored in the database.
+     * Gets the default options for the engine.
      *
      * @return array
      */

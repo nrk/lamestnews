@@ -1,6 +1,3 @@
-* Rename Lamest\DatabaseInterface to Lamest\EngineInterface and rename the
-  Lamest\RedisDatabase class to Lamest\Redis\Engine.
-
 * Verify if we can abstract objects like user, news and comment to PHP classes
   that implement ArrayAccess (to maintain the current flexibility when adding,
   removing or simply accessing fields).

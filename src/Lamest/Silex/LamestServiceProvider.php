@@ -11,7 +11,7 @@
 
 namespace Lamest\Silex;
 
-use Lamest\RedisDatabase;
+use Lamest\RedisEngine;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +33,7 @@ class LamestServiceProvider implements ServiceProviderInterface
         }
 
         $app['lamest'] = $app->share(function(Application $app) {
-            return new RedisDatabase($app['predis'], $app['lamest.options']);
+            return new RedisEngine($app['predis'], $app['lamest.options']);
         });
 
         $app['user'] = $app->share(function(Application $app) {

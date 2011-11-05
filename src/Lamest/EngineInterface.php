@@ -12,11 +12,11 @@
 namespace Lamest;
 
 /**
- * Interface for abstractions that access to a data storage for Lamest.
+ * Defines an engine for a Lamest-driven application.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-interface DatabaseInterface
+interface EngineInterface
 {
     const VERSION = '0.1.0';
     const COMPATIBILITY = '0.9.2';
