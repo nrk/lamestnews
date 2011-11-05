@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Alpaca application.
+ * This file is part of the Lamest application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Alpaca;
+namespace Lamest;
 
 use Predis\Client;
 use Predis\Pipeline\PipelineContext;
 
-use Alpaca\Helpers as H;
+use Lamest\Helpers as H;
 
 /**
- * Main abstraction to access the data of Alpaca stored in Redis.
+ * Main abstraction to access the data of Lamest stored in Redis.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
@@ -412,10 +412,10 @@ class RedisDatabase implements DatabaseInterface
      */
     public function getReplies(Array $user, $maxSubThreads, $reset = false)
     {
-        $alpaca = $this;
-        $threadCallback = function($comment) use($alpaca, $user) {
+        $engine = $this;
+        $threadCallback = function($comment) use($engine, $user) {
             $thread = array('id' => $comment['thread_id']);
-            $comment['replies'] = $alpaca->getNewsComments($user, $thread);
+            $comment['replies'] = $engine->getNewsComments($user, $thread);
             return $comment;
         };
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Alpaca application.
+ * This file is part of the Lamest application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -13,10 +13,10 @@ define('__VENDOR__', __DIR__.'/../vendor');
 
 require __VENDOR__.'/silex/silex.phar';
 
-use Alpaca\Silex\AlpacaServiceProvider;
-use Alpaca\Silex\WebsiteController;
-use Alpaca\Silex\ApiController;
-use Alpaca\Twig\AlpacaExtension as AlpacaTwigExtension;
+use Lamest\Silex\LamestServiceProvider;
+use Lamest\Silex\WebsiteController;
+use Lamest\Silex\ApiController;
+use Lamest\Twig\LamestExtension as LamestTwigExtension;
 use Predis\Silex\PredisServiceProvider as PredisProvider;
 use Silex\Provider\TwigServiceProvider as TwigProvider;
 
@@ -25,7 +25,7 @@ $app = new Silex\Application();
 $app['debug'] = true;
 
 $app['autoloader']->registerNamespaces(array(
-    'Alpaca' => __DIR__.'/../src',
+    'Lamest' => __DIR__.'/../src',
     'Predis' => __VENDOR__.'/predis/lib',
     'Predis\Silex' => __VENDOR__.'/predis-serviceprovider/lib',
 ));
@@ -40,15 +40,15 @@ $app->register(new TwigProvider(), array(
     'twig.path' => __DIR__.'/../template',
 ));
 
-$app->register(new AlpacaServiceProvider(), array(
-    'alpaca.options' => array(
+$app->register(new LamestServiceProvider(), array(
+    'lamest.options' => array(
         'site_name' => 'Lamer News',
     ),
 ));
 
 // ************************************************************************** //
 
-$app['twig']->addExtension(new AlpacaTwigExtension());
+$app['twig']->addExtension(new LamestTwigExtension());
 
 $app->mount('/', new WebsiteController());
 $app->mount('/api', new ApiController());

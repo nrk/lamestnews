@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Alpaca application.
+ * This file is part of the Lamest application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Alpaca\Silex;
+namespace Lamest\Silex;
 
-use Alpaca\Helpers as H;
+use Lamest\Helpers as H;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Silex\ControllerProviderInterface;
@@ -39,7 +39,7 @@ class ApiController implements ControllerProviderInterface
                 return H::apiError('Username and password are two required fields.');
             }
 
-            @list($auth, $apisecret) = $app['alpaca']->verifyUserCredentials($username, $password);
+            @list($auth, $apisecret) = $app['lamest']->verifyUserCredentials($username, $password);
 
             if (!isset($auth)) {
                 return H::apiError('No match for the specified username / password pair.');
@@ -53,13 +53,13 @@ class ApiController implements ControllerProviderInterface
                 return $error;
             }
 
-            $app['alpaca']->updateAuthToken($app['user']['id']);
+            $app['lamest']->updateAuthToken($app['user']['id']);
 
             return H::apiOK();
         });
 
         $controllers->post('/create_account', function(Application $app, Request $request) {
-            $alpaca = $app['alpaca'];
+            $engine = $app['lamest'];
             $username = $request->get('username');
             $password = $request->get('password');
 
@@ -67,15 +67,15 @@ class ApiController implements ControllerProviderInterface
                 return H::apiError('Username and password are two required fields.');
             }
 
-            if ($alpaca->rateLimited(3600 * 15, array('create_user', $request->getClientIp()))) {
+            if ($engine->rateLimited(3600 * 15, array('create_user', $request->getClientIp()))) {
                 return H::apiError('Please wait some time before creating a new user.');
             }
 
-            if (strlen($password) < ($minPwdLen = $alpaca->getOption('password_min_length'))) {
+            if (strlen($password) < ($minPwdLen = $engine->getOption('password_min_length'))) {
                 return H::apiError("Password is too short. Min length: $minPwdLen");
             }
 
-            $authToken = $alpaca->createUser($username, $password);
+            $authToken = $engine->createUser($username, $password);
             if (!$authToken) {
                 return H::apiError('Username is busy. Please select a different one.');
             }
@@ -88,7 +88,7 @@ class ApiController implements ControllerProviderInterface
                 return $error;
             }
 
-            $alpaca = $app['alpaca'];
+            $engine = $app['lamest'];
             $newsID = $request->get('news_id');
             $title = $request->get('title');
             $url = $request->get('url');
@@ -108,13 +108,13 @@ class ApiController implements ControllerProviderInterface
             }
 
             if ($newsID == -1) {
-                if (($eta = $alpaca->getNewPostEta($app['user'])) > 0) {
+                if (($eta = $engine->getNewPostEta($app['user'])) > 0) {
                     return H::apiError("You have submitted a story too recently, please wait $eta seconds.");
                 }
-                $newsID = $alpaca->insertNews($title, $url, $text, $app['user']['id']);
+                $newsID = $engine->insertNews($title, $url, $text, $app['user']['id']);
             }
             else {
-                $newsID = $alpaca->editNews($app['user'], $newsID, $title, $url, $text);
+                $newsID = $engine->editNews($app['user'], $newsID, $title, $url, $text);
                 if (!$newsID) {
                     return H::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
                 }
@@ -133,7 +133,7 @@ class ApiController implements ControllerProviderInterface
             if (empty($newsID)) {
                 return H::apiError('Please specify a news title.');
             }
-            if (!$app['alpaca']->deleteNews($app['user'], $newsID)) {
+            if (!$app['lamest']->deleteNews($app['user'], $newsID)) {
                 return H::apiError('News too old or wrong ID/owner.');
             }
 
@@ -152,7 +152,7 @@ class ApiController implements ControllerProviderInterface
                 return H::apiError('Missing news ID or invalid vote type.');
             }
 
-            if ($app['alpaca']->voteNews($newsID, $app['user'], $voteType, $error) === false) {
+            if ($app['lamest']->voteNews($newsID, $app['user'], $voteType, $error) === false) {
                 return H::apiError($error);
             }
 
@@ -173,7 +173,7 @@ class ApiController implements ControllerProviderInterface
                 return H::apiError('Missing news_id, comment_id, parent_id, or comment parameter.');
             }
 
-            $info = $app['alpaca']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
+            $info = $app['lamest']->handleComment($app['user'], $newsID, $commentID, $parentID, $comment);
 
             if (!$info) {
                 return H::apiError('Invalid news, comment, or edit time expired.');
@@ -200,7 +200,7 @@ class ApiController implements ControllerProviderInterface
             }
 
             list($newsID, $commentID) = explode('-', $compositeID);
-            if (!$app['alpaca']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
+            if (!$app['lamest']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
                 return H::apiError('Invalid parameters or duplicated vote.');
             }
 
@@ -224,31 +224,31 @@ class ApiController implements ControllerProviderInterface
             );
 
             if (($pwdLen = strlen($password)) > 0) {
-                if ($pwdLen < ($minPwdLen = $app['alpaca']->getOption('password_min_length'))) {
+                if ($pwdLen < ($minPwdLen = $app['lamest']->getOption('password_min_length'))) {
                     return H::apiError("Password is too short. Min length: $minPwdLen");
                 }
                 $attributes['password'] = H::pbkdf2($password, $app['user']['salt']);
             }
 
-            $app['alpaca']->updateUserProfile($app['user'], $attributes);
+            $app['lamest']->updateUserProfile($app['user'], $attributes);
 
             return H::apiOK();
         });
 
         $controllers->get('/getnews/{sort}/{start}/{count}', function(Application $app, $sort, $start, $count) {
-            $alpaca = $app['alpaca'];
+            $engine = $app['lamest'];
 
             if ($sort !== 'latest' && $sort !== 'top') {
                 return H::apiError('Invalid sort parameter');
             }
-            if ($count > $alpaca->getOption('api_max_news_count')) {
+            if ($count > $engine->getOption('api_max_news_count')) {
                 return H::apiError('Count is too big');
             }
             if ($start < 0) {
                 $start = 0;
             }
 
-            $newslist = $alpaca->{"get{$sort}News"}($app['user'], $start, $count);
+            $newslist = $engine->{"get{$sort}News"}($app['user'], $start, $count);
             foreach ($newslist['news'] as &$news) {
                 unset($news['rank'], $news['score'], $news['user_id']);
             }
@@ -260,16 +260,16 @@ class ApiController implements ControllerProviderInterface
         });
 
         $controllers->get('/getcomments/{newsID}', function(Application $app, $newsID) {
-            $alpaca = $app['alpaca'];
+            $engine = $app['lamest'];
             $user = $app['user'];
 
-            @list($news) = $alpaca->getNewsByID($user, $newsID);
+            @list($news) = $engine->getNewsByID($user, $newsID);
             if (!$news) {
                 return H::apiError('Wrong news ID.');
             }
 
             $topcomments = array();
-            $thread = $alpaca->getNewsComments($user, $news);
+            $thread = $engine->getNewsComments($user, $news);
 
             foreach ($thread as $parentID => &$replies) {
                 if ($parentID == -1) {
@@ -277,7 +277,7 @@ class ApiController implements ControllerProviderInterface
                 }
 
                 foreach ($replies as &$reply) {
-                    $poster = $alpaca->getUserByID($reply['user_id']) ?: H::getDeletedUser();
+                    $poster = $engine->getUserByID($reply['user_id']) ?: H::getDeletedUser();
 
                     $reply['username'] = $poster['username'];
 

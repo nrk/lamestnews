@@ -1,5 +1,5 @@
 {% set replies = app.user and app.user.replies is defined ? app.user.replies : 0 %}
-{% set site_name = app.alpaca.getOption('site_name') %}
+{% set site_name = app.lamest.getOption('site_name') %}
 <!DOCTYPE HTML>
 <html lang="en">
     <head>
@@ -16,7 +16,7 @@
             <header>
                 <h1>
                     <a href="/">{{ site_name }}</a>
-                    <small>{{ constant('Alpaca\\DatabaseInterface::COMPATIBILITY') }}</small>
+                    <small>{{ constant('Lamest\\DatabaseInterface::COMPATIBILITY') }}</small>
                 </h1>
                 <nav>
                     <a href="/">top</a>
@@ -41,15 +41,15 @@
             </div>
 
             <footer>
-                <a href="http://github.com/nrk/alpaca">source code</a> | <a href="/rss">rss feed</a><br>
-                Alpaca v{{ constant('Alpaca\\DatabaseInterface::VERSION') }} is based on <a href="http://github.com/antirez/lamernews">Lamer News</a> v{{ constant('Alpaca\\DatabaseInterface::COMPATIBILITY') }}
+                <a href="http://github.com/nrk/lamest">source code</a> | <a href="/rss">rss feed</a><br>
+                Lamest v{{ constant('Lamest\\DatabaseInterface::VERSION') }} is based on <a href="http://github.com/antirez/lamernews">Lamer News</a> v{{ constant('Lamest\\DatabaseInterface::COMPATIBILITY') }}
             </footer>
 
             {% if app.user %}
             <script>var apisecret = '{{ app.user.apisecret }}';</script>
             {% endif %}
 
-            {% if app.alpaca.getOption('keyboard_navigation') %}
+            {% if app.lamest.getOption('keyboard_navigation') %}
             <script>setKeyboardNavigation();</script>
             {% endif %}
         </div>

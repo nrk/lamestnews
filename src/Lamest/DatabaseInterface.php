@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Alpaca application.
+ * This file is part of the Lamest application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Alpaca;
+namespace Lamest;
 
 /**
- * Interface for abstractions that access to a data storage for Alpaca.
+ * Interface for abstractions that access to a data storage for Lamest.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */

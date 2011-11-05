@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Alpaca application.
+ * This file is part of the Lamest application.
  *
  * (c) Daniele Alessandri <suppakilla@gmail.com>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Alpaca\Twig;
+namespace Lamest\Twig;
 
 use \Twig_Environment;
 use \Twig_Extension;
@@ -19,11 +19,11 @@ use \Twig_Function_Function;
 
 /**
  * Twig extension that provides common filters and functions used in
- * the templates that compose an Alpaca-based website.
+ * the templates that compose an Lamest-based website.
  *
  * @author Daniele Alessandri <suppakilla@gmail.com>
  */
-class AlpacaExtension extends Twig_Extension
+class LamestExtension extends Twig_Extension
 {
     const COMMENT_LINKS = '/((https?:\/\/|www\.)([-\w\.]+)+(:\d+)?(\/([\w\/_\.\-\%]*(\?\S+)?)?)?)/';
 
@@ -34,7 +34,7 @@ class AlpacaExtension extends Twig_Extension
      */
     public function getName()
     {
-        return 'alpaca';
+        return 'lamest';
     }
 
     /**
@@ -58,15 +58,15 @@ class AlpacaExtension extends Twig_Extension
         return array(
             'now' => new Twig_Function_Function('time'),
 
-            'time_elapsed' => new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::timeElapsed'),
-            'gravatar' => new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::getGravatarLink'),
-            'news_editable' => new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::isNewsEditable'),
-            'comment_score' => new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::commentScore'),
-            'sort_comments'=> new Twig_Function_Function('Alpaca\Twig\AlpacaExtension::sortComments'),
+            'time_elapsed' => new Twig_Function_Function('Lamest\Twig\LamestExtension::timeElapsed'),
+            'gravatar' => new Twig_Function_Function('Lamest\Twig\LamestExtension::getGravatarLink'),
+            'news_editable' => new Twig_Function_Function('Lamest\Twig\LamestExtension::isNewsEditable'),
+            'comment_score' => new Twig_Function_Function('Lamest\Twig\LamestExtension::commentScore'),
+            'sort_comments'=> new Twig_Function_Function('Lamest\Twig\LamestExtension::sortComments'),
 
-            'full_url' => new Twig_Function_Function('Alpaca\Helpers::getSiteURL'),
-            'news_domain' => new Twig_Function_Function('Alpaca\Helpers::getNewsDomain'),
-            'news_text' => new Twig_Function_Function('Alpaca\Helpers::getNewsText'),
+            'full_url' => new Twig_Function_Function('Lamest\Helpers::getSiteURL'),
+            'news_domain' => new Twig_Function_Function('Lamest\Helpers::getNewsDomain'),
+            'news_text' => new Twig_Function_Function('Lamest\Helpers::getNewsText'),
         );
     }
 
@@ -157,8 +157,8 @@ class AlpacaExtension extends Twig_Extension
     public static function sortComments(Array $comments)
     {
         uasort($comments, function($a, $b) {
-            $ascore = AlpacaExtension::commentScore($a);
-            $bscore = AlpacaExtension::commentScore($b);
+            $ascore = LamestExtension::commentScore($a);
+            $bscore = LamestExtension::commentScore($b);
             if ($ascore == $bscore) {
                 return $a['ctime'] != $b['ctime'] ? ($b['ctime'] < $a['ctime'] ? -1 : 1) : 0;
             }

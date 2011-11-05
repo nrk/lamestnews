@@ -2,7 +2,7 @@
     {% if news.del is not defined or news.del == false %}
         <article data-news-id="{{ news.id }}">
             <a href="#up" class="{{ _self.vote_class(news, 'up') }}">&#9650;</a>
-            {% set is_editable = news_editable(app.user, news, app.alpaca.getOption('news_edit_time')) %}
+            {% set is_editable = news_editable(app.user, news, app.lamest.getOption('news_edit_time')) %}
 
             {% if news_domain(news) %}
                 <h2><a href="{{ news.url }}">{{ news.title }}</a></h2>
@@ -51,8 +51,8 @@
 {% macro render_comment(comment, level, parents) %}
     {% set user = comment.user %}
     {% set news_id = comment.thread_id %}
-    {% set css_indentation = level * app.alpaca.getOption('comment_reply_shift') %}
-    {% set edit_time_left = ((app.alpaca.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int %}
+    {% set css_indentation = level * app.lamest.getOption('comment_reply_shift') %}
+    {% set edit_time_left = ((app.lamest.getOption('comment_edit_time') - (now() - comment.ctime)) / 60) | to_int %}
 
     {% if comment.del is not defined or comment.del == false and parents %}
         {% set comment_id = news_id ~ '-' ~ comment.id %}
