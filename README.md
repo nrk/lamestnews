@@ -1,7 +1,7 @@
 Lamest
 ======
 
-Lamer than lamer.
+Lamer than lame.
 
 [Lamest](http://github.com/nrk/lamest) is a port to PHP of [Salvatore Sanfilippo](http://antirez.com)'s
 [Lamer News](http://github.com/antirez/lamernews) implemented using [Silex](http://silex.sensiolabs.com)
