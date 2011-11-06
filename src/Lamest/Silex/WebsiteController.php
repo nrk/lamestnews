@@ -229,7 +229,9 @@ class WebsiteController implements ControllerProviderInterface
                 return $app->redirect('/login');
             }
 
-            $comments = $engine->getReplies($app['user'], $engine->getOption('subthreads_in_replies_page') - 1, true);
+            $perpage = $engine->getOption('subthreads_in_replies_page') - 1;
+            $comments = $engine->getReplies($app['user'], $perpage, true);
+
             return $app['twig']->render('user_replies.html.twig', array(
                 'title' => 'Your threads',
                 'comments' => $comments,
