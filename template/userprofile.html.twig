@@ -8,7 +8,7 @@
     <h2>{{ user.username }}</h2>
     <pre>{{ user.about }}</pre>
     <ul>
-        <li><b>created </b> {{ time_elapsed(user.ctime) }}</li>
+        <li><b>created </b> {{ user.ctime | elapsed }}</li>
         <li><b>karma </b>{{ user.karma }} points</li>
         <li><b>posted news </b>{{ user_counters.posted_news }}</li>
         <li><b>posted comments </b>{{ user_counters.posted_comments }}</li>

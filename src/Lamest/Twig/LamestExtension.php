@@ -43,6 +43,7 @@ class LamestExtension extends Twig_Extension
         return array(
             'to_int' => new Twig_Filter_Function('intval'),
 
+            'elapsed' => new Twig_Filter_Function(__CLASS__.'::timeElapsed'),
             'commentize' => new Twig_Filter_Function(__CLASS__.'::renderCommentText', array(
                 'needs_environment' => true,
                 'is_safe' => array('html'),
@@ -58,7 +59,6 @@ class LamestExtension extends Twig_Extension
         return array(
             'now' => new Twig_Function_Function('time'),
 
-            'time_elapsed' => new Twig_Function_Function(__CLASS__.'::timeElapsed'),
             'gravatar' => new Twig_Function_Function(__CLASS__.'::getGravatarLink'),
             'news_editable' => new Twig_Function_Function(__CLASS__.'::isNewsEditable'),
             'comment_score' => new Twig_Function_Function(__CLASS__.'::commentScore'),

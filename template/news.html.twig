@@ -13,7 +13,7 @@
             <span class="avatar"><img src="{{ gravatar(user.email) }}"></span>
             <span class="info">
                 <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
-                {{ time_elapsed(news.ctime) }}.
+                {{ news.ctime | elapsed }}.
             </span>
             <pre>{{ news_text(news) | commentize }}</pre>
         </article>
