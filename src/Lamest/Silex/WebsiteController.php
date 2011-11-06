@@ -206,7 +206,7 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             if (!$user = $engine->getUserByID($comment['user_id'])) {
-                $user = array('username' => 'deleted_user', 'email' => '', 'id' => -1);
+                $user = H::getDeletedUser();
             }
 
             list($news) = $news;
