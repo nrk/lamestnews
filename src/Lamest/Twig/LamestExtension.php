@@ -42,6 +42,11 @@ class LamestExtension extends Twig_Extension
     {
         return array(
             'to_int' => new Twig_Filter_Function('intval'),
+
+            'commentize' => new Twig_Filter_Function(__CLASS__.'::renderCommentText', array(
+                'needs_environment' => true,
+                'is_safe' => array('html'),
+            )),
         );
     }
 
@@ -52,11 +57,6 @@ class LamestExtension extends Twig_Extension
     {
         return array(
             'now' => new Twig_Function_Function('time'),
-
-            'render_text' => new Twig_Function_Function(__CLASS__.'::renderText', array(
-                'needs_environment' => true,
-                'is_safe' => array('html'),
-            )),
 
             'time_elapsed' => new Twig_Function_Function(__CLASS__.'::timeElapsed'),
             'gravatar' => new Twig_Function_Function(__CLASS__.'::getGravatarLink'),
@@ -195,7 +195,7 @@ class LamestExtension extends Twig_Extension
      * @param string $text Text to parse and escape.
      * @return string
      */
-    public static function renderText($env, $text)
+    public static function renderCommentText($env, $text)
     {
         // Escape HTML first using Twig's standard escape filter.
         $escaper = $env->getFilter('escape')->compile();

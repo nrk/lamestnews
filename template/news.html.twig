@@ -15,7 +15,7 @@
                 <span class="username"><a href="/user/{{ news.username }}">{{ news.username }}</a></span>
                 {{ time_elapsed(news.ctime) }}.
             </span>
-            <pre>{{ render_text(news_text(news)) }}</pre>
+            <pre>{{ news_text(news) | commentize }}</pre>
         </article>
     </topcomment>
 {% endif %}
