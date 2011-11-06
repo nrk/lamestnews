@@ -27,8 +27,6 @@ class LamestExtension extends Twig_Extension
 {
     const COMMENT_LINKS = '/((https?:\/\/|www\.)([-\w\.]+)+(:\d+)?(\/([\w\/_\.\-\%]*(\?\S+)?)?)?)/';
 
-    private static $_linkifier;
-
     /**
      * {@inheritdoc}
      */
@@ -170,30 +168,42 @@ class LamestExtension extends Twig_Extension
         return $comments;
     }
 
-     /**
-      * Scans the given text and convert URLs into HTML a tags.
-      *
-      * The returned string MUST not be escaped.
-      *
-      * @param Twig_Environment $env Twig environment.
-      * @param string $text Text to scan and convert.
-      * @return string
-      */
+    /**
+     * Callback used by preg_replace_callback to transform URL occurrences
+     * in a string into HTML links.
+     *
+     * The returned string MUST NOT be escaped.
+     *
+     * @param array $matches Matches from preg_replace_callback.
+     * @return string
+     */
+    protected static function linkifierCallback(Array $matches)
+    {
+        $url = $matches[0];
+        $dot = '';
+        if ($url[strlen($url) - 1] === '.') {
+            $url = substr($url, 0, -1);
+            $dot = '.';
+        }
+        return "<a href=\"$url\">$url</a>$dot";
+    }
+
+    /**
+     * Escapes text for output with some additional processing.
+     *
+     * @param Twig_Environment $env Twig environment.
+     * @param string $text Text to parse and escape.
+     * @return string
+     */
     public static function renderText($env, $text)
     {
-        static::$_linkifier = function($matches) {
-            $url = $matches[0];
-            $dot = '';
-            if ($url[strlen($url) - 1] === '.') {
-                $url = substr($url, 0, -1);
-                $dot = '.';
-            }
-            return "<a href=\"$url\">$url</a>$dot";
-        };
-
+        // Escape HTML first using Twig's standard escape filter.
         $escaper = $env->getFilter('escape')->compile();
         $text = $escaper($env, $text);
 
-        return preg_replace_callback(self::COMMENT_LINKS, self::$_linkifier, $text);
+        // Transform URLs in text into HTML links.
+        $text = preg_replace_callback(self::COMMENT_LINKS, 'self::linkifierCallback', $text);
+
+        return $text;
     }
 }
