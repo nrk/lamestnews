@@ -42,11 +42,8 @@ class LamestExtension extends Twig_Extension
      */
     public function getFilters()
     {
-        $options = array('needs_environment' => true);
-
         return array(
             'to_int' => new Twig_Filter_Function('intval'),
-            'linkify' => new Twig_Filter_Method($this, 'linkifyURL', $options),
         );
     }
 
@@ -58,11 +55,16 @@ class LamestExtension extends Twig_Extension
         return array(
             'now' => new Twig_Function_Function('time'),
 
-            'time_elapsed' => new Twig_Function_Function('Lamest\Twig\LamestExtension::timeElapsed'),
-            'gravatar' => new Twig_Function_Function('Lamest\Twig\LamestExtension::getGravatarLink'),
-            'news_editable' => new Twig_Function_Function('Lamest\Twig\LamestExtension::isNewsEditable'),
-            'comment_score' => new Twig_Function_Function('Lamest\Twig\LamestExtension::commentScore'),
-            'sort_comments'=> new Twig_Function_Function('Lamest\Twig\LamestExtension::sortComments'),
+            'render_text' => new Twig_Function_Function(__CLASS__.'::renderText', array(
+                'needs_environment' => true,
+                'is_safe' => array('html'),
+            )),
+
+            'time_elapsed' => new Twig_Function_Function(__CLASS__.'::timeElapsed'),
+            'gravatar' => new Twig_Function_Function(__CLASS__.'::getGravatarLink'),
+            'news_editable' => new Twig_Function_Function(__CLASS__.'::isNewsEditable'),
+            'comment_score' => new Twig_Function_Function(__CLASS__.'::commentScore'),
+            'sort_comments'=> new Twig_Function_Function(__CLASS__.'::sortComments'),
 
             'full_url' => new Twig_Function_Function('Lamest\Helpers::getSiteURL'),
             'news_domain' => new Twig_Function_Function('Lamest\Helpers::getNewsDomain'),
@@ -177,7 +179,7 @@ class LamestExtension extends Twig_Extension
       * @param string $text Text to scan and convert.
       * @return string
       */
-    public function linkifyURL($env, $text)
+    public static function renderText($env, $text)
     {
         static::$_linkifier = function($matches) {
             $url = $matches[0];
