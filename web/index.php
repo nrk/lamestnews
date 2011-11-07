@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
+namespace Lamest\Silex;
+
 define('__VENDOR__', __DIR__.'/../vendor');
 
 require __VENDOR__.'/silex/silex.phar';
 
-use Lamest\Silex\LamestServiceProvider;
-use Lamest\Silex\WebsiteController;
-use Lamest\Silex\ApiController;
+use Silex\Application;
+use Silex\Provider\TwigServiceProvider as TwigProvider;
 use Lamest\Twig\LamestExtension as LamestTwigExtension;
 use Predis\Silex\PredisServiceProvider as PredisProvider;
-use Silex\Provider\TwigServiceProvider as TwigProvider;
 
-$app = new Silex\Application();
+$app = new Application();
 
 $app['debug'] = true;
 
