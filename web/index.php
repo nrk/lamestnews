@@ -42,7 +42,7 @@ $app->register(new TwigProvider(), array(
 
 $app->register(new LamestServiceProvider(), array(
     'lamest.options' => array(
-        'site_name' => 'Lamer News',
+        'site_name' => 'Lamest News',
     ),
 ));
 
