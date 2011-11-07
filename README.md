@@ -22,12 +22,23 @@ such an approach would result in noticeable gains by bringing latency down to 5m
 
 ## Installation
 
-Once the Git repository has been cloned, enter the directory and initialize/update the submodules:
+Once the Git repository has been cloned, enter the directory and initialize the submodules, then download
+`silex.phar` into the `vendor` directory as follows:
 
 ```bash
   $ git submodule init
   $ git submodule update
+  $ wget -P vendor/silex http://silex.sensiolabs.org/get/silex.phar
 ```
+
+You should make sure that PHP is properly configured to use Phar files by following the indications
+[on this page](http://silex.sensiolabs.org/doc/usage.html#php-configuration).
+
+This is only a temporary solution, soon we will start using [Composer](http://packagist.org/about-composer)
+to manage all the dependencies needed to run the application in a more appropriate way.
+
+
+## Execution
 
 If you are using PHP 5.4 (which is currently in BETA) you can leverage its internal webserver to
 start experimenting with Lamest right away using the following command:
