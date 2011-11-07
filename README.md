@@ -1,5 +1,5 @@
-Lamest
-======
+Lamest News
+===========
 
 Lamer than lame.
 
@@ -8,11 +8,11 @@ Lamer than lame.
 and [Twig](http://twig.sensiolabs.org) for the web part and [Predis](http://github.com/nrk/predis) to
 access the Redis datastore.
 
-While Lamest tries to stick to the original Ruby implementation as much as possible, especially when it
-comes to the layout of the data stored in Redis and the look and feel of its web interface, some things
+While the project tries to stick to the original Ruby implementation as much as possible, especially when
+it comes to the layout of the data stored in Redis and the look and feel of its web interface, some things
 might differ (one of them is the use of a templating engine).
 
-Right now Lamest is a work in progress and the priority so far has been to catch up with Lamer News, so
+Right now it is a work in progress and the priority so far has been to catch up with Lamer News, so
 there are still a lot of areas that could be improved and tests are still missing. As for performances,
 they are worse than the original Ruby implementation, even with an opcode cache like APC or XCache,
 mostly due to the fact that the application is reloaded on each request instead of being long-running,
@@ -53,15 +53,15 @@ instructions and pointing the document root to the `web` subdirectory of the rep
 
 ## Development
 
-When modifying Lamest please be sure that no warnings or notices are emitted by PHP by running
+When modifying code please make sure that no warnings or notices are emitted by PHP by running
 the interpreter in your development environment with the `error_reporting` variable set to
 `E_ALL | E_STRICT`.
 
-The recommended way to contribute to Lamest is to fork the project on GitHub, create new topic
-branches on your newly created repository to fix or add features and then open a new pull request
-with a description of the applied changes. Obviously, you can use any other Git hosting provider
-of your preference. Diff patches will be accepted too, even though they are not the preferred way
-to contribute to Lamest.
+The recommended way to contribute is to fork the project on GitHub, create new topic branches on
+your newly created repository to fix or add features and then open a new pull request with a
+description of the applied changes. Obviously, you can use any other Git hosting provider of your
+preference. Diff patches will be accepted too, even though they are not the preferred way to
+contribute to the project.
 
 When reporting issues on the bug tracker please provide as much information as possible if you do
 not want to be redirected [here](http://yourbugreportneedsmore.info/).
@@ -83,5 +83,5 @@ not want to be redirected [here](http://yourbugreportneedsmore.info/).
 
 ## License
 
-The code for Lamest is distributed under the terms of the MIT license (see LICENSE).
+The code for Lamest News is distributed under the terms of the MIT license (see LICENSE).
 Parts taken from the original Lamer News code base remain licensed under the BSD license.
