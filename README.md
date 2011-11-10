@@ -49,6 +49,20 @@ start experimenting with Lamest right away using the following command:
 
 For production environments you can just use any webserver by following the usual configuration
 instructions and pointing the document root to the `web` subdirectory of the repository.
+For performance reasons you might want to make sure that Silex debugging is disabled and the
+Twig template cache is enabled:
+
+```php
+<?php
+//...
+$app['debug'] = false;
+//...
+$app->register(new TwigProvider(), array(
+	// ...
+    'twig.options' => array('cache' => '/path/to/cache'),
+    // ...
+));
+```
 
 
 ## Development

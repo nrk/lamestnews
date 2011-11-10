@@ -1,3 +1,7 @@
+* Since the website and API controllers can be mounted in subpaths, we should
+  bind some routes such as the one to '/login' to specific route names and then
+  make use of the UrlGeneratorProvider to handle internal redirects.
+
 * Verify if we can abstract objects like user, news and comment to PHP classes
   that implement ArrayAccess (to maintain the current flexibility when adding,
   removing or simply accessing fields).
