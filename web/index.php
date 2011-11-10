@@ -38,6 +38,9 @@ $app->register(new PredisProvider(), array(
 $app->register(new TwigProvider(), array(
     'twig.class_path' => __VENDOR__.'/twig/lib',
     'twig.path' => __DIR__.'/../template',
+    'twig.configure' => $app->protect(function($twig) {
+        $twig->addExtension(new LamestTwigExtension());
+    }),
 ));
 
 $app->register(new LamestServiceProvider(), array(
@@ -47,8 +50,6 @@ $app->register(new LamestServiceProvider(), array(
 ));
 
 // ************************************************************************** //
-
-$app['twig']->addExtension(new LamestTwigExtension());
 
 $app->mount('/', new WebsiteController());
 $app->mount('/api', new ApiController());
