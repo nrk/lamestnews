@@ -40,17 +40,18 @@ to manage all the dependencies needed to run the application in a more appropria
 
 ## Execution
 
-If you are using PHP 5.4 (which is currently in BETA) you can leverage its internal webserver to
-start experimenting with Lamest right away using the following command:
+If you are using PHP 5.4, which reached the Release Candidate phase, you can leverage its 
+[built-in webserver](http://php.net/manual/en/features.commandline.webserver.php) to start experimenting
+with Lamest right away using the following command:
 
 ```bash
   $ php -S localhost:8000 -t web/
 ```
 
-For production environments you can just use any webserver by following the usual configuration
+In production environments you can just use any webserver by following the usual configuration
 instructions and pointing the document root to the `web` subdirectory of the repository.
 For performance reasons you might want to make sure that Silex debugging is disabled and the
-Twig template cache is enabled:
+Twig template cache is set and points to a directory writable by the PHP process:
 
 ```php
 <?php
