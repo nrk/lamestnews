@@ -22,20 +22,15 @@ such an approach would result in noticeable gains by bringing latency down to 5m
 
 ## Installation
 
-Once the Git repository has been cloned, enter the directory and initialize the submodules, then download
-`silex.phar` into the `vendor` directory as follows:
+Once the Git repository has been cloned, enter the directory and fetch all the needed dependencies using
+[Composer](http://packagist.org/about-composer) by typing `composer install` in a shell. If Composer is
+not installed or globally available on your system then you can download its phar package and use it to
+install the dependencies:
 
 ```bash
-  $ git submodule init
-  $ git submodule update
-  $ wget -P vendor/silex http://silex.sensiolabs.org/get/silex.phar
+  $ wget http://getcomposer.org/composer.phar
+  $ php composer.phar install
 ```
-
-You should make sure that PHP is properly configured to use Phar files by following the indications
-[on this page](http://silex.sensiolabs.org/doc/usage.html#php-configuration).
-
-This is only a temporary solution, soon we will start using [Composer](http://packagist.org/about-composer)
-to manage all the dependencies needed to run the application in a more appropriate way.
 
 
 ## Execution

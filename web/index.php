@@ -11,9 +11,7 @@
 
 namespace Lamest\Silex;
 
-define('__VENDOR__', __DIR__.'/../vendor');
-
-require __VENDOR__.'/silex/silex.phar';
+require __DIR__.'/../vendor/.composer/autoload.php';
 
 use Silex\Application;
 use Silex\Provider\TwigServiceProvider as TwigProvider;
@@ -24,19 +22,12 @@ $app = new Application();
 
 $app['debug'] = true;
 
-$app['autoloader']->registerNamespaces(array(
-    'Lamest' => __DIR__.'/../src',
-    'Predis' => __VENDOR__.'/predis/lib',
-    'Predis\Silex' => __VENDOR__.'/predis-serviceprovider/lib',
-));
-
 $app->register(new PredisProvider(), array(
     'predis.parameters' => 'tcp://127.0.0.1:6379',
     'predis.options' => array('profile' => 'dev'),
 ));
 
 $app->register(new TwigProvider(), array(
-    'twig.class_path' => __VENDOR__.'/twig/lib',
     'twig.path' => __DIR__.'/../template',
     'twig.configure' => $app->protect(function($twig) {
         $twig->addExtension(new LamestTwigExtension());

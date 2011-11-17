@@ -1,2 +1,4 @@
 phpunit.xml
-vendor/silex/*
+composer.phar
+composer.lock
+vendor/*
