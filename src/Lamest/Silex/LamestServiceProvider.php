@@ -51,4 +51,12 @@ class LamestServiceProvider implements ServiceProviderInterface
             }
         });
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot(Application $app)
+    {
+        // NOOP
+    }
 }
