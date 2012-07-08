@@ -30,7 +30,7 @@ class WebsiteController implements ControllerProviderInterface
      */
     public function connect(Application $app)
     {
-        $controllers = new ControllerCollection();
+        $controllers = $app['controllers_factory'];
 
         $controllers->get('/', function(Application $app) {
             $newslist = $app['lamest']->getTopNews($app['user']);

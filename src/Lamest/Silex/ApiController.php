@@ -29,7 +29,7 @@ class ApiController implements ControllerProviderInterface
      */
     public function connect(Application $app)
     {
-        $controllers = new ControllerCollection();
+        $controllers = $app['controllers_factory'];
 
         $controllers->get('/login', function(Application $app, Request $request) {
             $username = $request->get('username');
