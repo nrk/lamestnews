@@ -18,7 +18,7 @@
     "require": {
         "php": ">=5.3.2",
         "predis/predis": "0.7.*@stable",
-        "predis/service-provider": "master-dev",
+        "predis/service-provider": "dev-master",
         "silex/silex": "1.0.*",
         "twig/twig": "1.6.*@stable"
     }
