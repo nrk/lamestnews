@@ -13,9 +13,8 @@ namespace Lamest\Silex;
 
 use Lamest\Helpers as H;
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
 use Silex\ControllerProviderInterface;
-use Silex\ControllerCollection;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Defines methods and routes exposing the public API of the application.
