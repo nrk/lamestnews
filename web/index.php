@@ -29,10 +29,13 @@ $app->register(new PredisProvider(), array(
 
 $app->register(new TwigProvider(), array(
     'twig.path' => __DIR__.'/../template',
-    'twig.configure' => $app->protect(function($twig) {
-        $twig->addExtension(new LamestTwigExtension());
-    }),
 ));
+
+$app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
+    $twig->addExtension(new LamestTwigExtension());
+
+    return $twig;
+}));
 
 $app->register(new LamestServiceProvider(), array(
     'lamest.options' => array(
