@@ -23,9 +23,9 @@ use Lamest\Helpers as H;
  */
 class RedisEngine implements EngineInterface
 {
-    private $_redis;
-    private $_options;
-    private $_user;
+    private $redis;
+    private $options;
+    private $user;
 
     /**
      * Initializes the engine class.
@@ -35,9 +35,9 @@ class RedisEngine implements EngineInterface
      */
     public function __construct(Client $redis, Array $options = array())
     {
-        $this->_redis = $redis;
-        $this->_options = array_merge($this->getDefaults(), $options);
-        $this->_user = array();
+        $this->redis = $redis;
+        $this->options = array_merge($this->getDefaults(), $options);
+        $this->user = array();
     }
 
     /**
@@ -98,9 +98,11 @@ class RedisEngine implements EngineInterface
         }
 
         $key = "limit:" . join($tags, '.');
+
         if ($this->getRedis()->exists($key)) {
             return true;
         }
+
         $this->getRedis()->setex($key, $delay, 1);
 
         return false;
@@ -157,6 +159,7 @@ class RedisEngine implements EngineInterface
     public function getUserByUsername($username)
     {
         $userID = $this->getRedis()->get('username.to.id:'.strtolower($username));
+
         if (!$userID) {
             return;
         }
@@ -170,16 +173,19 @@ class RedisEngine implements EngineInterface
     public function addUserFlags($userID, $flags)
     {
         $user = $this->getUserByID($userID);
+
         if (!$user) {
             return false;
         }
 
         $flags = $user['flags'];
+
         foreach (str_split($flags) as $flag) {
             if ($this->checkUserFlags($flag)) {
                 $flags .= $flag;
             }
         }
+
         $this->getRedis()->hset("user:$userID", "flags", $flags);
 
         return true;
@@ -195,6 +201,7 @@ class RedisEngine implements EngineInterface
         }
 
         $userflags = $user['flags'];
+
         foreach (str_split($flags) as $flag) {
             if (stripos($userflags, $flag) === false) {
                 return false;
@@ -217,7 +224,7 @@ class RedisEngine implements EngineInterface
      */
     public function getUserCounters(Array $user)
     {
-        $counters = $this->getRedis()->pipeline(function($pipe) use($user) {
+        $counters = $this->getRedis()->pipeline(function ($pipe) use ($user) {
             $pipe->zcard("user.posted:{$user['id']}");
             $pipe->zcard("user.comments:{$user['id']}");
         });
@@ -234,16 +241,18 @@ class RedisEngine implements EngineInterface
     public function verifyUserCredentials($username, $password)
     {
         $user = $this->getUserByUsername($username);
+
         if (!$user) {
             return;
         }
 
         $hashedPassword = H::pbkdf2($password, $user['salt'], 20);
+
         if ($user['password'] !== $hashedPassword) {
             return;
         }
 
-        $this->_user = $user;
+        $this->user = $user;
 
         return array(
             $user['auth'],
@@ -261,16 +270,18 @@ class RedisEngine implements EngineInterface
         }
 
         $userID = $this->getRedis()->get("auth:$authToken");
+
         if (!$userID) {
             return;
         }
 
         $user = $this->getRedis()->hgetall("user:$userID");
+
         if (!$user) {
             return;
         }
 
-        $this->_user = $user;
+        $this->user = $user;
 
         return $user;
     }
@@ -281,6 +292,7 @@ class RedisEngine implements EngineInterface
     public function updateAuthToken($userID)
     {
         $user = $this->getUserByID($userID);
+
         if (!$user) {
             return;
         }
@@ -305,9 +317,11 @@ class RedisEngine implements EngineInterface
 
         if ($interval > 0) {
             $now = time();
+
             if ($user['karma_incr_time'] >= $now - $interval) {
                 return false;
             }
+
             $redis->hset($userKey, 'karma_incr_time', $now);
         }
 
@@ -333,6 +347,7 @@ class RedisEngine implements EngineInterface
             'about' => substr($attributes['about'], 0, 4095),
             'email' => substr($attributes['email'], 0, 255),
         ));
+
         $this->getRedis()->hmset("user:{$user['id']}", $attributes);
     }
 
@@ -359,7 +374,7 @@ class RedisEngine implements EngineInterface
         $newslist = $this->getNewsByID($user, $newsIDs, true);
 
         // Sort by rank before returning, since we adjusted ranks during iteration.
-        usort($newslist, function($a, $b) {
+        usort($newslist, function ($a, $b) {
             return $a['rank'] != $b['rank'] ? ($a['rank'] < $b['rank'] ? 1 : -1) : 0;
         });
 
@@ -413,9 +428,10 @@ class RedisEngine implements EngineInterface
     public function getReplies(Array $user, $maxSubThreads, $reset = false)
     {
         $engine = $this;
-        $threadCallback = function($comment) use($engine, $user) {
+        $threadCallback = function ($comment) use ($engine, $user) {
             $thread = array('id' => $comment['thread_id']);
             $comment['replies'] = $engine->getNewsComments($user, $thread);
+
             return $comment;
         };
 
@@ -441,7 +457,7 @@ class RedisEngine implements EngineInterface
 
         $redis = $this->getRedis();
 
-        $newslist = $redis->pipeline(function($pipe) use($newsIDs) {
+        $newslist = $redis->pipeline(function ($pipe) use ($newsIDs) {
             foreach ($newsIDs as $newsID) {
                 $pipe->hgetall("news:$newsID");
             }
@@ -452,24 +468,26 @@ class RedisEngine implements EngineInterface
         }
 
         $result = array();
+        $pipe = $redis->pipeline();
 
         // Get all the news.
-        $pipe = $redis->pipeline();
         foreach ($newslist as $news) {
             if (!$news) {
                 // TODO: how should we notify the caller of missing news items when
                 // asking for more than one news at time?
                 continue;
             }
+
             // Adjust rank if too different from the real-time value.
             if ($updateRank) {
                 $this->updateNewsRank($pipe, $news);
             }
+
             $result[] = $news;
         }
 
         // Get the associated users information.
-        $usernames = $redis->pipeline(function($pipe) use($result) {
+        $usernames = $redis->pipeline(function ($pipe) use ($result) {
             foreach ($result as $news) {
                 $pipe->hget("user:{$news['user_id']}", 'username');
             }
@@ -482,20 +500,19 @@ class RedisEngine implements EngineInterface
         // Load user's vote information if we are in the context of a
         // registered user.
         if ($user) {
-            $votes = $redis->pipeline(function($pipe) use ($result, $user) {
+            $votes = $redis->pipeline(function ($pipe) use ($result, $user) {
                 foreach ($result as $news) {
                     $pipe->zscore("news.up:{$news['id']}", $user['id']);
                     $pipe->zscore("news.down:{$news['id']}", $user['id']);
                 }
             });
+
             foreach ($result as $i => &$news) {
                 if ($votes[$i * 2]) {
                     $news['voted'] = 'up';
-                }
-                else if ($votes[$i * 2 + 1]) {
+                } elseif ($votes[$i * 2 + 1]) {
                     $news['voted'] = 'down';
-                }
-                else {
+                } else {
                     $news['voted'] = false;
                 }
             }
@@ -519,13 +536,13 @@ class RedisEngine implements EngineInterface
             }
 
             $comment = json_decode($comment, true);
-
             $userID = $comment['user_id'];
+            $parentID = $comment['parent_id'];
+
             if (!isset($users[$userID])) {
                 $users[$userID] = $this->getUserByID($userID);
             }
 
-            $parentID = $comment['parent_id'];
             if (!isset($tree[$parentID])) {
                 $tree[$parentID] = array();
             }
@@ -550,6 +567,7 @@ class RedisEngine implements EngineInterface
     protected function updateNewsRank(PipelineContext $pipe, Array &$news)
     {
         $realRank = $this->computeNewsRank($news);
+
         if (abs($realRank - $news['rank']) > 0.001) {
             $pipe->hmset("news:{$news['id']}", 'rank', $realRank);
             $pipe->zadd('news.top', $realRank , $news['id']);
@@ -609,7 +627,8 @@ class RedisEngine implements EngineInterface
         // Use a kind of URI using the "text" scheme if now URL has been provided.
         // TODO: remove duplicated code.
         $textPost = !$url;
-        if (!$url) {
+
+        if ($textPost) {
             $url = 'text://' . substr($text, 0, $this->getOption('comment_max_length'));
         }
 
@@ -663,6 +682,7 @@ class RedisEngine implements EngineInterface
         if (!$news || $news['user_id'] != $user['id']) {
             return false;
         }
+
         if ($news['ctime'] < time() - $this->getOption('news_edit_time')) {
             return false;
         }
@@ -670,7 +690,8 @@ class RedisEngine implements EngineInterface
         // Use a kind of URI using the "text" scheme if now URL has been provided.
         // TODO: remove duplicated code.
         $textPost = !$url;
-        if (!$url) {
+
+        if ($textPost) {
             $url = 'text://' . substr($text, 0, $this->getOption('comment_max_length'));
         }
 
@@ -681,8 +702,10 @@ class RedisEngine implements EngineInterface
             if ($redis->get("url:$url")) {
                 return false;
             }
+
             // Prevent DOS attacks by locking the new URL after it has been changed.
             $redis->del("url:{$news['url']}");
+
             if (!$textPost) {
                 $redis->setex("url:$url", $this->getOption('prevent_repost_time'), $newsID);
             }
@@ -708,8 +731,10 @@ class RedisEngine implements EngineInterface
 
         $user = is_array($user) ? $user : $this->getUserByID($user);
         $news = $this->getNewsByID($user, $newsID);
+
         if (!$user || !$news) {
             $error = 'No such news or user.';
+
             return false;
         }
 
@@ -719,8 +744,10 @@ class RedisEngine implements EngineInterface
         // Verify that the user has not already voted the news item.
         $hasUpvoted = $redis->zscore("news.up:$newsID", $user['id']);
         $hasDownvoted = $redis->zscore("news.down:$newsID", $user['id']);
+
         if ($hasUpvoted || $hasDownvoted) {
             $error = 'Duplicated vote.';
+
             return false;
         }
 
@@ -731,15 +758,18 @@ class RedisEngine implements EngineInterface
 
             if ($noUpvote || $noDownvote) {
                 $error = "You don't have enough karma to vote $type";
+
                 return false;
             }
         }
 
         $now = time();
+
         // Add the vote for the news item.
         if ($redis->zadd("news.$type:$newsID", $now, $user['id'])) {
             $redis->hincrby("news:$newsID", $type, 1);
         }
+
         if ($type === 'up') {
             $redis->zadd("user.saved:{$user['id']}", $now, $newsID);
         }
@@ -760,8 +790,7 @@ class RedisEngine implements EngineInterface
                 // TODO: yes, I know, it's an uber-hack...
                 $transfedUser = array('id' => $news['user_id']);
                 $this->incrementUserKarma($transfedUser, $this->getOption('news_upvote_karma_transfered'));
-            }
-            else {
+            } else {
                 $this->incrementUserKarma($user, -$this->getOption('news_downvote_karma_cost'));
             }
         }
@@ -779,6 +808,7 @@ class RedisEngine implements EngineInterface
         if (!$news || $news['user_id'] != $user['id']) {
             return false;
         }
+
         if ((int)$news['ctime'] <= (time() - $this->getOption('news_edit_time'))) {
             return false;
         }
@@ -806,6 +836,7 @@ class RedisEngine implements EngineInterface
         if ($commentID == -1) {
             if ($parentID != -1) {
                 $parent = $this->getComment($newsID, $parentID);
+
                 if (!$parent) {
                     return false;
                 }
@@ -851,6 +882,7 @@ class RedisEngine implements EngineInterface
         if (!$comment || $comment['user_id'] != $user['id']) {
             return false;
         }
+
         if (!$comment['ctime'] > (time() - $this->getOption('comment_edit_time'))) {
             return false;
         }
@@ -859,6 +891,7 @@ class RedisEngine implements EngineInterface
             if (!$this->deleteComment($newsID, $commentID)) {
                 return false;
             }
+
             $redis->hincrby("news:$newsID", 'comments', -1);
 
             return array(
@@ -866,12 +899,13 @@ class RedisEngine implements EngineInterface
                 'comment_id' => $commentID,
                 'op' => 'delete',
             );
-        }
-        else {
+        } else {
             $update = array('body' => $body);
+
             if (isset($comment['del']) && $comment['del'] == true) {
                 $update['del'] = 0;
             }
+
             if (!$this->editComment($newsID, $commentID, $update)) {
                 return false;
             }
@@ -890,6 +924,7 @@ class RedisEngine implements EngineInterface
     public function getComment($newsID, $commentID)
     {
         $json = $this->getRedis()->hget("thread:comment:$newsID", $commentID);
+
         if (!$json) {
             return;
         }
@@ -915,14 +950,17 @@ class RedisEngine implements EngineInterface
 
         if ($total > 0) {
             $commentIDs = $redis->zrevrange("user.comments:{$user['id']}", $start, $count);
+
             foreach ($commentIDs as $compositeID) {
                 list($newsID, $commentID) = explode('-', $compositeID);
                 $comment = $this->getComment($newsID, $commentID);
+
                 if ($comment) {
                     $comment = array_merge($comment, array(
                         'user' => $this->getUserByID($comment['user_id']),
                         'voted' => H::commentVoted($user, $comment),
                     ));
+
                     $comments[] = isset($callback) ? $callback($comment) : $comment;
                 }
             }
@@ -973,6 +1011,7 @@ class RedisEngine implements EngineInterface
         if (!$comment) {
             return false;
         }
+
         if (H::commentVoted($user, $comment)) {
             return false;
         }
@@ -989,7 +1028,6 @@ class RedisEngine implements EngineInterface
     {
         $redis = $this->getRedis();
         $threadKey = "thread:comment:$newsID";
-
         $json = $redis->hget($threadKey, $commentID);
 
         if (!$json) {
@@ -1019,10 +1057,11 @@ class RedisEngine implements EngineInterface
     public function getOption($option = null)
     {
         if (!$option) {
-            return $this->_options;
+            return $this->options;
         }
-        if (isset($this->_options[$option])) {
-            return $this->_options[$option];
+
+        if (isset($this->options[$option])) {
+            return $this->options[$option];
         }
     }
 
@@ -1033,7 +1072,7 @@ class RedisEngine implements EngineInterface
      */
     public function getRedis()
     {
-        return $this->_redis;
+        return $this->redis;
     }
 
     /**
@@ -1041,6 +1080,6 @@ class RedisEngine implements EngineInterface
      */
     public function getUser()
     {
-        return $this->_user;
+        return $this->user;
     }
 }

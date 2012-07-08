@@ -32,7 +32,7 @@ class WebsiteController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('/', function(Application $app) {
+        $controllers->get('/', function (Application $app) {
             $newslist = $app['lamest']->getTopNews($app['user']);
 
             return $app['twig']->render('newslist.html.twig', array(
@@ -42,7 +42,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/rss', function(Application $app, Request $request) {
+        $controllers->get('/rss', function (Application $app, Request $request) {
             $newslist = $app['lamest']->getLatestNews($app['user']);
 
             $rss = $app['twig']->render('newslist.rss.twig', array(
@@ -56,7 +56,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/latest/{start}', function(Application $app, $start) {
+        $controllers->get('/latest/{start}', function (Application $app, $start) {
             $engine = $app['lamest'];
             $perpage = $engine->getOption('latest_news_per_page');
             $newslist = $engine->getLatestNews($app['user'], $start, $perpage);
@@ -73,7 +73,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         })->value('start', 0);
 
-        $controllers->get('/saved/{start}', function(Application $app, $start) {
+        $controllers->get('/saved/{start}', function (Application $app, $start) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
@@ -95,7 +95,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         })->value('start', 0);
 
-        $controllers->get('/usercomments/{username}/{start}', function(Application $app, $username, $start) {
+        $controllers->get('/usercomments/{username}/{start}', function (Application $app, $username, $start) {
             $user = $app['lamest']->getUserByUsername($username);
 
             if (!$user) {
@@ -117,13 +117,13 @@ class WebsiteController implements ControllerProviderInterface
             ));
         })->value('start', 0);
 
-        $controllers->get('/login', function(Application $app) {
+        $controllers->get('/login', function (Application $app) {
             return $app['twig']->render('login.html.twig', array(
                 'title' => 'Login',
             ));
         });
 
-        $controllers->get('/logout', function(Application $app, Request $request) {
+        $controllers->get('/logout', function (Application $app, Request $request) {
             $apisecret = $request->get('apisecret');
 
             if (isset($app['user']) && H::verifyApiSecret($app['user'], $apisecret)) {
@@ -133,7 +133,7 @@ class WebsiteController implements ControllerProviderInterface
             return $app->redirect('/');
         });
 
-        $controllers->get('/submit', function(Application $app, Request $request) {
+        $controllers->get('/submit', function (Application $app, Request $request) {
             if (!$app['user']) {
                 return $app->redirect('/login');
             }
@@ -145,7 +145,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/news/{newsID}', function(Application $app, $newsID) {
+        $controllers->get('/news/{newsID}', function (Application $app, $newsID) {
             $engine = $app['lamest'];
             @list($news) = $engine->getNewsByID($app['user'], $newsID);
 
@@ -161,7 +161,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/comment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
+        $controllers->get('/comment/{newsID}/{commentID}', function (Application $app, $newsID, $commentID) {
             $engine = $app['lamest'];
 
             if (!$news = $engine->getNewsByID($app['user'], $newsID)) {
@@ -190,7 +190,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/reply/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
+        $controllers->get('/reply/{newsID}/{commentID}', function (Application $app, $newsID, $commentID) {
             $engine = $app['lamest'];
 
             if (!$app['user']) {
@@ -222,7 +222,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/replies', function(Application $app) {
+        $controllers->get('/replies', function (Application $app) {
             $engine = $app['lamest'];
 
             if (!$app['user']) {
@@ -238,7 +238,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/editcomment/{newsID}/{commentID}', function(Application $app, $newsID, $commentID) {
+        $controllers->get('/editcomment/{newsID}/{commentID}', function (Application $app, $newsID, $commentID) {
             $engine = $app['lamest'];
 
             if (!$app['user']) {
@@ -254,6 +254,7 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             $user = $engine->getUserByID($comment['user_id']);
+
             if (!$user || $app['user']['id'] != $user['id']) {
                 return $app->abort(500, 'Permission denied.');
             }
@@ -271,7 +272,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/editnews/{newsID}', function(Application $app, $newsID) {
+        $controllers->get('/editnews/{newsID}', function (Application $app, $newsID) {
             $engine = $app['lamest'];
 
             if (!$app['user']) {
@@ -290,6 +291,7 @@ class WebsiteController implements ControllerProviderInterface
             }
 
             $text = '';
+
             if (!H::getNewsDomain($news)) {
                 $text = H::getNewsText($news);
                 $news['url'] = '';
@@ -302,7 +304,7 @@ class WebsiteController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/user/{username}', function(Application $app, $username) {
+        $controllers->get('/user/{username}', function (Application $app, $username) {
             $engine = $app['lamest'];
             $user = $engine->getUserByUsername($username);
 

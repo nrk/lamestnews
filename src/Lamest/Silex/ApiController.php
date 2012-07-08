@@ -31,7 +31,7 @@ class ApiController implements ControllerProviderInterface
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('/login', function(Application $app, Request $request) {
+        $controllers->get('/login', function (Application $app, Request $request) {
             $username = $request->get('username');
             $password = $request->get('password');
 
@@ -48,7 +48,7 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK(array('auth' => $auth, 'apisecret' => $apisecret));
         });
 
-        $controllers->post('/logout', function(Application $app, Request $request) {
+        $controllers->post('/logout', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -58,7 +58,7 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK();
         });
 
-        $controllers->post('/create_account', function(Application $app, Request $request) {
+        $controllers->post('/create_account', function (Application $app, Request $request) {
             $engine = $app['lamest'];
             $username = $request->get('username');
             $password = $request->get('password');
@@ -76,6 +76,7 @@ class ApiController implements ControllerProviderInterface
             }
 
             $authToken = $engine->createUser($username, $password);
+
             if (!$authToken) {
                 return H::apiError('Username is busy. Please select a different one.');
             }
@@ -83,7 +84,7 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK(array('auth' => $authToken));
         });
 
-        $controllers->post('/submit', function(Application $app, Request $request) {
+        $controllers->post('/submit', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -102,6 +103,7 @@ class ApiController implements ControllerProviderInterface
             // Make sure the news has an accepted URI scheme (only http or https for now).
             if (!empty($url)) {
                 $scheme = parse_url($url, PHP_URL_SCHEME);
+
                 if ($scheme !== 'http' && $scheme !== 'https') {
                     return H::apiError('We only accept http:// and https:// news.');
                 }
@@ -111,10 +113,11 @@ class ApiController implements ControllerProviderInterface
                 if (($eta = $engine->getNewPostEta($app['user'])) > 0) {
                     return H::apiError("You have submitted a story too recently, please wait $eta seconds.");
                 }
+
                 $newsID = $engine->insertNews($title, $url, $text, $app['user']['id']);
-            }
-            else {
+            } else {
                 $newsID = $engine->editNews($app['user'], $newsID, $title, $url, $text);
+
                 if (!$newsID) {
                     return H::apiError('Invalid parameters, news too old to be modified or URL recently posted.');
                 }
@@ -123,7 +126,7 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK(array('news_id' => $newsID));
         });
 
-        $controllers->post('/delnews', function(Application $app, Request $request) {
+        $controllers->post('/delnews', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -133,6 +136,7 @@ class ApiController implements ControllerProviderInterface
             if (empty($newsID)) {
                 return H::apiError('Please specify a news title.');
             }
+
             if (!$app['lamest']->deleteNews($app['user'], $newsID)) {
                 return H::apiError('News too old or wrong ID/owner.');
             }
@@ -140,7 +144,7 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK(array('news_id' => -1));
         });
 
-        $controllers->post('/votenews', function(Application $app, Request $request) {
+        $controllers->post('/votenews', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -159,7 +163,7 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK();
         });
 
-        $controllers->post('/postcomment', function(Application $app, Request $request) {
+        $controllers->post('/postcomment', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -187,7 +191,7 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->post('/votecomment', function(Application $app, Request $request) {
+        $controllers->post('/votecomment', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -200,6 +204,7 @@ class ApiController implements ControllerProviderInterface
             }
 
             list($newsID, $commentID) = explode('-', $compositeID);
+
             if (!$app['lamest']->voteComment($app['user'], $newsID, $commentID, $voteType)) {
                 return H::apiError('Invalid parameters or duplicated vote.');
             }
@@ -209,7 +214,7 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->post('/updateprofile', function(Application $app, Request $request) {
+        $controllers->post('/updateprofile', function (Application $app, Request $request) {
             if (!H::isRequestValid($app['user'], $request->get('apisecret'), $error)) {
                 return $error;
             }
@@ -227,6 +232,7 @@ class ApiController implements ControllerProviderInterface
                 if ($pwdLen < ($minPwdLen = $app['lamest']->getOption('password_min_length'))) {
                     return H::apiError("Password is too short. Min length: $minPwdLen");
                 }
+
                 $attributes['password'] = H::pbkdf2($password, $app['user']['salt']);
             }
 
@@ -235,20 +241,23 @@ class ApiController implements ControllerProviderInterface
             return H::apiOK();
         });
 
-        $controllers->get('/getnews/{sort}/{start}/{count}', function(Application $app, $sort, $start, $count) {
+        $controllers->get('/getnews/{sort}/{start}/{count}', function (Application $app, $sort, $start, $count) {
             $engine = $app['lamest'];
 
             if ($sort !== 'latest' && $sort !== 'top') {
                 return H::apiError('Invalid sort parameter');
             }
+
             if ($count > $engine->getOption('api_max_news_count')) {
                 return H::apiError('Count is too big');
             }
+
             if ($start < 0) {
                 $start = 0;
             }
 
             $newslist = $engine->{"get{$sort}News"}($app['user'], $start, $count);
+
             foreach ($newslist['news'] as &$news) {
                 unset($news['rank'], $news['score'], $news['user_id']);
             }
@@ -259,11 +268,11 @@ class ApiController implements ControllerProviderInterface
             ));
         });
 
-        $controllers->get('/getcomments/{newsID}', function(Application $app, $newsID) {
+        $controllers->get('/getcomments/{newsID}', function (Application $app, $newsID) {
             $engine = $app['lamest'];
             $user = $app['user'];
-
             @list($news) = $engine->getNewsByID($user, $newsID);
+
             if (!$news) {
                 return H::apiError('Wrong news ID.');
             }
@@ -283,8 +292,7 @@ class ApiController implements ControllerProviderInterface
 
                     if (isset($thread[$reply['id']])) {
                         $reply['replies'] = &$thread[$reply['id']];
-                    }
-                    else {
+                    } else {
                         $reply['replies'] = array();
                     }
 
@@ -295,6 +303,7 @@ class ApiController implements ControllerProviderInterface
                     if (isset($reply['up'])) {
                         $reply['up'] = count($reply['up']);
                     }
+
                     if (isset($reply['down'])) {
                         $reply['down'] = count($reply['down']);
                     }

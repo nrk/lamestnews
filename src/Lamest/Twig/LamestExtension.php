@@ -42,7 +42,6 @@ class LamestExtension extends Twig_Extension
     {
         return array(
             'to_int' => new Twig_Filter_Function('intval'),
-
             'elapsed' => new Twig_Filter_Function(__CLASS__.'::timeElapsed'),
             'commentize' => new Twig_Filter_Function(__CLASS__.'::renderCommentText', array(
                 'needs_environment' => true,
@@ -58,12 +57,10 @@ class LamestExtension extends Twig_Extension
     {
         return array(
             'now' => new Twig_Function_Function('time'),
-
             'gravatar' => new Twig_Function_Function(__CLASS__.'::getGravatarLink'),
             'news_editable' => new Twig_Function_Function(__CLASS__.'::isNewsEditable'),
             'comment_score' => new Twig_Function_Function(__CLASS__.'::commentScore'),
             'sort_comments'=> new Twig_Function_Function(__CLASS__.'::sortComments'),
-
             'full_url' => new Twig_Function_Function('Lamest\Helpers::getSiteURL'),
             'news_domain' => new Twig_Function_Function('Lamest\Helpers::getNewsDomain'),
             'news_text' => new Twig_Function_Function('Lamest\Helpers::getNewsText'),
@@ -86,9 +83,11 @@ class LamestExtension extends Twig_Extension
         if ($elapsed < 60) {
             return sprintf("%d %s ago", $elapsed, 'seconds');
         }
+
         if ($elapsed < 60 * 60) {
             return sprintf("%d %s ago", $elapsed / 60, 'minutes');
         }
+
         if ($elapsed < 60 * 60 * 24) {
             return sprintf("%d %s ago", $elapsed / 60 / 60, 'hours');
         }
@@ -159,9 +158,11 @@ class LamestExtension extends Twig_Extension
         uasort($comments, function($a, $b) {
             $ascore = LamestExtension::commentScore($a);
             $bscore = LamestExtension::commentScore($b);
+
             if ($ascore == $bscore) {
                 return $a['ctime'] != $b['ctime'] ? ($b['ctime'] < $a['ctime'] ? -1 : 1) : 0;
             }
+
             return $bscore < $ascore ? -1 : 1;
         });
 
@@ -181,10 +182,12 @@ class LamestExtension extends Twig_Extension
     {
         $url = $matches[0];
         $dot = '';
+
         if ($url[strlen($url) - 1] === '.') {
             $url = substr($url, 0, -1);
             $dot = '.';
         }
+
         return "<a href=\"$url\">$url</a>$dot";
     }
 

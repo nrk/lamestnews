@@ -81,6 +81,7 @@ class Helpers
         if (!isset($user) || !isset($user['apisecret'])) {
             return false;
         }
+
         return $user['apisecret'] === $apisecret;
     }
 
@@ -95,6 +96,7 @@ class Helpers
         if (strpos($news['url'], 'text://') === 0) {
             return;
         }
+
         return parse_url($news['url'], PHP_URL_HOST);
     }
 
@@ -109,6 +111,7 @@ class Helpers
         if (strpos($news['url'], 'text://') !== 0) {
             return;
         }
+
         return substr($news['url'], strlen('text://'));
     }
 
@@ -124,10 +127,13 @@ class Helpers
     {
         if (!$user) {
             $response = Helpers::apiError('Not authenticated.');
+
             return false;
         }
+
         if (!Helpers::verifyApiSecret($user, $apisecret)) {
             $response = Helpers::apiError('Wrong form secret.');
+
             return false;
         }
 
@@ -195,11 +201,13 @@ class Helpers
         }
 
         $votes = isset($comment['up']) ? $comment['up'] : array();
+
         if (in_array($user['id'], $votes)) {
             return 'up';
         }
 
         $votes = isset($comment['down']) ? $comment['down'] : array();
+
         if (in_array($user['id'], $votes)) {
             return 'down';
         }

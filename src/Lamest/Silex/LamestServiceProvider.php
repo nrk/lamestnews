@@ -28,15 +28,15 @@ class LamestServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
-        $app['lamest'] = $app->share(function(Application $app) {
+        $app['lamest'] = $app->share(function (Application $app) {
             return new RedisEngine($app['predis'], $app['lamest.options']);
         });
 
-        $app['user'] = $app->share(function(Application $app) {
+        $app['user'] = $app->share(function (Application $app) {
             return $app['lamest']->getUser();
         });
 
-        $app->before(function(Request $request) use ($app) {
+        $app->before(function (Request $request) use ($app) {
             $engine = $app['lamest'];
             $authToken = $request->cookies->get('auth');
 
