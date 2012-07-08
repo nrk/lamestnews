@@ -81,8 +81,8 @@ not want to be redirected [here](http://yourbugreportneedsmore.info/).
 
 - [PHP](http://www.php.net) >= 5.3.2
 - [Silex](http://silex.sensiolabs.com)
-- [Twig](http://twig.sensiolabs.com)
-- [Predis](http://github.com/nrk/predis) >= 0.7.0-dev
+- [Twig](http://twig.sensiolabs.com) >= 1.6.0
+- [Predis](http://github.com/nrk/predis) >= 0.7.0
 - [PredisServiceProvider](http://github.com/nrk/PredisServiceProvider)
 
 
