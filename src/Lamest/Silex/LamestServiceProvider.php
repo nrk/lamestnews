@@ -28,10 +28,6 @@ class LamestServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
-        if (!isset($app['lamest.options'])) {
-            $app['lamest.options'] = array();
-        }
-
         $app['lamest'] = $app->share(function(Application $app) {
             return new RedisEngine($app['predis'], $app['lamest.options']);
         });
@@ -57,6 +53,8 @@ class LamestServiceProvider implements ServiceProviderInterface
      */
     public function boot(Application $app)
     {
-        // NOOP
+        if (!isset($app['lamest.options'])) {
+            $app['lamest.options'] = array();
+        }
     }
 }
