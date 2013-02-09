@@ -220,7 +220,8 @@ class Helpers
      *
      * @return array
      */
-    public static function getDeletedUser() {
+    public static function getDeletedUser()
+    {
         return array('username' => 'deleted_user', 'email' => '', 'id' => -1);
     }
 }

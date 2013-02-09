@@ -342,7 +342,8 @@ class RedisEngine implements EngineInterface
     /**
      * {@inheritdoc}
      */
-    public function updateUserProfile(Array $user, Array $attributes) {
+    public function updateUserProfile(Array $user, Array $attributes)
+    {
         $attributes = array_merge($attributes, array(
             'about' => substr($attributes['about'], 0, 4095),
             'email' => substr($attributes['email'], 0, 255),
@@ -354,7 +355,8 @@ class RedisEngine implements EngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getNewPostEta(Array $user) {
+    public function getNewPostEta(Array $user)
+    {
         return $this->getRedis()->ttl("user:{$user['id']}:submitted_recently");
     }
 
