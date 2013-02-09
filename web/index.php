@@ -24,7 +24,6 @@ $app['debug'] = true;
 
 $app->register(new PredisProvider(), array(
     'predis.parameters' => 'tcp://127.0.0.1:6379',
-    'predis.options' => array('profile' => 'dev'),
 ));
 
 $app->register(new TwigProvider(), array(

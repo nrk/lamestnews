@@ -3,8 +3,8 @@ Lamest News
 
 Lamer than lame.
 
-[Lamest](http://github.com/nrk/lamest) is a port to PHP of [Salvatore Sanfilippo](http://antirez.com)'s
-[Lamer News](http://github.com/antirez/lamernews) implemented using [Silex](http://silex.sensiolabs.com)
+[Lamest News](http://github.com/nrk/lamestnews) is a port of [Salvatore Sanfilippo](http://antirez.com)'s
+[Lamer News](http://github.com/antirez/lamernews) to PHP implemented using [Silex](http://silex.sensiolabs.com)
 and [Twig](http://twig.sensiolabs.org) for the web part and [Predis](http://github.com/nrk/predis) to
 access the Redis datastore.
 
@@ -28,19 +28,18 @@ not installed or globally available on your system then you can download its pha
 install the dependencies:
 
 ```bash
-  $ wget http://getcomposer.org/composer.phar
-  $ php composer.phar install
+$ wget http://getcomposer.org/composer.phar
+$ php composer.phar install
 ```
 
 
 ## Execution
 
-If you are using PHP 5.4, which reached the Release Candidate phase, you can leverage its 
-[built-in webserver](http://php.net/manual/en/features.commandline.webserver.php) to start experimenting
-with Lamest right away using the following command:
+When using PHP >= 5.4.0, you can start experimenting with Lamest News right away by using PHP's
+[built-in webserver](http://php.net/manual/en/features.commandline.webserver.php) simply by executing:
 
 ```bash
-  $ php -S localhost:8000 -t web/
+$ php -S localhost:8000 -t web/
 ```
 
 In production environments you can just use any webserver by following the usual configuration
@@ -49,7 +48,6 @@ For performance reasons you might want to make sure that Silex debugging is disa
 Twig template cache is set and points to a directory writable by the PHP process:
 
 ```php
-<?php
 //...
 $app['debug'] = false;
 //...
@@ -81,8 +79,8 @@ not want to be redirected [here](http://yourbugreportneedsmore.info/).
 
 - [PHP](http://www.php.net) >= 5.3.2
 - [Silex](http://silex.sensiolabs.com)
-- [Twig](http://twig.sensiolabs.com) >= 1.6.0
-- [Predis](http://github.com/nrk/predis) >= 0.7.0
+- [Twig](http://twig.sensiolabs.com)
+- [Predis](http://github.com/nrk/predis)
 - [PredisServiceProvider](http://github.com/nrk/PredisServiceProvider)
 
 
@@ -93,5 +91,5 @@ not want to be redirected [here](http://yourbugreportneedsmore.info/).
 
 ## License
 
-The code for Lamest News is distributed under the terms of the MIT license (see LICENSE).
+The code for Lamest News is distributed under the terms of the [MIT license](LICENSE).
 Parts taken from the original Lamer News code base remain licensed under the BSD license.
