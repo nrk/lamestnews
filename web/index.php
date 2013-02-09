@@ -14,24 +14,24 @@ namespace Lamest\Silex;
 require __DIR__.'/../vendor/autoload.php';
 
 use Silex\Application;
-use Silex\Provider\TwigServiceProvider as TwigProvider;
-use Lamest\Twig\LamestExtension as LamestTwigExtension;
-use Predis\Silex\PredisServiceProvider as PredisProvider;
+use Silex\Provider\TwigServiceProvider;
+use Lamest\Twig\LamestExtension;
+use Predis\Silex\PredisServiceProvider;
 
 $app = new Application();
 
 $app['debug'] = true;
 
-$app->register(new PredisProvider(), array(
+$app->register(new PredisServiceProvider(), array(
     'predis.parameters' => 'tcp://127.0.0.1:6379',
 ));
 
-$app->register(new TwigProvider(), array(
+$app->register(new TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/../template',
 ));
 
 $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
-    $twig->addExtension(new LamestTwigExtension());
+    $twig->addExtension(new LamestExtension());
 
     return $twig;
 }));
